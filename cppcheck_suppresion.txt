@@ -1,0 +1,6 @@
+unusedFunction:test/embUnit/TestSuite.c
+unusedFunction:test/embUnit/AssertImpl.c
+unusedFunction:test/embUnit/stdImpl.c
+unusedFunction:test/textui/CompilerOutputter.c
+unusedFunction:test/textui/XMLOutputter.c
+unusedFunction:src/stm32f4xx_it.c

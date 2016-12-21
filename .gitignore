@@ -1,0 +1,6 @@
+/Debug/*
+/*bin*/*
+/scripts/node_modules
+.cproject
+.project
+.settings/
