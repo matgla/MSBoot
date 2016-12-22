@@ -26,8 +26,6 @@ if (ADDRESS_SANITIZER)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif(ADDRESS_SANITIZER)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-
 include_directories("lib/inc/core")
 include_directories("lib/inc/peripherals")
 
@@ -38,9 +36,6 @@ endif(BUILD_TESTS)
 
 if(BUILD_TARGET)
 	add_subdirectory("lib")
-
-	set(LINKER_SCRIPT "stm32_flash.ld")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
 
 	file(COPY "${PROJECT_SOURCE_DIR}/stm32_flash.ld" DESTINATION ${PROJECT_BINARY_DIR}) 
 	add_executable(msos ${C_SRCS} ${C_INCS})

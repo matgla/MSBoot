@@ -6,12 +6,8 @@ set(CMAKE_SYSTEM_PROCESSOR "cortex-m4" CACHE STRING "Choose target procesor core
 find_program(ARM_CC arm-none-eabi-gcc)
 find_program(ARM_CXX arm-none-eabi-g++)
 
-set(CMAKE_SYSTEM_PROCESSOR arm)
-set(CMAKE_C_COMPILER ${ARM_CC})
-set(CMAKE_CXX_COMPILER ${ARM_CXX})
-
-CMAKE_FORCE_C_COMPILER(arm-none-eabi-gcc GNU)
-CMAKE_FORCE_CXX_COMPILER(arm-none-eabi-g++ GNU)
+CMAKE_FORCE_C_COMPILER(${ARM_CC} GNU)
+CMAKE_FORCE_CXX_COMPILER(${ARM_CXX} GNU)
 
 set(CMAKE_C_FLAGS
   "${CMAKE_C_FLAGS}"
@@ -47,14 +43,15 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "")
 string(REGEX REPLACE ";" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "")
 
-
-
 set(CMAKE_EXE_LINKER_FLAGS 
 	"${CMAKE_EXE_LINKER_FLAGS}"
-	"-Llib -lstm32 -static -lm"
+	"-Llib -lstm32 -static -lm -Tstm32_flash.ld"
 )
 
 string(REGEX REPLACE ";" " " CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}" CACHE STRING "")
 
 set(CMAKE_ASM_FLAGS "-std=gnu99 -g -O3 -Wall -mlittle-endian -mthumb -mthumb-interwork -march=armv7e-m -nostartfiles -mcpu=cortex-m4" CACHE STRING "")
+
+message("c flags ${CMAKE_C_FLAGS}")
+message("cxx flags ${CMAKE_CXX_FLAGS}")

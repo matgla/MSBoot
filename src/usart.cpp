@@ -1,5 +1,8 @@
 #include "usart.hpp"
 #include <stm32f4xx_gpio.h>
+#include <stm32f4xx_usart.h>
+#include <stm32f4xx_rcc.h>
+#include <misc.h>
 
 void USART_GPIO_init() {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
