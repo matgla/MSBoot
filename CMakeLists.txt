@@ -5,8 +5,7 @@ endif(BUILD_TARGET)
 cmake_minimum_required (VERSION 2.8)
 project(msos C CXX ASM)
 
-file(GLOB_RECURSE C_SRCS "src/*.c" "src/*.cpp" "lib/*.S")
-file(GLOB_RECURSE C_INCS "inc/*.h" "inc/*.hpp")
+file(GLOB_RECURSE C_SRCS "src/*.c" "src/*.cpp" "src/*.hpp" "src/*.h" "lib/*.S")
 
 include_directories("inc")
 include_directories("src")
@@ -31,14 +30,14 @@ include_directories("lib/inc/peripherals")
 
 if(BUILD_TESTS)
 	add_subdirectory("test")
-	add_executable(OnionFlyer EXCLUDE_FROM_ALL ${C_SRCS} ${C_INCS} )
+	add_executable(OnionFlyer EXCLUDE_FROM_ALL ${C_SRCS})
 endif(BUILD_TESTS)
 
 if(BUILD_TARGET)
 	add_subdirectory("lib")
 
 	file(COPY "${PROJECT_SOURCE_DIR}/stm32_flash.ld" DESTINATION ${PROJECT_BINARY_DIR}) 
-	add_executable(msos ${C_SRCS} ${C_INCS})
+	add_executable(msos ${C_SRCS})
     target_link_libraries(msos stm32 m)
 	generate_arm_binary(msos)
 endif(BUILD_TARGET)
