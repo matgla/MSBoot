@@ -21,7 +21,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 set(STM32_FAMILY "STM32F4xx") 	# Support "STM32F10x", "STM32F2xx", "STM32F4xx"
 include(CMake/STM32.cmake)
 
-project(STM32EXAMPLE C ASM)
+project(STM32EXAMPLE C CXX ASM)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
@@ -34,19 +34,23 @@ include_directories(
 #    )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_STDPERIPH_DRIVER -DSTM32F40_41xxx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_STDPERIPH_DRIVER -DSTM32F40_41xxx")
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld")
 #set(CMAKE_EXE_LINKER_FLAGS_INIT  "-T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld")
 
-file(GLOB_RECURSE PROD_SOURCES "src/*.c" "src/*.cpp" "src/*.S" "src/*.h" "src/*.hpp")
+file(GLOB_RECURSE PROD_SOURCES "src/*.c" "src/*.cpp" "src/*.h" "src/*.hpp")
+
+message("${PROD_SOURCES}")
+
+add_library(stm32lib
+            ${STM32_SOURCES}
+            ${STM32_STARTUP_SOURCE})
 
 add_executable(stm32example.elf
-    ${C_INCS}
-    ${PROD_SOURCES}
-    ${STM32_SOURCES}
-    ${STM32_STARTUP_SOURCE}
-    )
+               ${PROD_SOURCES})
 
-target_link_libraries(stm32example.elf ${STM32_LIBRARIES})
+target_link_libraries(stm32example.elf stm32lib ${STM32_LIBRARIES})
 
 add_custom_target(stm32example.hex DEPENDS stm32example.elf COMMAND ${CMAKE_OBJCOPY} -Oihex stm32example.elf stm32example.hex)
 add_custom_target(stm32example.bin DEPENDS stm32example.elf COMMAND ${CMAKE_OBJCOPY} -Obinary stm32example.elf stm32example.bin)
