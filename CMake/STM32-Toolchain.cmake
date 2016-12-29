@@ -1,17 +1,17 @@
 # the name of the target operating system
 #
-message("but not there")
 set(CMAKE_SYSTEM_NAME      Generic)
 set(CMAKE_SYSTEM_VERSION   1)
 set(CMAKE_SYSTEM_PROCESSOR arm-eabi)
 
 # which compilers to use for C and C++
 #
-set(CMAKE_C_COMPILER       arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER     arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER     arm-none-eabi-as)
-set(CMAKE_OBJCOPY     	   arm-none-eabi-objcopy)
-set(CMAKE_OBJDUMP     	   arm-none-eabi-objdump)
+include (CMakeForceCompiler)
+CMAKE_FORCE_C_COMPILER(    arm-none-eabi-gcc gnu)
+CMAKE_FORCE_CXX_COMPILER(  arm-none-eabi-g++ gnu)
+set(CMAKE_ASM_COMPILER     arm-none-eabi-as CACHE STRING "AS compiler" FORCE)
+set(CMAKE_OBJCOPY     	   arm-none-eabi-objcopy CACHE STRING "OBJ copy" FORCE)
+set(CMAKE_OBJDUMP     	   arm-none-eabi-objdump CACHE STRING "OBJ dump" FORCE)
 message("Compiles is: ${CMAKE_C_COMPILER}")
 
 #set(TOOCHAIN_INC_DIR "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/arm-none-eabi/include")

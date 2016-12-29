@@ -16,6 +16,8 @@ set(STM32_INCLUDE_DIRS
 
 file(GLOB STM32_SOURCES ${STM32_LIBRARY_ROOT_DIR}/STM32F4xx_StdPeriph_Driver/src/*.c)
 
+list(REMOVE_ITEM STM32_SOURCES ${STM32_LIBRARY_ROOT_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c)
+
 find_package(PackageHandleStandardArgs)
 find_package_handle_standard_args(CMSIS DEFAULT_MSG
         STM32_LIBRARY_ROOT_DIR

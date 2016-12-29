@@ -7,7 +7,6 @@
 # Copyright ISORG 2012 (www.isorg.fr)
 ################################################################################
 
-project(STM32EXAMPLE C ASM)
 cmake_minimum_required(VERSION 2.8)
 
 # Turn ON/OFF verbose output
@@ -21,6 +20,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 #
 set(STM32_FAMILY "STM32F4xx") 	# Support "STM32F10x", "STM32F2xx", "STM32F4xx"
 include(CMake/STM32.cmake)
+
+project(STM32EXAMPLE C ASM)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
@@ -36,11 +37,11 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_STDPERIPH_DRIVER -DSTM32F40_41xxx")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld")
 #set(CMAKE_EXE_LINKER_FLAGS_INIT  "-T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld")
 
+file(GLOB_RECURSE PROD_SOURCES "src/*.c" "src/*.cpp" "src/*.S" "src/*.h" "src/*.hpp")
+
 add_executable(stm32example.elf
-    src/main.c
-    src/stm32f4xx_it.c
-    src/system_stm32f4xx.c
-    src/stm32f4_discovery.c
+    ${C_INCS}
+    ${PROD_SOURCES}
     ${STM32_SOURCES}
     ${STM32_STARTUP_SOURCE}
     )

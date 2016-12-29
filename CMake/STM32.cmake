@@ -4,8 +4,8 @@
 
 # CodeSourcery G++ toolchain
 # TODO: is it useful in command line mode?
-include(CMake/Toolchain-STM32-CodeSourcery.cmake)
-message("I am here")
+include(CMake/STM32-Toolchain.cmake)
+
 if(NOT DEFINED STM32_FAMILY)
     message(FATAL_ERROR "STM32_FAMILY must be set to one of the following values: STM32F10x, STM32F2xx, STM32F4xx")
 else(NOT DEFINED STM32_FAMILY)
