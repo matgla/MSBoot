@@ -1,5 +1,9 @@
 #include "usart.hpp"
+
+#include <cstdint>
+
 #include <stm32f4xx_gpio.h>
+
 
 void USART_GPIO_init() {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -40,7 +44,7 @@ void USART_init() {
     USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 }
 
-void usart_put(USART_TypeDef *USARTx, char *str) {
+void usart_put(USART_TypeDef *USARTx, const char *str) {
 
     /* Go through entire string */
 

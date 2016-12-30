@@ -1,11 +1,14 @@
 //#include "fs/romfs/fileSystemHeader.hpp"
+#include <unistd.h>
+#include <cstring>
 #include "stm32f4xx.h"
 #include "stm32f4xx_gpio.h"
-#include "stm32f4xx_rcc.h"
+// #include "stm32f4xx_rcc.h"
 #include "kernel.hpp"
 #include "logger.hpp"
-#include "usart.hpp"
-// #include "types.h"
+// #include "usart.hpp"
+#include "types.h"
+#include "utils.h"
 // //#include <stdio.h>
 // //#include "usart.hpp"
 // #include "kernel.hpp"
@@ -13,6 +16,7 @@
 // #include "usart.hpp"
 // #include <cstdio>
 // #include <cstdlib>
+
 
 void initializeBoardLeds() {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -25,34 +29,31 @@ void initializeBoardLeds() {
     GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
 
-int main(void) {
+int main(void) 
+{
     SystemInit();
     hardwareInitialize();
+
     initializeBoardLeds();
-    GPIO_WriteBit(GPIOD, GPIO_Pin_13, Bit_SET);
-    //hardwareInitialize();
-    Logger::log(Level::DEBUG, "main", "allocated %d bytes on %p");
-    // int *a = (int *)myalloc(sizeof(int) * 10);
-
-    // Logger::log(Level::DEBUG, "main", "allocated %d bytes on %p",
-    //             sizeof(int) * 10, a);
-    // myfree(a);
-    // Logger::log(Level::DEBUG, "main", "end on %p", heap_end);
-    // a = (int *)myalloc(sizeof(int) * 2);
-
-    // Logger::log(Level::DEBUG, "main", "allocated %d bytes on %p",
-    //             sizeof(int) * 2, a);
-    // Logger::log(Level::DEBUG, "main", "end on %p", heap_end);
+    // GPIO_WriteBit(GPIOD, GPIO_Pin_13, Bit_SET);
+    Logger logger("boot");
+    logger << Level::INFO << "Bootloader started";
 
     while (1) {
     }
 }
 
 
-void assert_failed(u8* file, u32 line)
+void assert_failed(u8* file, u32 line) 
 {
+    write(0, file, strlen((char*)file));
+    write(0, ":", 1);
+    char buf[10];
+    itoa(line, buf, 10);
+    write(0, buf, strlen(buf));
+    write(0, " assertion failed!", 18);
     while(true)
     {
-    }
 
+    }
 }

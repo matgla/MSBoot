@@ -1,7 +1,9 @@
 #pragma once
 #include <cstdio>
-#include <cstdarg>
+#include <cstring>
+#include <unistd.h>
 
+#define SPACE_SIZE 10
 
 enum class Level {
     DEBUG,
@@ -16,69 +18,37 @@ enum class Output {
     NONE
 };
 
-const char* getLevelString(const Level &level);
 
-class Logger {
-    public:
-        static void init(Output primary, Output secondary) {};
-        static void log(Level level, const char *nameSpace, const char *format, ...) {
-            if(nullptr == pInstance) {
-                static Logger logger;
-                pInstance = &logger;
-            }
-            va_list args;
+class Logger
+{
+public:
+    Logger();
+    Logger(const char *space);
 
-            if(pInstance->logOutput == Output::STDOUT) {
-                printf("<%s> ", pInstance->getTimeString());
-                printf("%s/%s: ", getLevelString(level), nameSpace);
-                va_start (args, format);
-                vprintf(format, args);
-                printf("\n");
-                va_end(args);
-            } else if(pInstance->logOutput == Output::FILE) {
-                
-            }
-        }
-        static bool setOut(Output output, const char *fileName) {
-            if(nullptr == pInstance) {
-                static Logger logger;
-                pInstance = &logger;
-            }
+    // template <typename
 
-            if(Output::FILE == output) {
-                pInstance->logOutput = output;
-                return true;
-            }
+    template <typename Type>
+    Logger& operator << (Type text)
+    {
+        write(0, text, strlen(text));
+        return *this;
+    }
 
-            return false;
-        }
+    Logger& operator << (const Level& level)
+    {
+        write(0, "<", 1);
+        const char* time = getTimeString();
+        write(0, time, strlen(time));
+        write(0, "> ", 2);
+        write(0, getLevelString(level), strlen(getLevelString(level)));
+        write(0, "/", 1);
+        write(0, name_, strlen(name_));
+        write(0, ": ", 2);
+        return *this;
+    }
 
-        static bool setOut(Output output) {
-            if(nullptr == pInstance) {
-                static Logger logger;
-                pInstance = &logger;
-            }
-
-            if(Output::FILE == output) {
-                return false;
-            } 
-
-            pInstance->logOutput = output;
-            return true;
-        }
-    private:
-        Logger();
-        static Logger *pInstance;
-        Logger(Logger&) = delete;
-        Logger(const Logger&) = delete;
-        Logger(Logger&&) = delete;
-        Logger(const Logger&&) = delete;
-        
-        void logLine(Level level, const char *format, ...);
-        void writeToFile(Level level, const char *format, ...);
-        void writeToStdOut(Level level, const char *format, ...);
-        char *getTimeString();
-        Level logLevel;
-        Output logOutput;
-
+    char name_[SPACE_SIZE];
+private:
+    const char* getLevelString(const Level& level);
+    const char *getTimeString();
 };

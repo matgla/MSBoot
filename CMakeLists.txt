@@ -52,6 +52,9 @@ add_executable(stm32example.elf
 
 target_link_libraries(stm32example.elf stm32lib ${STM32_LIBRARIES})
 
+add_custom_command(TARGET  POST_BUILD stm32example.elf
+    COMMAND arm-none-eabi-size --format=berkeley "stm32example.elf")
+
 add_custom_target(stm32example.hex DEPENDS stm32example.elf COMMAND ${CMAKE_OBJCOPY} -Oihex stm32example.elf stm32example.hex)
 add_custom_target(stm32example.bin DEPENDS stm32example.elf COMMAND ${CMAKE_OBJCOPY} -Obinary stm32example.elf stm32example.bin)
 
