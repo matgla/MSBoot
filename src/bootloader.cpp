@@ -1,4 +1,5 @@
 #include "bootloader.hpp"
+#include "usart_downloader.hpp"
 
 bool BootLoader::specialMode()
 {
@@ -13,4 +14,10 @@ void BootLoader::bootSpecialMode()
 void BootLoader::bootFW()
 {
     // TODO: implement
+}
+
+void BootLoader::bootDFU()
+{
+    UsartDownloader dwnl(logger_);
+    dwnl.waitForProvider();
 }

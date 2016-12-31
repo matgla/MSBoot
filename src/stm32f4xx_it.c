@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
-
+#include <stm32f4xx_gpio.h>
 /** @addtogroup STM32F4_Discovery_Peripheral_Examples
   * @{
   */

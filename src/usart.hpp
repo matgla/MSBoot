@@ -27,8 +27,10 @@ class USART
 {
 public:
     USART();
-    void init();
+    void getByte();
+    static USART& getUsart();
 private:
+    void init();
     void GPIOInit(u16 pin, u16 pinSource, u16 afUsart, GPIO_TypeDef* port);
     void NVICInit();
     void USARTInit();
@@ -47,4 +49,10 @@ private:
     
     USART_TypeDef* USARTx_;
 };
+}
+
+extern "C" 
+{
+void USART1_IRQHandler(void);
+void USART2_IRQHandler(void);
 }

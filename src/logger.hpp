@@ -34,6 +34,14 @@ public:
         return *this;
     }
 
+    Logger& operator << (char ch)
+    {
+        char text[1];
+        text[0] = ch;
+        write(0, text, strlen(text));
+        return *this;
+    }
+
     Logger& operator << (const Level& level)
     {
         write(0, "<", 1);

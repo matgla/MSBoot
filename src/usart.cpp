@@ -30,12 +30,25 @@ USART<UsartNumber>::USART()
 {
 }
 
+// template <USARTS UsartNumber>
+// char USART<UsartNumber>::getByte()
+// {
+
+// }
+
+template<USARTS UsartNumber>
+USART& USART<UsartNumber>::getUsart()
+{
+    return nullptr;
+}
+
 template<USARTS UsartNumber>
 void USART<UsartNumber>::init()
 {
+    USART_DeInit(USARTx_);
     InitClocks();
-    GPIOInit(gpioPinRx_, gpioPinSourceRx_, gpioAF_, gpioPortRx_);
     GPIOInit(gpioPinTx_, gpioPinSourceTx_, gpioAF_, gpioPortTx_);
+    GPIOInit(gpioPinRx_, gpioPinSourceRx_, gpioAF_, gpioPortRx_);
     NVICInit();
     USARTInit();
 }
@@ -51,6 +64,7 @@ void USART<UsartNumber>::GPIOInit(u16 pin, u16 pinSource, u16 afUsart, GPIO_Type
     gpioInit.GPIO_Mode = GPIO_Mode_AF;
     gpioInit.GPIO_OType = GPIO_OType_PP;
     gpioInit.GPIO_Speed = GPIO_High_Speed;
+    gpioInit.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(port, &gpioInit);
 }
 
@@ -77,8 +91,8 @@ void USART<UsartNumber>::USARTInit()
     USART_InitStruct.USART_StopBits = USART_StopBits_1;
     USART_InitStruct.USART_WordLength = USART_WordLength_8b;
     USART_Init(USARTx_, &USART_InitStruct);
-    USART_Cmd(USARTx_, ENABLE);
     USART_ITConfig(USARTx_, USART_IT_RXNE, ENABLE);
+    USART_Cmd(USARTx_, ENABLE);
 }
 
 template <USARTS UsartNumber>
@@ -87,6 +101,13 @@ void USART<UsartNumber>::InitClocks()
 }
 
 // specializations
+
+template <>
+USART& USART<USARTS::USART1_PP1>::getUsart()
+{
+    static USART s1;
+    return s1;
+}
 
 template <>
 USART<USARTS::USART1_PP1>::USART() : 
@@ -139,3 +160,12 @@ USART<USARTS::USART2_PP1>;
 
 }
 
+void USART1_IRQHandler(void) 
+{
+    
+}
+
+void USART2_IRQHandler(void)
+{
+
+}

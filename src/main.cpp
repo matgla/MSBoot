@@ -31,12 +31,17 @@ void initializeBoardLeds() {
     GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
 
+
 int main(void) 
 {
     SystemInit();
     hw::USART<hw::USARTS::USART1_PP1> u1;
     u1.init();
+  
     Logger logger("boot");
+    initializeBoardLeds();
+    GPIO_SetBits(GPIOD, GPIO_Pin_14);
+
 
     hardwareInitialize();
 
@@ -46,18 +51,18 @@ int main(void)
     if (bl.specialMode())
     {
         logger << Level::INFO << "Boot in special mode\n";
+        bl.bootSpecialMode();
     } 
     else 
     {
         logger << Level::INFO << "Boot FW\n";
         bl.bootFW();
     }
-    
-    hw::USART<hw::USARTS::USART2_PP1> u2();
-
 
     while (1) {
+        
     }
+
 }
 
 
