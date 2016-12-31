@@ -9,6 +9,7 @@
 // #include "usart.hpp"
 #include "types.h"
 #include "utils.h"
+#include "bootloader.hpp"
 // //#include <stdio.h>
 // //#include "usart.hpp"
 // #include "kernel.hpp"
@@ -16,6 +17,7 @@
 // #include "usart.hpp"
 // #include <cstdio>
 // #include <cstdlib>
+#include "usart.hpp"
 
 
 void initializeBoardLeds() {
@@ -32,12 +34,27 @@ void initializeBoardLeds() {
 int main(void) 
 {
     SystemInit();
+    hw::USART<hw::USARTS::USART1_PP1> u1;
+    u1.init();
+    Logger logger("boot");
+
     hardwareInitialize();
 
-    initializeBoardLeds();
-    // GPIO_WriteBit(GPIOD, GPIO_Pin_13, Bit_SET);
-    Logger logger("boot");
-    logger << Level::INFO << "Bootloader started";
+    BootLoader bl(logger);
+    logger << Level::INFO << "Bootloader started\n";
+
+    if (bl.specialMode())
+    {
+        logger << Level::INFO << "Boot in special mode\n";
+    } 
+    else 
+    {
+        logger << Level::INFO << "Boot FW\n";
+        bl.bootFW();
+    }
+    
+    hw::USART<hw::USARTS::USART2_PP1> u2();
+
 
     while (1) {
     }
