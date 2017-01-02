@@ -35,8 +35,8 @@ void initializeBoardLeds() {
 int main(void) 
 {
     SystemInit();
-    hw::USART<hw::USARTS::USART1_PP1> u1;
-    u1.init();
+    //hw::USART<hw::USARTS::USART1_PP1> u1;
+    //u1.init();
   
     Logger logger("boot");
     initializeBoardLeds();

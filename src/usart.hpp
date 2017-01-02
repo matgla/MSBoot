@@ -6,7 +6,6 @@
 
 #define USART_WAIT(USARTx) do { while (!((USARTx)->SR & USART_FLAG_TXE)); } while (0)
 
-
 void USART_GPIO_init(void);
 void USART_NVIC_init(void);
 void USART_init(void);
@@ -16,20 +15,17 @@ namespace hw
 {
 enum class USARTS
 {
-    USART1_PP1,
-    USART1_PP2,
-    USART2_PP1,
-    USART2_PP2
+    USART1_PP1
 };
 
 template <USARTS UsartNumber>
 class USART
 {
 public:
-    USART();
     void getByte();
-    static USART& getUsart();
+    USART& getUsart();
 private:
+    USART();
     void init();
     void GPIOInit(u16 pin, u16 pinSource, u16 afUsart, GPIO_TypeDef* port);
     void NVICInit();

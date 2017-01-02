@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+
+
 void usart_put(USART_TypeDef *USARTx, const char *str) {
 
     /* Go through entire string */
@@ -28,18 +30,20 @@ namespace hw
 template<USARTS UsartNumber>
 USART<UsartNumber>::USART()
 {
+    init();
 }
 
 // template <USARTS UsartNumber>
 // char USART<UsartNumber>::getByte()
 // {
-
 // }
 
 template<USARTS UsartNumber>
-USART& USART<UsartNumber>::getUsart()
+USART<UsartNumber>& USART<UsartNumber>::getUsart()
 {
-    return nullptr;
+    static_assert(sizeof(UsartNumber)==0, "Function needs to be specialized");
+    static USART s;
+    return s;
 }
 
 template<USARTS UsartNumber>
@@ -98,16 +102,11 @@ void USART<UsartNumber>::USARTInit()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::InitClocks()
 {
+    static_assert(sizeof(UsartNumber)==0, "Function needs to be specialized");
 }
 
 // specializations
 
-template <>
-USART& USART<USARTS::USART1_PP1>::getUsart()
-{
-    static USART s1;
-    return s1;
-}
 
 template <>
 USART<USARTS::USART1_PP1>::USART() : 
@@ -124,18 +123,24 @@ USART<USARTS::USART1_PP1>::USART() :
 }
 
 template <>
-USART<USARTS::USART2_PP1>::USART():
-    gpioPortRx_(GPIOA),
-    gpioPortTx_(GPIOA),
-    gpioPinRx_(GPIO_Pin_3),
-    gpioPinTx_(GPIO_Pin_2),
-    gpioPinSourceRx_(GPIO_PinSource3),
-    gpioPinSourceTx_(GPIO_PinSource2),
-    gpioAF_(GPIO_AF_USART2),
-    usartIrqn_(USART2_IRQn)
+USART<USARTS::USART1_PP1>& USART<USARTS::USART1_PP1>::getUsart()
 {
-    USARTx_ = USART2;
+    static USART s1;
+    return s1;
 }
+// template <>
+// USART<USARTS::USART2_PP1>::USART():
+//     gpioPortRx_(GPIOA),
+//     gpioPortTx_(GPIOA),
+//     gpioPinRx_(GPIO_Pin_3),
+//     gpioPinTx_(GPIO_Pin_2),
+//     gpioPinSourceRx_(GPIO_PinSource3),
+//     gpioPinSourceTx_(GPIO_PinSource2),
+//     gpioAF_(GPIO_AF_USART2),
+//     usartIrqn_(USART2_IRQn)
+// {
+//     USARTx_ = USART2;
+// }
 
 
 template <>
@@ -145,18 +150,19 @@ void USART<USARTS::USART1_PP1>::InitClocks()
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 }
 
-template <>
-void USART<USARTS::USART2_PP1>::InitClocks()
-{
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-}
+// template <>
+// void USART<USARTS::USART2_PP1>::InitClocks()
+// {
+//     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+//     RCC_APB2PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+// }
+
 
 template class
 USART<USARTS::USART1_PP1>;
 
-template class
-USART<USARTS::USART2_PP1>;
+// template class
+// USART<USARTS::USART2_PP1>;
 
 }
 
