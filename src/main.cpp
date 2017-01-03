@@ -35,7 +35,7 @@ void initializeBoardLeds() {
 int main(void) 
 {
     SystemInit();
-    //hw::USART<hw::USARTS::USART1_PP1> u1;
+    hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     //u1.init();
   
     Logger logger("boot");
@@ -46,16 +46,16 @@ int main(void)
     hardwareInitialize();
 
     BootLoader bl(logger);
-    logger << Level::INFO << "Bootloader started\n";
+    logger << Level::INFO << "Bootloader started\r\n";
 
     if (bl.specialMode())
     {
-        logger << Level::INFO << "Boot in special mode\n";
+        logger << Level::INFO << "Boot in special mode\r\n";
         bl.bootSpecialMode();
     } 
     else 
     {
-        logger << Level::INFO << "Boot FW\n";
+        logger << Level::INFO << "Boot FW\r\n";
         bl.bootFW();
     }
 

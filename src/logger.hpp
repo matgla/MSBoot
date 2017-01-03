@@ -3,6 +3,8 @@
 #include <cstring>
 #include <unistd.h>
 
+#include "utils.h"
+
 #define SPACE_SIZE 10
 
 enum class Level {
@@ -38,6 +40,14 @@ public:
     {
         char text[1];
         text[0] = ch;
+        write(0, text, strlen(text));
+        return *this;
+    }
+
+    Logger& operator << (int ch)
+    {
+        char text[20];
+        itoa(ch, text, 10);
         write(0, text, strlen(text));
         return *this;
     }

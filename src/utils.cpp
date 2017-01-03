@@ -38,3 +38,9 @@ char getNumber(int n){
      s[i] = '\0';
      reverse(s);
  }
+
+ void DelayS(u32 time) {
+   for(int i = 0; i < 1000; i++) {
+    for (int j = 0; j < time * 100; j++) {}
+   }
+ }

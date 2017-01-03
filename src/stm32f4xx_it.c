@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 #include <stm32f4xx_gpio.h>
+#include <assert.h>
 /** @addtogroup STM32F4_Discovery_Peripheral_Examples
   * @{
   */
@@ -59,6 +60,7 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
+  assert(1 && "HARD fault");
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
@@ -72,6 +74,9 @@ void HardFault_Handler(void)
   */
 void MemManage_Handler(void)
 {
+  
+      assert(1 && "Mem fault");
+
   /* Go to infinite loop when Memory Manage exception occurs */
   while (1)
   {
@@ -85,6 +90,8 @@ void MemManage_Handler(void)
   */
 void BusFault_Handler(void)
 {
+      assert(1 && "Bus fault");
+
   /* Go to infinite loop when Bus Fault exception occurs */
   while (1)
   {
@@ -98,6 +105,8 @@ void BusFault_Handler(void)
   */
 void UsageFault_Handler(void)
 {
+      assert(1 && "Usage fault");
+
   /* Go to infinite loop when Usage Fault exception occurs */
   while (1)
   {

@@ -65,7 +65,7 @@ out of memory errors, so do not abort here.  */
 #if 0
 		extern void abort (void);
 
-		_write (1, "_sbrk: Heap and stack collision\n", 32);
+		_write (1, "_sbrk: Heap and stack collision\r\n", 32);
 
 		abort ();
 #else
@@ -81,8 +81,9 @@ out of memory errors, so do not abort here.  */
 
 int _write(int file, const char *ptr, int len) {
     int i;
-
     for (i = 0; i < len; i++) {
+        while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+        };
         USART_SendData(USART1, (uint8_t)ptr[i]);
         while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
         };

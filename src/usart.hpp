@@ -4,7 +4,10 @@
 #include <stm32f4xx_usart.h>
 #include <stm32f4xx_gpio.h>
 
+#include "buffer.hpp"
+
 #define USART_WAIT(USARTx) do { while (!((USARTx)->SR & USART_FLAG_TXE)); } while (0)
+#define BUFFER_SIZE 100
 
 void USART_GPIO_init(void);
 void USART_NVIC_init(void);
@@ -22,8 +25,11 @@ template <USARTS UsartNumber>
 class USART
 {
 public:
-    void getByte();
-    USART& getUsart();
+    // void getByte();
+    static USART& getUsart();
+    Buffer<BUFFER_SIZE>& getBuffer();
+    int i = 0;
+    // void writeToBuffer(char* buf);
 private:
     USART();
     void init();
@@ -31,6 +37,7 @@ private:
     void NVICInit();
     void USARTInit();
     void InitClocks();
+    
 
     GPIO_TypeDef* gpioPortRx_;
     GPIO_TypeDef* gpioPortTx_;    
@@ -44,6 +51,8 @@ private:
     u16 usartIrqn_;
     
     USART_TypeDef* USARTx_;
+
+    Buffer<BUFFER_SIZE> buffer_;
 };
 }
 

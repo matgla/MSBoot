@@ -1,8 +1,8 @@
 #include "usart.hpp"
+#include "utils.h"
+
 
 #include <cstdint>
-
-
 
 void usart_put(USART_TypeDef *USARTx, const char *str) {
 
@@ -26,25 +26,26 @@ void usart_put(USART_TypeDef *USARTx, const char *str) {
 
 namespace hw
 {
+template<USARTS UsartNumber>
+USART<UsartNumber>& USART<UsartNumber>::getUsart()
+{
+    static_assert(sizeof(UsartNumber)==0, "Method needs to be specialized");
+    static USART s;
+    return s;
+}
+
+template <USARTS UsartNumber>
+Buffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
+{
+    return buffer_;
+}
 
 template<USARTS UsartNumber>
 USART<UsartNumber>::USART()
 {
-    init();
+    static_assert(sizeof(UsartNumber)==0, "Method needs to be specialized");
 }
 
-// template <USARTS UsartNumber>
-// char USART<UsartNumber>::getByte()
-// {
-// }
-
-template<USARTS UsartNumber>
-USART<UsartNumber>& USART<UsartNumber>::getUsart()
-{
-    static_assert(sizeof(UsartNumber)==0, "Function needs to be specialized");
-    static USART s;
-    return s;
-}
 
 template<USARTS UsartNumber>
 void USART<UsartNumber>::init()
@@ -102,12 +103,12 @@ void USART<UsartNumber>::USARTInit()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::InitClocks()
 {
-    static_assert(sizeof(UsartNumber)==0, "Function needs to be specialized");
+    static_assert(sizeof(UsartNumber)==0, "Method needs to be specialized");
 }
 
-// specializations
-
-
+/////////////////////////////////////////////
+//     specializations for USART1_PP1
+/////////////////////////////////////////////
 template <>
 USART<USARTS::USART1_PP1>::USART() : 
     gpioPortRx_(GPIOA),
@@ -120,6 +121,7 @@ USART<USARTS::USART1_PP1>::USART() :
     usartIrqn_(USART1_IRQn)
 {
     USARTx_ = USART1;
+    init();
 }
 
 template <>
@@ -128,6 +130,17 @@ USART<USARTS::USART1_PP1>& USART<USARTS::USART1_PP1>::getUsart()
     static USART s1;
     return s1;
 }
+
+template <>
+void USART<USARTS::USART1_PP1>::InitClocks()
+{
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+}
+
+/////////////////////////////////////////////
+//     specializations for USART2_PP1
+/////////////////////////////////////////////
 // template <>
 // USART<USARTS::USART2_PP1>::USART():
 //     gpioPortRx_(GPIOA),
@@ -143,12 +156,7 @@ USART<USARTS::USART1_PP1>& USART<USARTS::USART1_PP1>::getUsart()
 // }
 
 
-template <>
-void USART<USARTS::USART1_PP1>::InitClocks()
-{
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-}
+
 
 // template <>
 // void USART<USARTS::USART2_PP1>::InitClocks()
@@ -165,10 +173,18 @@ USART<USARTS::USART1_PP1>;
 // USART<USARTS::USART2_PP1>;
 
 }
-
+// volatile u8 flag =0;
 void USART1_IRQHandler(void) 
 {
-    
+    if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+    {
+        char c = USART1->DR;
+        if (c == '\r') c = '\n';
+        hw::USART<hw::USARTS::USART1_PP1>::getUsart().getBuffer().write(c);
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+        USART_SendData(USART1, c);
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+    }
 }
 
 void USART2_IRQHandler(void)
