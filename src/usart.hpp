@@ -5,6 +5,7 @@
 #include <stm32f4xx_gpio.h>
 
 #include "buffer.hpp"
+#include "messages.hpp"
 
 #define USART_WAIT(USARTx) do { while (!((USARTx)->SR & USART_FLAG_TXE)); } while (0)
 #define BUFFER_SIZE 100
@@ -18,18 +19,19 @@ namespace hw
 {
 enum class USARTS
 {
-    USART1_PP1
+    USART1_PP1,
+    USART2_PP1
 };
 
 template <USARTS UsartNumber>
 class USART
 {
 public:
-    // void getByte();
     static USART& getUsart();
     Buffer<BUFFER_SIZE>& getBuffer();
-    int i = 0;
-    // void writeToBuffer(char* buf);
+    void send(u8 fd, char ch);
+    void send(u8 fd, char* str);
+    Message getMessage();
 private:
     USART();
     void init();
@@ -60,4 +62,5 @@ extern "C"
 {
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
+void USART3_IRQHandler(void);
 }

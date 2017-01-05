@@ -35,6 +35,7 @@ void initializeBoardLeds() {
 int main(void) 
 {
     SystemInit();
+    hw::USART<hw::USARTS::USART2_PP1>::getUsart();
     hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     //u1.init();
   

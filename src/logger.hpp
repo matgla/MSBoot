@@ -36,6 +36,22 @@ public:
         return *this;
     }
 
+    Logger& operator << (u8 ch)
+    {
+        char text[4];
+        itoa(ch, text, 10);
+        write(0, text, strlen(text));
+        return *this;
+    }
+    
+    Logger& operator << (u32 ch)
+    {
+        char text[40];
+        itoa(ch, text, 10);
+        write(0, text, strlen(text));
+        return *this;
+    }
+
     Logger& operator << (char ch)
     {
         char text[1];

@@ -1,0 +1,1 @@
+"C:\Program Files\GNU ARM Eclipse\QEMU\2.7.0-201611282115-dev\bin\qemu-system-gnuarmeclipse.exe" -board STM32F4-Discovery -kernel bin\stm32BootLoader.elf -serial COM1

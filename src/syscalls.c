@@ -1,6 +1,9 @@
 #include "stm32f4xx_conf.h"
+
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
 
 int _gettimeofday(struct timeval *tv, void *tzvp) {
     uint64_t t = 0;                        // get uptime in nanoseconds
@@ -81,13 +84,13 @@ out of memory errors, so do not abort here.  */
 
 int _write(int file, const char *ptr, int len) {
     int i;
+    USART_SendData(USART1, 1);
+    USART_SendData(USART1, len);
+   // USART_SendData(USART1, len && 0x000000ff);
     for (i = 0; i < len; i++) {
-        while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
-        };
+        while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
         USART_SendData(USART1, (uint8_t)ptr[i]);
-        while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
-        };
     }
-
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     return len;
 }

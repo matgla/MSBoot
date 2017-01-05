@@ -20,4 +20,5 @@ void BootLoader::bootDFU()
 {
     UsartDownloader dwnl(logger_);
     dwnl.waitForProvider();
+    dwnl.writeToMemory();
 }
