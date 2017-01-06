@@ -1,4 +1,4 @@
 cd bin_test
 make -j8
-bootloader_test
+test\UT\bootloaderUTs
 cd ..
