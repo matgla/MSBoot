@@ -1,4 +1,5 @@
 cd bin_test
-make -j8
+del bin_test\test\UT\bootloaderUTs.exe
+mingw32-make -j8
 test\UT\bootloaderUTs
 cd ..
