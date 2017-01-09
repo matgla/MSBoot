@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "types.h"
 #include <cstring>
 #include <stdint.h>
@@ -21,9 +17,10 @@ void reverse(char *s);
 
 char getNumber(int n);
 
+namespace utils
+{
 void itoa(int n, char * s, int base_n);
- 
-
-#ifdef __cplusplus
 }
-#endif
+
+
+ 

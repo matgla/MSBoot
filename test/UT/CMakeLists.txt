@@ -6,10 +6,15 @@ enable_testing()
 file (GLOB_RECURSE SRCS src/*.c
                         src/*.cpp)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_STDPERIPH_DRIVER -DUSE_FULL_ASSERT -DSTM32F40_41xxx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_STDPERIPH_DRIVER -DUSE_FULL_ASSERT -DSTM32F40_41xxx")
+
 file (GLOB PROD_SRCS  ${PROJECT_SOURCE_DIR}/src/buffer.hpp
                       ${PROJECT_SOURCE_DIR}/src/logger.hpp
                       ${PROJECT_SOURCE_DIR}/src/logger.cpp
                       ${PROJECT_SOURCE_DIR}/src/utils.h
+                      ${PROJECT_SOURCE_DIR}/src/usart.hpp
+                      ${PROJECT_SOURCE_DIR}/src/usart.cpp
                       ${PROJECT_SOURCE_DIR}/src/types.h)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 message ("Source dir: ${PROD_SRCS}")
@@ -19,8 +24,9 @@ file (GLOB_RECURSE STUB_SRCS ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.cpp
                              ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.hpp
                              ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.h)
 
-include_directories(${PROJECT_SOURCE_DIR}/test/libs/CppFreeMock)
-include_directories(${PROJECT_SOURCE_DIR}/test/UT/hw_stub/)
+message ("Stubs srcs: ${STUB_SRCS}")
+
+include_directories(hw_stub)
 
 add_executable (bootloaderUTs ${SRCS} ${PROD_SRCS} ${STUB_SRCS})
 

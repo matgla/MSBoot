@@ -1,48 +1,53 @@
 #pragma once
 
-#include "logger.hpp"
 #include <array>
+
+#include "types.h"
 
 template<std::size_t BUF_SIZE>
 class Buffer
 {
 public:
     Buffer() : writerIndex_(0),
-               readerIndex_(0)
+               readerIndex_(0),
+               size_(0)
     {
 
     }
 
-    u16 write(char ch)
+    u16 write(u8 ch)
     {
-        Logger logger;
-        if (writerIndex_ >= BUF_SIZE - 1)
+        if (writerIndex_ >= BUF_SIZE )
         {
             writerIndex_ = 0;
         }
-        buffer_[writerIndex_] = ch;
-        ++writerIndex_;
-        buffer_[writerIndex_] = 0;
+        incrementSize();
+        buffer_[writerIndex_++] = ch;
         return writerIndex_;
     }
 
-    char getByte()
+    u8 getByte()
     {
-        if (readerIndex_ >= BUF_SIZE -1)
+        if (size_)
         {
-            readerIndex_ = 0;
+            if (readerIndex_ >= BUF_SIZE)
+            {
+                readerIndex_ = 0;
+            }
+            size_--;
+            return buffer_[readerIndex_++];
         }
-        return buffer_[readerIndex_++];
+        return 0;
     }
 
-    char* getData()
+    u8* getData()
     {
         return buffer_;
     }
 
     u16 size()
     {
-        return writerIndex_ - readerIndex_;
+        return size_;
     }
 
 private:
@@ -51,7 +56,19 @@ private:
         writerIndex_ = 0;
     }
 
-    char buffer_[BUF_SIZE];
+    void incrementSize()
+    {
+        if (size_ < BUF_SIZE)
+        {
+            ++size_;
+        }
+        else
+        {
+            ++readerIndex_;
+        }
+    }
+    u8 buffer_[BUF_SIZE];
     u16 writerIndex_;
     u16 readerIndex_;
+    u16 size_;
 };

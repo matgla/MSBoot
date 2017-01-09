@@ -3,7 +3,7 @@
 #include <cstring>
 #include <unistd.h>
 
-#include "utils.h"
+#include "utils.hpp"
 
 #define SPACE_SIZE 10
 
@@ -32,6 +32,7 @@ public:
     template <typename Type>
     Logger& operator << (Type text)
     {
+        // TODO: Add api for system calls ( all ) with splitted backend 
         write(0, text, strlen(text));
         return *this;
     }
@@ -39,7 +40,7 @@ public:
     Logger& operator << (u8 ch)
     {
         char text[4];
-        itoa(ch, text, 10);
+        utils::itoa(ch, text, 10);
         write(0, text, strlen(text));
         return *this;
     }
@@ -47,7 +48,7 @@ public:
     Logger& operator << (u32 ch)
     {
         char text[40];
-        itoa(ch, text, 10);
+        utils::itoa(ch, text, 10);
         write(0, text, strlen(text));
         return *this;
     }
@@ -63,7 +64,7 @@ public:
     Logger& operator << (int ch)
     {
         char text[20];
-        itoa(ch, text, 10);
+        utils::itoa(ch, text, 10);
         write(0, text, strlen(text));
         return *this;
     }

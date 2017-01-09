@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "utils.hpp"
 
 
 /*
@@ -23,7 +23,10 @@ char getNumber(int n){
     return n+'0';
   }
 }
- void itoa(int n, char * s, int base_n)
+
+namespace utils
+{
+void itoa(int n, char * s, int base_n)
  {
      int i, sign;
  
@@ -38,6 +41,9 @@ char getNumber(int n){
      s[i] = '\0';
      reverse(s);
  }
+}
+
+ 
 
  void DelayS(u32 time) {
    for(int i = 0; i < 1000; i++) {

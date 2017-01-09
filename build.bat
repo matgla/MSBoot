@@ -1,3 +1,3 @@
 cd bin
-make -j4
+mingw32-make -j4
 cd ..

@@ -8,7 +8,7 @@
 #include "logger.hpp"
 // #include "usart.hpp"
 #include "types.h"
-#include "utils.h"
+#include "utils.hpp"
 #include "bootloader.hpp"
 // //#include <stdio.h>
 // //#include "usart.hpp"
@@ -72,7 +72,7 @@ void assert_failed(u8* file, u32 line)
     write(0, file, strlen((char*)file));
     write(0, ":", 1);
     char buf[10];
-    itoa(line, buf, 10);
+    utils::itoa(line, buf, 10);
     write(0, buf, strlen(buf));
     write(0, " assertion failed!", 18);
     while(true)

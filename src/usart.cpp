@@ -1,5 +1,5 @@
 #include "usart.hpp"
-#include "utils.h"
+#include "utils.hpp"
 
 
 #include <cstdint>
