@@ -194,7 +194,6 @@ USART<USARTS::USART1_PP1>::USART() :
 {
     USARTx_ = USART1;
     init();
-    USART_WAIT(USARTx_);
 }
 
 template <>

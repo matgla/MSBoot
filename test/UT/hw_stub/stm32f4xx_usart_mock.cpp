@@ -1,5 +1,9 @@
 #include "stm32f4xx_usart.h"
 
+#include <vector>
+
+#include "mock.hpp"
+
 void USART_DeInit(USART_TypeDef* USARTx)
 {
 
@@ -127,7 +131,7 @@ void USART_ITConfig(USART_TypeDef* USARTx, uint16_t USART_IT, FunctionalState Ne
 
 FlagStatus USART_GetFlagStatus(USART_TypeDef* USARTx, uint16_t USART_FLAG)
 {
-
+    Mock::get().call((size_t *)&USART_GetFlagStatus, __FUNCTION__);
 }
 
 void USART_ClearFlag(USART_TypeDef* USARTx, uint16_t USART_FLAG)
