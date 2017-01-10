@@ -1,7 +1,6 @@
 #include "usart.hpp"
 #include "utils.hpp"
 
-
 #include <cstdint>
 
 void usart_put(USART_TypeDef *USARTx, const char *str) {
@@ -44,24 +43,30 @@ Buffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(u8 fd, char ch)
 {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     USART_SendData(USARTx_, fd);
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     USART_SendData(USARTx_, 1);
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
    // USART_SendData(USARTx_, 0);
     USART_SendData(USARTx_, ch);
     while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
 }
-    
+
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(u8 fd, char* str)
 {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     USART_SendData(USARTx_, fd);
    // USART_SendData(USARTx_, (strlen(str) && 0xffff0000) >> 4);
+   while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     USART_SendData(USARTx_, strlen(str));
     for (int i = 0; i < strlen(str); ++i)
     {
+        while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET) {};
         USART_SendData(USARTx_, str[i]);
     }
-    while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET) {};
+
 }
 
 template <USARTS UsartNumber>
@@ -156,7 +161,7 @@ void USART<UsartNumber>::USARTInit()
 {
     USART_InitTypeDef USART_InitStruct;
 
-    USART_InitStruct.USART_BaudRate = 9600;
+    USART_InitStruct.USART_BaudRate = 128000;
     USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStruct.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
     USART_InitStruct.USART_Parity = USART_Parity_No;
@@ -177,7 +182,7 @@ void USART<UsartNumber>::InitClocks()
 //     specializations for USART1_PP1
 /////////////////////////////////////////////
 template <>
-USART<USARTS::USART1_PP1>::USART() : 
+USART<USARTS::USART1_PP1>::USART() :
     gpioPortRx_(GPIOA),
     gpioPortTx_(GPIOA),
     gpioPinRx_(GPIO_Pin_10),
@@ -189,12 +194,14 @@ USART<USARTS::USART1_PP1>::USART() :
 {
     USARTx_ = USART1;
     init();
+    USART_WAIT(USARTx_);
 }
 
 template <>
 USART<USARTS::USART1_PP1>& USART<USARTS::USART1_PP1>::getUsart()
 {
     static USART s1;
+
     return s1;
 }
 
@@ -246,17 +253,24 @@ USART<USARTS::USART2_PP1>;
 
 }
 // volatile u8 flag =0;
-void USART1_IRQHandler(void) 
+void USART1_IRQHandler(void)
 {
     if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
     {
         char c = USART1->DR;
-        if (c == '\r') c = '\n';
+        //if (c == '\r') c = '\n';
         hw::USART<hw::USARTS::USART1_PP1>::getUsart().getBuffer().write(c);
+      //  USART_SendData()
         //hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(1, c);
-        //while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-        //USART_SendData(USART1, c);
-        //while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+    //    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+        // if (c == 0x0d || c == 0x0a)
+        // {
+        //     char buf[4];
+        //     utils::itoa(c, buf, 10);
+        //     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(1, buf);
+        // }
+
+     //   while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
     }
 }
 

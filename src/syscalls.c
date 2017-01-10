@@ -49,43 +49,48 @@ int _getpid() {
 void _exit(int code) {
 
 }
+char *heap = NULL;
 /* Register name faking - works in collusion with the linker.  */
 register char *stack_ptr asm("sp");
+caddr_t _sbrk(int incr)
+    {
+    extern char _heap asm("_heap"); /* Defined by the linker.  */
+    extern char _eheap asm("_eheap"); /* Defined by the linker.  */
+    caddr_t prevHeap;
+    caddr_t nextHeap;
 
-caddr_t _sbrk_r(struct _reent *r, int incr) {
-    extern char end asm("end"); /* Defined by the linker.  */
-    static char *heap_end;
-    char *prev_heap_end;
-
-    if (heap_end == NULL)
-        heap_end = &end;
-
-    prev_heap_end = heap_end;
-
-    if (heap_end + incr > stack_ptr) {
-/* Some of the libstdc++-v3 tests rely upon detecting
-out of memory errors, so do not abort here.  */
-#if 0
-		extern void abort (void);
-
-		_write (1, "_sbrk: Heap and stack collision\r\n", 32);
-
-		abort ();
-#else
-        // errno = ENOMEM;
-        return (caddr_t)-1;
-#endif
+    if (heap == NULL)
+    { // first allocation
+        heap = (caddr_t) & _heap;
     }
 
-    heap_end += incr;
+    prevHeap = heap;
 
-    return (caddr_t)prev_heap_end;
-}
+    // Always return data aligned on a 8 byte boundary
+    nextHeap = (caddr_t) (((unsigned int) (heap + incr) + 7) & ~7);
+
+    // Check enough space and there is no collision with stack coming the other way
+    // if stack is above start of heap
+    if (nextHeap >= (caddr_t) & _eheap)
+    {
+    //errno = 1;
+    _write(1, "no more memory", 10);
+    return NULL; // error - no more memory
+    }
+    else
+    {
+    heap = nextHeap;
+    return (caddr_t) prevHeap;
+    }
+    }
 
 int _write(int file, const char *ptr, int len) {
     int i;
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     USART_SendData(USART1, 1);
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
     USART_SendData(USART1, len);
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
    // USART_SendData(USART1, len && 0x000000ff);
     for (i = 0; i < len; i++) {
         while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
