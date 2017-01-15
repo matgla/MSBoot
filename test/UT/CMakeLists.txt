@@ -22,11 +22,16 @@ message ("Source dir: ${PROD_SRCS}")
 file (GLOB_RECURSE STUB_SRCS ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.cpp
                              ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.c
                              ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.hpp
-                             ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.h)
+                             ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.h
+                             ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.cpp
+                             ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.c
+                             ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.hpp
+                             ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.h)
 
 message ("Stubs srcs: ${STUB_SRCS}")
 
 include_directories(hw_stub)
+include_directories(mocks)
 
 add_executable (bootloaderUTs ${SRCS} ${PROD_SRCS} ${STUB_SRCS})
 

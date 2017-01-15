@@ -13,7 +13,7 @@
 void USART_GPIO_init(void);
 void USART_NVIC_init(void);
 void USART_init(void);
-void usart_put(USART_TypeDef* USARTx, const char *str);	
+void usart_put(USART_TypeDef* USARTx, const char *str);
 
 namespace hw
 {
@@ -39,10 +39,10 @@ private:
     void NVICInit();
     void USARTInit();
     void InitClocks();
-    
+
 
     GPIO_TypeDef* gpioPortRx_;
-    GPIO_TypeDef* gpioPortTx_;    
+    GPIO_TypeDef* gpioPortTx_;
     u16 gpioPinRx_;
     u16 gpioPinTx_;
     u16 gpioPinSourceRx_;
@@ -51,14 +51,14 @@ private:
     u16 gpioAF_;
 
     u16 usartIrqn_;
-    
+
     USART_TypeDef* USARTx_;
 
     Buffer<BUFFER_SIZE> buffer_;
 };
 }
 
-extern "C" 
+extern "C"
 {
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);

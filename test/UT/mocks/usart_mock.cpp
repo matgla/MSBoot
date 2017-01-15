@@ -131,7 +131,8 @@ void USART_ITConfig(USART_TypeDef* USARTx, uint16_t USART_IT, FunctionalState Ne
 
 FlagStatus USART_GetFlagStatus(USART_TypeDef* USARTx, uint16_t USART_FLAG)
 {
-    Mock::get().call((size_t *)&USART_GetFlagStatus, __FUNCTION__);
+
+   // Mock::get().call((size_t *)&USART_GetFlagStatus, __FUNCTION__);
 }
 
 void USART_ClearFlag(USART_TypeDef* USARTx, uint16_t USART_FLAG)

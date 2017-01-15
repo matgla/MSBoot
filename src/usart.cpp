@@ -3,7 +3,8 @@
 
 #include <cstdint>
 
-void usart_put(USART_TypeDef *USARTx, const char *str) {
+void usart_put(USART_TypeDef* USARTx, const char* str)
+{
 
     /* Go through entire string */
 
@@ -23,13 +24,12 @@ void usart_put(USART_TypeDef *USARTx, const char *str) {
     }
 }
 
-namespace hw
-{
+namespace hw {
 
-template<USARTS UsartNumber>
+template <USARTS UsartNumber>
 USART<UsartNumber>& USART<UsartNumber>::getUsart()
 {
-    static_assert(sizeof(UsartNumber)==0, "Method needs to be specialized");
+    static_assert(sizeof(UsartNumber) == 0, "Method needs to be specialized");
     static USART s;
     return s;
 }
@@ -43,30 +43,35 @@ Buffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(u8 fd, char ch)
 {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    };
     USART_SendData(USARTx_, fd);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    };
     USART_SendData(USARTx_, 1);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
-   // USART_SendData(USARTx_, 0);
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    };
+    // USART_SendData(USARTx_, 0);
     USART_SendData(USARTx_, ch);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    };
 }
 
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(u8 fd, char* str)
 {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    };
     USART_SendData(USARTx_, fd);
-   // USART_SendData(USARTx_, (strlen(str) && 0xffff0000) >> 4);
-   while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {};
+    // USART_SendData(USARTx_, (strlen(str) && 0xffff0000) >> 4);
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    };
     USART_SendData(USARTx_, strlen(str));
-    for (int i = 0; i < strlen(str); ++i)
-    {
-        while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET) {};
+    for (int i = 0; i < strlen(str); ++i) {
+        while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET) {
+        };
         USART_SendData(USARTx_, str[i]);
     }
-
 }
 
 template <USARTS UsartNumber>
@@ -77,19 +82,15 @@ Message USART<UsartNumber>::getMessage()
     int index = 0;
     bool receivedSize = false;
     bool receivedFd = false;
-    while (index < msg.size)
-    {
-        if (getBuffer().size())
-        {
-            if (!receivedFd)
-            {
+    while (index < msg.size) {
+        if (getBuffer().size()) {
+            if (!receivedFd) {
                 msg.fd = getBuffer().getByte();
                 receivedFd = true;
                 continue;
             }
 
-            if (!receivedSize)
-            {
+            if (!receivedSize) {
                 msg.size = getBuffer().getByte();
                 receivedSize = true;
                 continue;
@@ -102,14 +103,13 @@ Message USART<UsartNumber>::getMessage()
     return msg;
 }
 
-template<USARTS UsartNumber>
+template <USARTS UsartNumber>
 USART<UsartNumber>::USART()
 {
-    static_assert(sizeof(UsartNumber)==0, "Method needs to be specialized");
+    static_assert(sizeof(UsartNumber) == 0, "Method needs to be specialized");
 }
 
-
-template<USARTS UsartNumber>
+template <USARTS UsartNumber>
 void USART<UsartNumber>::init()
 {
     USART_DeInit(USARTx_);
@@ -120,7 +120,7 @@ void USART<UsartNumber>::init()
     USARTInit();
 }
 
-template<USARTS UsartNumber>
+template <USARTS UsartNumber>
 void USART<UsartNumber>::GPIOInit(u16 pin, u16 pinSource, u16 afUsart, GPIO_TypeDef* port)
 {
     GPIO_InitTypeDef gpioInit;
@@ -135,16 +135,18 @@ void USART<UsartNumber>::GPIOInit(u16 pin, u16 pinSource, u16 afUsart, GPIO_Type
     GPIO_Init(port, &gpioInit);
 }
 
-
-uint8_t getSubPriority(USART_TypeDef* USARTx) {
-    if (USARTx == USART1) return 0;
-    if (USARTx == USART2) return 1;
-    if (USARTx == USART3) return 2;
+uint8_t getSubPriority(USART_TypeDef* USARTx)
+{
+    if (USARTx == USART1)
+        return 0;
+    if (USARTx == USART2)
+        return 1;
+    if (USARTx == USART3)
+        return 2;
     return 0;
 }
 
-
-template<USARTS UsartNumber>
+template <USARTS UsartNumber>
 void USART<UsartNumber>::NVICInit()
 {
     NVIC_InitTypeDef init;
@@ -155,8 +157,7 @@ void USART<UsartNumber>::NVICInit()
     NVIC_Init(&init);
 }
 
-
-template<USARTS UsartNumber>
+template <USARTS UsartNumber>
 void USART<UsartNumber>::USARTInit()
 {
     USART_InitTypeDef USART_InitStruct;
@@ -175,22 +176,22 @@ void USART<UsartNumber>::USARTInit()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::InitClocks()
 {
-    static_assert(sizeof(UsartNumber)==0, "Method needs to be specialized");
+    static_assert(sizeof(UsartNumber) == 0, "Method needs to be specialized");
 }
 
 /////////////////////////////////////////////
 //     specializations for USART1_PP1
 /////////////////////////////////////////////
 template <>
-USART<USARTS::USART1_PP1>::USART() :
-    gpioPortRx_(GPIOA),
-    gpioPortTx_(GPIOA),
-    gpioPinRx_(GPIO_Pin_10),
-    gpioPinTx_(GPIO_Pin_9),
-    gpioPinSourceRx_(GPIO_PinSource10),
-    gpioPinSourceTx_(GPIO_PinSource9),
-    gpioAF_(GPIO_AF_USART1),
-    usartIrqn_(USART1_IRQn)
+USART<USARTS::USART1_PP1>::USART()
+    : gpioPortRx_(GPIOA)
+    , gpioPortTx_(GPIOA)
+    , gpioPinRx_(GPIO_Pin_10)
+    , gpioPinTx_(GPIO_Pin_9)
+    , gpioPinSourceRx_(GPIO_PinSource10)
+    , gpioPinSourceTx_(GPIO_PinSource9)
+    , gpioAF_(GPIO_AF_USART1)
+    , usartIrqn_(USART1_IRQn)
 {
     USARTx_ = USART1;
     init();
@@ -207,7 +208,7 @@ USART<USARTS::USART1_PP1>& USART<USARTS::USART1_PP1>::getUsart()
 template <>
 void USART<USARTS::USART1_PP1>::InitClocks()
 {
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA , ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 }
 
@@ -215,15 +216,15 @@ void USART<USARTS::USART1_PP1>::InitClocks()
 //     specializations for USART2_PP1
 /////////////////////////////////////////////
 template <>
-USART<USARTS::USART2_PP1>::USART():
-    gpioPortRx_(GPIOB),
-    gpioPortTx_(GPIOB),
-    gpioPinRx_(GPIO_Pin_11),
-    gpioPinTx_(GPIO_Pin_10),
-    gpioPinSourceRx_(GPIO_PinSource11),
-    gpioPinSourceTx_(GPIO_PinSource10),
-    gpioAF_(GPIO_AF_USART3),
-    usartIrqn_(USART3_IRQn)
+USART<USARTS::USART2_PP1>::USART()
+    : gpioPortRx_(GPIOB)
+    , gpioPortTx_(GPIOB)
+    , gpioPinRx_(GPIO_Pin_11)
+    , gpioPinTx_(GPIO_Pin_10)
+    , gpioPinSourceRx_(GPIO_PinSource11)
+    , gpioPinSourceTx_(GPIO_PinSource10)
+    , gpioAF_(GPIO_AF_USART3)
+    , usartIrqn_(USART3_IRQn)
 {
     USARTx_ = USART3;
     init();
@@ -243,25 +244,22 @@ void USART<USARTS::USART2_PP1>::InitClocks()
     RCC_APB2PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 }
 
+template class
+    USART<USARTS::USART1_PP1>;
 
 template class
-USART<USARTS::USART1_PP1>;
-
-template class
-USART<USARTS::USART2_PP1>;
-
+    USART<USARTS::USART2_PP1>;
 }
 // volatile u8 flag =0;
 void USART1_IRQHandler(void)
 {
-    if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-    {
+    if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
         char c = USART1->DR;
         //if (c == '\r') c = '\n';
         hw::USART<hw::USARTS::USART1_PP1>::getUsart().getBuffer().write(c);
-      //  USART_SendData()
+        //  USART_SendData()
         //hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(1, c);
-    //    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+        //    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
         // if (c == 0x0d || c == 0x0a)
         // {
         //     char buf[4];
@@ -269,32 +267,36 @@ void USART1_IRQHandler(void)
         //     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(1, buf);
         // }
 
-     //   while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
+        //   while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
     }
 }
 
 void USART2_IRQHandler(void)
 {
-    if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-    {
+    if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) {
         char c = USART2->DR;
-        if (c == '\r') c = '\n';
+        if (c == '\r')
+            c = '\n';
         hw::USART<hw::USARTS::USART2_PP1>::getUsart().getBuffer().write(c);
-        while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+        while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
+            ;
         USART_SendData(USART2, c);
-        while(USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
+        while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET)
+            ;
     }
 }
 
 void USART3_IRQHandler(void)
 {
-    if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
-    {
+    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
         char c = USART3->DR;
-        if (c == '\r') c = '\n';
+        if (c == '\r')
+            c = '\n';
         hw::USART<hw::USARTS::USART2_PP1>::getUsart().getBuffer().write(c);
-        while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
+        while (USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET)
+            ;
         USART_SendData(USART3, c);
-        while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);
+        while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
+            ;
     }
 }
