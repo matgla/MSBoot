@@ -39,8 +39,32 @@ std::string to_string(NVIC_InitTypeDef* nvic)
 {
     std::stringstream ss;
     ss << "NVIC_InitTypeDef*(" << std::hex << nvic << ")"
-       << std::to_string(nvic->NVIC_IRQChannel) << std::to_string(nvic->NVIC_IRQChannelPreemptionPriority)
-       << std::to_string(nvic->NVIC_IRQChannelSubPriority) << std::to_string(nvic->NVIC_IRQChannelCmd);
+       << std::to_string(nvic->NVIC_IRQChannel)
+       << std::to_string(nvic->NVIC_IRQChannelPreemptionPriority)
+       << std::to_string(nvic->NVIC_IRQChannelSubPriority)
+       << std::to_string(nvic->NVIC_IRQChannelCmd);
+    return ss.str();
+}
+
+std::string to_string(USART_TypeDef* usart)
+{
+    std::stringstream ss;
+    ss << "USART_TypeDef*(" << std::hex << usart << ")"
+       << std::to_string(usart->SR)
+       << std::to_string(usart->RESERVED0)
+       << std::to_string(usart->DR)
+       << std::to_string(usart->RESERVED1)
+       << std::to_string(usart->BRR)
+       << std::to_string(usart->RESERVED2)
+       << std::to_string(usart->CR1)
+       << std::to_string(usart->RESERVED3)
+       << std::to_string(usart->CR2)
+       << std::to_string(usart->RESERVED4)
+       << std::to_string(usart->CR3)
+       << std::to_string(usart->RESERVED5)
+       << std::to_string(usart->GTPR)
+       << std::to_string(usart->RESERVED6);
+
     return ss.str();
 }
 }

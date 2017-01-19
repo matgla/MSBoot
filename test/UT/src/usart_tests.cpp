@@ -5,20 +5,14 @@
 #include "gpio_mock.hpp"
 #include "misc_mock.hpp"
 #include "rcc_mock.hpp"
+#include "usart_mock.hpp"
 
 #include "usart.hpp"
 
 class UsartShould : public ::testing::Test
 {
   public:
-    GET_TYPE_MOCK(RCC_AHB1PeriphClockCmd) & rccAhb1Mock;
-    GET_TYPE_MOCK(RCC_APB2PeriphClockCmd) & rccApb2Mock;
-    GET_TYPE_MOCK(GPIO_PinAFConfig) & gpioPinAfMock;
-    GET_TYPE_MOCK(GPIO_Init) & gpioInitMock;
-    GET_TYPE_MOCK(NVIC_Init) & nvicInitMock;
-
     UsartShould()
-        : rccAhb1Mock(GET_MOCK(RCC_AHB1PeriphClockCmd)), rccApb2Mock(GET_MOCK(RCC_APB2PeriphClockCmd)), gpioPinAfMock(GET_MOCK(GPIO_PinAFConfig)), gpioInitMock(GET_MOCK(GPIO_Init)), nvicInitMock(GET_MOCK(NVIC_Init))
     {
     }
 
@@ -28,17 +22,20 @@ class UsartShould : public ::testing::Test
 
     virtual void TearDown()
     {
-        rccAhb1Mock.verify();
-        rccApb2Mock.verify();
-        gpioPinAfMock.verify();
-        gpioInitMock.verify();
-        nvicInitMock.verify();
+        VERIFY_MOCK(RCC_AHB1PeriphClockCmd);
+        VERIFY_MOCK(RCC_APB2PeriphClockCmd);
+        VERIFY_MOCK(GPIO_PinAFConfig);
+        VERIFY_MOCK(GPIO_Init);
+        VERIFY_MOCK(NVIC_Init);
+        VERIFY_MOCK(USART_SendData);
+        VERIFY_MOCK(USART_GetFlagStatus);
+        VERIFY_MOCK(USART_GetITStatus);
     }
 
     void expectClocksConfiguration()
     {
-        EXPECT_CALL(rccAhb1Mock, RCC_AHB1Periph_GPIOA, ENABLE);
-        EXPECT_CALL(rccApb2Mock, RCC_APB2Periph_USART1, ENABLE);
+        EXPECT_CALL(RCC_AHB1PeriphClockCmd, RCC_AHB1Periph_GPIOA, ENABLE);
+        EXPECT_CALL(RCC_APB2PeriphClockCmd, RCC_APB2Periph_USART1, ENABLE);
     }
 
     GPIO_InitTypeDef expectedGpioInitialization;
@@ -47,14 +44,14 @@ class UsartShould : public ::testing::Test
 
     void expectGpioInit()
     {
-        EXPECT_CALL(gpioPinAfMock, GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
+        EXPECT_CALL(GPIO_PinAFConfig, GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
 
         expectedGpioInitialization.GPIO_Pin = GPIO_Pin_9;
         expectedGpioInitialization.GPIO_Mode = GPIO_Mode_AF;
         expectedGpioInitialization.GPIO_OType = GPIO_OType_PP;
         expectedGpioInitialization.GPIO_Speed = GPIO_Low_Speed;
         expectedGpioInitialization.GPIO_PuPd = GPIO_PuPd_UP;
-        EXPECT_CALL(gpioInitMock, GPIOA, &expectedGpioInitialization);
+        EXPECT_CALL(GPIO_Init, GPIOA, &expectedGpioInitialization);
 
         expectedGpio2Initialization.GPIO_Pin = GPIO_Pin_10;
         expectedGpio2Initialization.GPIO_Mode = GPIO_Mode_AF;
@@ -62,8 +59,8 @@ class UsartShould : public ::testing::Test
         expectedGpio2Initialization.GPIO_Speed = GPIO_Low_Speed;
         expectedGpio2Initialization.GPIO_PuPd = GPIO_PuPd_UP;
 
-        EXPECT_CALL(gpioPinAfMock, GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
-        EXPECT_CALL(gpioInitMock, GPIOA, &expectedGpio2Initialization);
+        EXPECT_CALL(GPIO_PinAFConfig, GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
+        EXPECT_CALL(GPIO_Init, GPIOA, &expectedGpio2Initialization);
     }
 
     void expectNvicInit()
@@ -73,15 +70,50 @@ class UsartShould : public ::testing::Test
         init.NVIC_IRQChannelPreemptionPriority = 6;
         init.NVIC_IRQChannelSubPriority = 0;
 
-        EXPECT_CALL(nvicInitMock, &init);
+        EXPECT_CALL(NVIC_Init, &init);
+    }
+
+    void expectInitialization()
+    {
+        expectClocksConfiguration();
+        expectGpioInit();
+        expectNvicInit();
     }
 };
 
-TEST_F(UsartShould, correctInitializePeripherials)
+// CAUTION this test must be first, because USART class is singleton
+TEST_F(UsartShould, InitializeHardwareCorrectly)
 {
-    expectClocksConfiguration();
-    expectGpioInit();
-    expectNvicInit();
+    expectInitialization();
 
-    hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+}
+
+TEST_F(UsartShould, HandleIrqRequestCorrect)
+{
+    const u16 EXPECTED_VALUE = 4;
+    USART1->DR = EXPECTED_VALUE;
+
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+    EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(RESET);
+    USART1_IRQHandler();
+    EXPECT_EQ(usart.getBuffer().size(), 0);
+
+    EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
+    USART1_IRQHandler();
+    EXPECT_EQ(usart.getBuffer().size(), 1);
+    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_VALUE);
+    EXPECT_EQ(usart.getBuffer().size(), 0);
+}
+
+TEST_F(UsartShould, SendByteCorrectly)
+{
+    char EXPECTED_SEND_DATA = 156;
+    u8 EXPECTED_FD = 1;
+
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+
+    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+
+    usart.send(EXPECTED_FD, EXPECTED_SEND_DATA);
 }

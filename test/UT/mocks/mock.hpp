@@ -84,30 +84,29 @@
 
 #define GET_TYPE_MOCK_VOID(function)
 
-#define MOCK_FUNCTION(returnType, function, ...)                          \
-    _ANONYMOUS_BEGIN                                                      \
-    Mock<returnType, __VA_ARGS__> mock_##function((size_t*)&function);    \
-    _ANONYMOUS_END                                                        \
-    void function GEN_ARGS(__VA_ARGS__)                                   \
-    {                                                                     \
-        auto& mock = GET_MOCK(function);                                  \
-        mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__); \
-        return mock.returnValue();                                        \
+#define MOCK_FUNCTION(returnType, function, ...)                                 \
+    _ANONYMOUS_BEGIN                                                             \
+    Mock<returnType, __VA_ARGS__> mock_##function((size_t*)&function);           \
+    _ANONYMOUS_END                                                               \
+    returnType function GEN_ARGS(__VA_ARGS__)                                    \
+    {                                                                            \
+        auto& mock = GET_MOCK(function);                                         \
+        return mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__); \
     }
 
-#define DECLARE_NICEMOCK_VOID_FUNCTION(function, ...)      \
-    _ANONYMOUS_BEGIN                                       \
-    extern NiceMock<int, __VA_ARGS__> nicemock_##function; \
+#define DECLARE_NICEMOCK_VOID_FUNCTION(function, ...)  \
+    _ANONYMOUS_BEGIN                                   \
+    extern NiceMock<int, __VA_ARGS__> mock_##function; \
     _ANONYMOUS_END
 
-#define DECLARE_NICEMOCK_FUNCTION(returnType, function, ...)      \
-    _ANONYMOUS_BEGIN                                              \
-    extern NiceMock<returnType, __VA_ARGS__> nicemock_##function; \
+#define DECLARE_NICEMOCK_FUNCTION(returnType, function, ...)  \
+    _ANONYMOUS_BEGIN                                          \
+    extern NiceMock<returnType, __VA_ARGS__> mock_##function; \
     _ANONYMOUS_END
 
 #define NICEMOCK_VOID_FUNCTION(function, ...)                             \
     _ANONYMOUS_BEGIN                                                      \
-    NiceMock<int, __VA_ARGS__> nicemock_##function((size_t*)&function);   \
+    NiceMock<int, __VA_ARGS__> mock_##function((size_t*)&function);       \
     _ANONYMOUS_END                                                        \
     void function GEN_ARGS(__VA_ARGS__)                                   \
     {                                                                     \
@@ -115,21 +114,23 @@
         mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__); \
     }
 
-#define NICEMOCK_FUNCTION(returnType, function, ...)                       \
-    _ANONYMOUS_BEGIN                                                       \
-    NiceMock<returnType, __VA_ARGS__> mock_##function((size_t*)&function); \
-    _ANONYMOUS_END                                                         \
-    void function GEN_ARGS(__VA_ARGS__)                                    \
-    {                                                                      \
-        auto& mock = GET_MOCK(function);                                   \
-        mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__);  \
-        return mock.returnValue();                                         \
+#define NICEMOCK_FUNCTION(returnType, function, ...)                             \
+    _ANONYMOUS_BEGIN                                                             \
+    NiceMock<returnType, __VA_ARGS__> mock_##function((size_t*)&function);       \
+    _ANONYMOUS_END                                                               \
+    returnType function GEN_ARGS(__VA_ARGS__)                                    \
+    {                                                                            \
+        auto& mock = GET_MOCK(function);                                         \
+        return mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__); \
     }
 
 #define GET_MOCK(function) mocks::mock_##function
 
-#define EXPECT_CALL(object, ...) \
-    object.expectCall(std::make_tuple(__VA_ARGS__), __FILE__, __LINE__)
+#define EXPECT_CALL(function, ...) \
+    GET_MOCK(function).expectCall(std::make_tuple(__VA_ARGS__), __FILE__, __LINE__)
+
+#define VERIFY_MOCK(function) \
+    GET_MOCK(function).verify()
 
 #define GET_TYPE_MOCK(function) decltype(mocks::mock_##function)
 
@@ -172,7 +173,7 @@ class Mock
 {
   protected:
     size_t* functionAddress_;
-    std::vector<Expectation<Args...>> expectations_;
+    std::vector<Expectation<ReturnType, Args...>> expectations_;
     int expected = 0;
     ReturnType returnValue_;
 
@@ -187,7 +188,10 @@ class Mock
     Mock(Mock&&) = delete;
     Mock(const Mock&) = delete;
     Mock(const Mock&&) = delete;
-    virtual ~Mock() = default;
+    virtual ~Mock()
+    {
+        verifyInDestructor();
+    }
 
     virtual void handleUnexpected(const std::tuple<Args...>& args,
         const char* name)
@@ -206,7 +210,7 @@ class Mock
         throw std::range_error(error);
     }
 
-    void call(const std::tuple<Args...>& args, const char* name)
+    ReturnType call(const std::tuple<Args...>& args, const char* name)
     {
         if (0 == expectations_.size())
         {
@@ -231,30 +235,27 @@ class Mock
                 break;
             }
         }
-
+        ReturnType returns_;
         if (position >= 0)
         {
+            returns_ = expectations_[position].returnValue();
             expectations_.erase(expectations_.begin() + position);
         }
         else
         {
             handleUnexpected(args, name);
         }
+        return returns_;
     }
 
-    Expectation<Args...>& expectCall(std::tuple<Args...> args, const char* file,
+    Expectation<ReturnType, Args...>& expectCall(std::tuple<Args...> args, const char* file,
         int line)
     {
-        Expectation<Args...> expectation(args);
+        Expectation<ReturnType, Args...> expectation(args);
         expectation.setFile(file);
         expectation.setLine(line);
         expectations_.push_back(expectation);
         return expectations_[expectations_.size() - 1];
-    }
-
-    ReturnType returnValue()
-    {
-        return returnValue_;
     }
 
     void verify()
@@ -274,13 +275,33 @@ class Mock
 
         expectations_.clear();
     }
+
+    void verifyInDestructor()
+    {
+        if (!expectations_.size())
+        {
+            return;
+        }
+
+        std::cerr << "Unresolved calls:" << std::endl;
+        for (const auto& call : expectations_)
+        {
+            std::cerr << call.getFile() << ":" << call.getLine() << std::endl;
+        }
+
+        expectations_.clear();
+        exit(-1);
+    }
 };
 
 template <typename ReturnType, typename... Args>
 class NiceMock : public Mock<ReturnType, Args...>
 {
   public:
-    virtual void handleUnexpected(std::tuple<Args...>& args,
+    using Mock<ReturnType, Args...>::Mock;
+
+
+    virtual void handleUnexpected(const std::tuple<Args...>& args,
         const char* name) override
     {
     }

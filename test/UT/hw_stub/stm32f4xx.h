@@ -2330,7 +2330,8 @@ typedef struct
 #define UART10              ((USART_TypeDef *) UART10_BASE)
 #define TIM1                ((TIM_TypeDef *) TIM1_BASE)
 #define TIM8                ((TIM_TypeDef *) TIM8_BASE)
-#define USART1              ((USART_TypeDef *) USART1_BASE)
+extern USART_TypeDef usart1;
+#define USART1              (&usart1)
 #define USART6              ((USART_TypeDef *) USART6_BASE)
 #define ADC                 ((ADC_Common_TypeDef *) ADC_BASE)
 #define ADC1                ((ADC_TypeDef *) ADC1_BASE)

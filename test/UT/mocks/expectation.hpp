@@ -1,16 +1,16 @@
 #pragma once
 
-template <typename... Args>
-class Expectation {
-public:
+template <typename ReturnType, typename... Args>
+class Expectation
+{
+  public:
     Expectation(bool inSequence = false)
         : inSequence_(inSequence)
     {
     }
 
     Expectation(std::tuple<Args...> expectedArgs, bool inSequence = false)
-        : inSequence_(inSequence)
-        , expectedArgs_(expectedArgs)
+        : inSequence_(inSequence), expectedArgs_(expectedArgs)
     {
     }
 
@@ -54,9 +54,20 @@ public:
         return line_;
     }
 
-private:
+    void willReturn(const ReturnType& returns)
+    {
+        returns_ = returns;
+    }
+
+    ReturnType returnValue()
+    {
+        return returns_;
+    }
+
+  private:
     bool inSequence_;
     std::tuple<Args...> expectedArgs_;
     std::string file_;
     int line_;
+    ReturnType returns_;
 };

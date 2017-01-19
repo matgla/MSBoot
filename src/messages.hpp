@@ -1,13 +1,8 @@
-#pragma once 
+#pragma once
 
 #include "types.h"
 
-// enum Messages
-// {
-//     Connection
-// };
-
-struct Message 
+struct Message
 {
     u8 fd;
     u8 size;

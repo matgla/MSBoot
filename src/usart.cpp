@@ -8,7 +8,8 @@ void usart_put(USART_TypeDef* USARTx, const char* str)
 
     /* Go through entire string */
 
-    while (*str) {
+    while (*str)
+    {
 
         /* Wait to be ready, buffer empty */
 
@@ -24,7 +25,8 @@ void usart_put(USART_TypeDef* USARTx, const char* str)
     }
 }
 
-namespace hw {
+namespace hw
+{
 
 template <USARTS UsartNumber>
 USART<UsartNumber>& USART<UsartNumber>::getUsart()
@@ -43,32 +45,38 @@ Buffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(u8 fd, char ch)
 {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
     };
     USART_SendData(USARTx_, fd);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
     };
     USART_SendData(USARTx_, 1);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
     };
-    // USART_SendData(USARTx_, 0);
     USART_SendData(USARTx_, ch);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
     };
 }
 
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(u8 fd, char* str)
 {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
     };
     USART_SendData(USARTx_, fd);
-    // USART_SendData(USARTx_, (strlen(str) && 0xffff0000) >> 4);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+    {
     };
     USART_SendData(USARTx_, strlen(str));
-    for (int i = 0; i < strlen(str); ++i) {
-        while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET) {
+    for (int i = 0; i < strlen(str); ++i)
+    {
+        while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET)
+        {
         };
         USART_SendData(USARTx_, str[i]);
     }
@@ -82,15 +90,19 @@ Message USART<UsartNumber>::getMessage()
     int index = 0;
     bool receivedSize = false;
     bool receivedFd = false;
-    while (index < msg.size) {
-        if (getBuffer().size()) {
-            if (!receivedFd) {
+    while (index < msg.size)
+    {
+        if (getBuffer().size())
+        {
+            if (!receivedFd)
+            {
                 msg.fd = getBuffer().getByte();
                 receivedFd = true;
                 continue;
             }
 
-            if (!receivedSize) {
+            if (!receivedSize)
+            {
                 msg.size = getBuffer().getByte();
                 receivedSize = true;
                 continue;
@@ -184,14 +196,7 @@ void USART<UsartNumber>::InitClocks()
 /////////////////////////////////////////////
 template <>
 USART<USARTS::USART1_PP1>::USART()
-    : gpioPortRx_(GPIOA)
-    , gpioPortTx_(GPIOA)
-    , gpioPinRx_(GPIO_Pin_10)
-    , gpioPinTx_(GPIO_Pin_9)
-    , gpioPinSourceRx_(GPIO_PinSource10)
-    , gpioPinSourceTx_(GPIO_PinSource9)
-    , gpioAF_(GPIO_AF_USART1)
-    , usartIrqn_(USART1_IRQn)
+    : gpioPortRx_(GPIOA), gpioPortTx_(GPIOA), gpioPinRx_(GPIO_Pin_10), gpioPinTx_(GPIO_Pin_9), gpioPinSourceRx_(GPIO_PinSource10), gpioPinSourceTx_(GPIO_PinSource9), gpioAF_(GPIO_AF_USART1), usartIrqn_(USART1_IRQn)
 {
     USARTx_ = USART1;
     init();
@@ -217,14 +222,7 @@ void USART<USARTS::USART1_PP1>::InitClocks()
 /////////////////////////////////////////////
 template <>
 USART<USARTS::USART2_PP1>::USART()
-    : gpioPortRx_(GPIOB)
-    , gpioPortTx_(GPIOB)
-    , gpioPinRx_(GPIO_Pin_11)
-    , gpioPinTx_(GPIO_Pin_10)
-    , gpioPinSourceRx_(GPIO_PinSource11)
-    , gpioPinSourceTx_(GPIO_PinSource10)
-    , gpioAF_(GPIO_AF_USART3)
-    , usartIrqn_(USART3_IRQn)
+    : gpioPortRx_(GPIOB), gpioPortTx_(GPIOB), gpioPinRx_(GPIO_Pin_11), gpioPinTx_(GPIO_Pin_10), gpioPinSourceRx_(GPIO_PinSource11), gpioPinSourceTx_(GPIO_PinSource10), gpioAF_(GPIO_AF_USART3), usartIrqn_(USART3_IRQn)
 {
     USARTx_ = USART3;
     init();
@@ -253,50 +251,18 @@ template class
 // volatile u8 flag =0;
 void USART1_IRQHandler(void)
 {
-    if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+    if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+    {
         char c = USART1->DR;
-        //if (c == '\r') c = '\n';
         hw::USART<hw::USARTS::USART1_PP1>::getUsart().getBuffer().write(c);
-        //  USART_SendData()
-        //hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(1, c);
-        //    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-        // if (c == 0x0d || c == 0x0a)
-        // {
-        //     char buf[4];
-        //     utils::itoa(c, buf, 10);
-        //     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(1, buf);
-        // }
-
-        //   while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
     }
 }
 
 void USART2_IRQHandler(void)
 {
-    if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) {
+    if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
+    {
         char c = USART2->DR;
-        if (c == '\r')
-            c = '\n';
         hw::USART<hw::USARTS::USART2_PP1>::getUsart().getBuffer().write(c);
-        while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
-            ;
-        USART_SendData(USART2, c);
-        while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET)
-            ;
-    }
-}
-
-void USART3_IRQHandler(void)
-{
-    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
-        char c = USART3->DR;
-        if (c == '\r')
-            c = '\n';
-        hw::USART<hw::USARTS::USART2_PP1>::getUsart().getBuffer().write(c);
-        while (USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET)
-            ;
-        USART_SendData(USART3, c);
-        while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
-            ;
     }
 }
