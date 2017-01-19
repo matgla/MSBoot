@@ -3,11 +3,9 @@
 #include <functional>
 #include <iostream>
 
-#include "stm32f4xx_gpio.h"
 #include "stringify.hpp"
 
 namespace comparators {
-
 template <typename Type>
 bool isEqual(const Type& a, const Type& b)
 {
@@ -27,6 +25,9 @@ bool isEqual(const Type* a, const Type* b)
 }
 
 bool isEqual(GPIO_InitTypeDef* a, GPIO_InitTypeDef* b);
+bool isEqual(NVIC_InitTypeDef* a, NVIC_InitTypeDef* b);
+
+/////////////////////////////////////
 
 template <typename Tuple, std::size_t N>
 struct TupleComparator {
