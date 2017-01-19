@@ -10,9 +10,9 @@
 
 USART_TypeDef usart1;
 
-NICEMOCK_FUNCTION(ITStatus, USART_GetITStatus, USART_TypeDef*, uint16_t);
-NICEMOCK_FUNCTION(FlagStatus, USART_GetFlagStatus, USART_TypeDef*, uint16_t);
-NICEMOCK_VOID_FUNCTION(USART_SendData, USART_TypeDef*, uint16_t);
+MOCK_FUNCTION(ITStatus, USART_GetITStatus, USART_TypeDef*, uint16_t);
+MOCK_FUNCTION(FlagStatus, USART_GetFlagStatus, USART_TypeDef*, uint16_t);
+MOCK_VOID_FUNCTION(USART_SendData, USART_TypeDef*, uint16_t);
 
 void USART_DeInit(USART_TypeDef* USARTx)
 {

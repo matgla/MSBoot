@@ -29,4 +29,5 @@ TEST_F(UsartDownloaderShould, WaitForSoftwareProvider)
 {
     Logger logger;
     UsartDownloader downloader(logger);
+
 }

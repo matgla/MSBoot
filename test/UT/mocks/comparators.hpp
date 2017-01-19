@@ -5,22 +5,17 @@
 
 #include "stringify.hpp"
 
-namespace comparators {
+namespace comparators
+{
 template <typename Type>
 bool isEqual(const Type& a, const Type& b)
 {
-    if (a != b) {
-        std::cerr << std::to_string(a) << " != " << std::to_string(b) << std::endl;
-    }
     return a == b;
 }
 
 template <typename Type>
 bool isEqual(const Type* a, const Type* b)
 {
-    if (a != b) {
-        std::cerr << std::to_string(a) << " != " << std::to_string(b) << std::endl;
-    }
     return a == b;
 }
 
@@ -30,7 +25,8 @@ bool isEqual(NVIC_InitTypeDef* a, NVIC_InitTypeDef* b);
 /////////////////////////////////////
 
 template <typename Tuple, std::size_t N>
-struct TupleComparator {
+struct TupleComparator
+{
     static bool isEqual(const Tuple& a, const Tuple& b)
     {
         return comparators::isEqual(std::get<N - 1>(a), std::get<N - 1>(b)) && TupleComparator<Tuple, N - 1>::isEqual(a, b);
@@ -38,7 +34,8 @@ struct TupleComparator {
 };
 
 template <typename Tuple>
-struct TupleComparator<Tuple, 1> {
+struct TupleComparator<Tuple, 1>
+{
     static bool isEqual(const Tuple& a, const Tuple& b)
     {
         return comparators::isEqual(std::get<0>(a), std::get<0>(b));

@@ -349,12 +349,14 @@ class Mock<ReturnType, Args...> : public Mock<ReturnType>
                 expectation.inSequence() && 0 == i)
             {
                 position = 0;
+
                 break;
             }
             else if (comparators::compareTuple(expectation.getExpectedArgs(), args) &&
                 !expectation.inSequence())
             {
                 position = i;
+
                 break;
             }
         }
@@ -380,6 +382,42 @@ class Mock<ReturnType, Args...> : public Mock<ReturnType>
         expectation.setLine(line);
         expectations_.push_back(expectation);
         return expectations_[expectations_.size() - 1];
+    }
+
+
+    void verify()
+    {
+        EXPECT_EQ(0, expectations_.size());
+
+        if (!expectations_.size())
+        {
+            return;
+        }
+
+        std::cerr << "Unresolved calls:" << std::endl;
+        for (const auto& call : expectations_)
+        {
+            std::cerr << call.getFile() << ":" << call.getLine() << std::endl;
+        }
+
+        expectations_.clear();
+    }
+
+    void verifyInDestructor()
+    {
+        if (!expectations_.size())
+        {
+            return;
+        }
+
+        std::cerr << "Unresolved calls:" << std::endl;
+        for (const auto& call : expectations_)
+        {
+            std::cerr << call.getFile() << ":" << call.getLine() << std::endl;
+        }
+
+        expectations_.clear();
+        exit(-1);
     }
 };
 
