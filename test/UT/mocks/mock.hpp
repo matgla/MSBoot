@@ -62,9 +62,19 @@
         _GEN_ARGS2, _GEN_ARGS1, _GEN_ARGS0)                            \
     (__VA_ARGS__)
 
+#define DECLARE_MOCK_VOID_FUNCTION_NO_PARAMS(function) \
+    _ANONYMOUS_BEGIN                                   \
+    extern Mock<int> mock_##function;                  \
+    _ANONYMOUS_END
+
 #define DECLARE_MOCK_VOID_FUNCTION(function, ...)  \
     _ANONYMOUS_BEGIN                               \
     extern Mock<int, __VA_ARGS__> mock_##function; \
+    _ANONYMOUS_END
+
+#define DECLARE_MOCK_FUNCTION_NO_PARAMS(returnType, function) \
+    _ANONYMOUS_BEGIN                                          \
+    extern Mock<returnType> mock_##function;                  \
     _ANONYMOUS_END
 
 #define DECLARE_MOCK_FUNCTION(returnType, function, ...)  \
@@ -82,7 +92,15 @@
         mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__); \
     }
 
-#define GET_TYPE_MOCK_VOID(function)
+#define MOCK_VOID_FUNCTION_NO_PARAMS(function)     \
+    _ANONYMOUS_BEGIN                               \
+    Mock<int> mock_##function((size_t*)&function); \
+    _ANONYMOUS_END                                 \
+    void function()                                \
+    {                                              \
+        auto& mock = GET_MOCK(function);           \
+        mock.call(__FUNCTION__);                   \
+    }
 
 #define MOCK_FUNCTION(returnType, function, ...)                                 \
     _ANONYMOUS_BEGIN                                                             \
@@ -92,6 +110,16 @@
     {                                                                            \
         auto& mock = GET_MOCK(function);                                         \
         return mock.call(std::make_tuple GET_VALUES(__VA_ARGS__), __FUNCTION__); \
+    }
+
+#define MOCK_FUNCTION_NO_PARAMS(returnType, function)     \
+    _ANONYMOUS_BEGIN                                      \
+    Mock<returnType> mock_##function((size_t*)&function); \
+    _ANONYMOUS_END                                        \
+    returnType function()                                 \
+    {                                                     \
+        auto& mock = GET_MOCK(function);                  \
+        return mock.call(__FUNCTION__);                   \
     }
 
 #define DECLARE_NICEMOCK_VOID_FUNCTION(function, ...)  \
@@ -168,15 +196,12 @@ std::string
     return str;
 }
 
-template <typename ReturnType, typename... Args>
-class Mock
-{
-  protected:
-    size_t* functionAddress_;
-    std::vector<Expectation<ReturnType, Args...>> expectations_;
-    int expected = 0;
-    ReturnType returnValue_;
+template <typename... Args>
+class Mock;
 
+template <typename ReturnType>
+class Mock<ReturnType>
+{
   public:
     Mock() = delete;
     Mock(size_t* address)
@@ -193,13 +218,11 @@ class Mock
         verifyInDestructor();
     }
 
-    virtual void handleUnexpected(const std::tuple<Args...>& args,
-        const char* name)
+    virtual void handleUnexpected(const char* name)
     {
         std::string error = "Unexpected call";
         error += ": ";
         error += name;
-        error += tupleToString(args);
 
         std::cerr << "Unresolved calls:" << std::endl;
         for (const auto& call : expectations_)
@@ -210,48 +233,31 @@ class Mock
         throw std::range_error(error);
     }
 
-    ReturnType call(const std::tuple<Args...>& args, const char* name)
+    ReturnType call(const char* name)
     {
         if (0 == expectations_.size())
         {
-            handleUnexpected(args, name);
+            handleUnexpected(name);
         }
 
-        int position = -1;
-
-        for (int i = 0; i < expectations_.size(); ++i)
-        {
-            auto& expectation = expectations_[i];
-            if (comparators::compareTuple(expectation.getExpectedArgs(), args) &&
-                expectation.inSequence() && 0 == i)
-            {
-                position = 0;
-                break;
-            }
-            else if (comparators::compareTuple(expectation.getExpectedArgs(), args) &&
-                !expectation.inSequence())
-            {
-                position = i;
-                break;
-            }
-        }
         ReturnType returns_;
-        if (position >= 0)
+
+        if (0 == expectations_.size())
         {
-            returns_ = expectations_[position].returnValue();
-            expectations_.erase(expectations_.begin() + position);
+            returns_ = expectations_[0].returnValue();
+            expectations_.erase(expectations_.begin());
         }
         else
         {
-            handleUnexpected(args, name);
+            handleUnexpected(name);
         }
         return returns_;
     }
 
-    Expectation<ReturnType, Args...>& expectCall(std::tuple<Args...> args, const char* file,
+    Expectation<ReturnType>& expectCall(const char* file,
         int line)
     {
-        Expectation<ReturnType, Args...> expectation(args);
+        Expectation<ReturnType> expectation();
         expectation.setFile(file);
         expectation.setLine(line);
         expectations_.push_back(expectation);
@@ -292,6 +298,89 @@ class Mock
         expectations_.clear();
         exit(-1);
     }
+
+  protected:
+    size_t* functionAddress_;
+    int expected = 0;
+    ReturnType returnValue_;
+    std::vector<Expectation<ReturnType>> expectations_;
+};
+
+template <typename ReturnType, typename... Args>
+class Mock<ReturnType, Args...> : public Mock<ReturnType>
+{
+  protected:
+    std::vector<Expectation<ReturnType, Args...>> expectations_;
+
+  public:
+    using Mock<ReturnType>::Mock;
+
+    virtual void handleUnexpected(const std::tuple<Args...>& args,
+        const char* name)
+    {
+        std::string error = "Unexpected call";
+        error += ": ";
+        error += name;
+        error += tupleToString(args);
+
+        std::cerr << "Unresolved calls:" << std::endl;
+        for (const auto& call : expectations_)
+        {
+            std::cerr << call.getFile() << ":" << call.getLine() << std::endl;
+        }
+
+        throw std::range_error(error);
+    }
+
+
+    ReturnType call(const std::tuple<Args...>& args, const char* name)
+    {
+        if (0 == expectations_.size())
+        {
+            handleUnexpected(args, name);
+        }
+
+        int position = -1;
+
+        for (int i = 0; i < expectations_.size(); ++i)
+        {
+            auto& expectation = expectations_[i];
+            if (comparators::compareTuple(expectation.getExpectedArgs(), args) &&
+                expectation.inSequence() && 0 == i)
+            {
+                position = 0;
+                break;
+            }
+            else if (comparators::compareTuple(expectation.getExpectedArgs(), args) &&
+                !expectation.inSequence())
+            {
+                position = i;
+                break;
+            }
+        }
+        ReturnType returns_;
+        if (position >= 0)
+        {
+            returns_ = expectations_[position].returnValue();
+            expectations_.erase(expectations_.begin() + position);
+        }
+        else
+        {
+            handleUnexpected(args, name);
+        }
+        return returns_;
+    }
+
+
+    Expectation<ReturnType, Args...>& expectCall(std::tuple<Args...> args, const char* file,
+        int line)
+    {
+        Expectation<ReturnType, Args...> expectation(args);
+        expectation.setFile(file);
+        expectation.setLine(line);
+        expectations_.push_back(expectation);
+        return expectations_[expectations_.size() - 1];
+    }
 };
 
 template <typename ReturnType, typename... Args>
@@ -303,6 +392,10 @@ class NiceMock : public Mock<ReturnType, Args...>
 
     virtual void handleUnexpected(const std::tuple<Args...>& args,
         const char* name) override
+    {
+    }
+
+    virtual void handleUnexpected(const char* name) override
     {
     }
 };

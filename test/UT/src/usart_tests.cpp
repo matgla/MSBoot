@@ -14,6 +14,10 @@ class UsartShould : public ::testing::Test
   public:
     UsartShould()
     {
+        if (!hw::USART<hw::USARTS::USART1_PP1>::initialized())
+        {
+            expectInitialization();
+        }
     }
 
     virtual void SetUp()
@@ -31,63 +35,7 @@ class UsartShould : public ::testing::Test
         VERIFY_MOCK(USART_GetFlagStatus);
         VERIFY_MOCK(USART_GetITStatus);
     }
-
-    void expectClocksConfiguration()
-    {
-        EXPECT_CALL(RCC_AHB1PeriphClockCmd, RCC_AHB1Periph_GPIOA, ENABLE);
-        EXPECT_CALL(RCC_APB2PeriphClockCmd, RCC_APB2Periph_USART1, ENABLE);
-    }
-
-    GPIO_InitTypeDef expectedGpioInitialization;
-    GPIO_InitTypeDef expectedGpio2Initialization;
-    NVIC_InitTypeDef init;
-
-    void expectGpioInit()
-    {
-        EXPECT_CALL(GPIO_PinAFConfig, GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
-
-        expectedGpioInitialization.GPIO_Pin = GPIO_Pin_9;
-        expectedGpioInitialization.GPIO_Mode = GPIO_Mode_AF;
-        expectedGpioInitialization.GPIO_OType = GPIO_OType_PP;
-        expectedGpioInitialization.GPIO_Speed = GPIO_Low_Speed;
-        expectedGpioInitialization.GPIO_PuPd = GPIO_PuPd_UP;
-        EXPECT_CALL(GPIO_Init, GPIOA, &expectedGpioInitialization);
-
-        expectedGpio2Initialization.GPIO_Pin = GPIO_Pin_10;
-        expectedGpio2Initialization.GPIO_Mode = GPIO_Mode_AF;
-        expectedGpio2Initialization.GPIO_OType = GPIO_OType_PP;
-        expectedGpio2Initialization.GPIO_Speed = GPIO_Low_Speed;
-        expectedGpio2Initialization.GPIO_PuPd = GPIO_PuPd_UP;
-
-        EXPECT_CALL(GPIO_PinAFConfig, GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
-        EXPECT_CALL(GPIO_Init, GPIOA, &expectedGpio2Initialization);
-    }
-
-    void expectNvicInit()
-    {
-        init.NVIC_IRQChannel = USART1_IRQn;
-        init.NVIC_IRQChannelCmd = ENABLE;
-        init.NVIC_IRQChannelPreemptionPriority = 6;
-        init.NVIC_IRQChannelSubPriority = 0;
-
-        EXPECT_CALL(NVIC_Init, &init);
-    }
-
-    void expectInitialization()
-    {
-        expectClocksConfiguration();
-        expectGpioInit();
-        expectNvicInit();
-    }
 };
-
-// CAUTION this test must be first, because USART class is singleton
-TEST_F(UsartShould, InitializeHardwareCorrectly)
-{
-    expectInitialization();
-
-    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
-}
 
 TEST_F(UsartShould, HandleIrqRequestCorrect)
 {

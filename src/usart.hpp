@@ -1,19 +1,25 @@
 #include "utils.hpp"
 #include <cstdint>
-#include <system_stm32f4xx.h>
-#include <stm32f4xx_usart.h>
 #include <stm32f4xx_gpio.h>
+#include <stm32f4xx_usart.h>
+#include <system_stm32f4xx.h>
+
 
 #include "buffer.hpp"
 #include "messages.hpp"
 
-#define USART_WAIT(USARTx) do { while (!((USARTx)->SR & USART_FLAG_TXE)); } while (0)
+#define USART_WAIT(USARTx)                       \
+    do                                           \
+    {                                            \
+        while (!((USARTx)->SR & USART_FLAG_TXE)) \
+            ;                                    \
+    } while (0)
 #define BUFFER_SIZE 100
 
 void USART_GPIO_init(void);
 void USART_NVIC_init(void);
 void USART_init(void);
-void usart_put(USART_TypeDef* USARTx, const char *str);
+void usart_put(USART_TypeDef* USARTx, const char* str);
 
 namespace hw
 {
@@ -26,13 +32,15 @@ enum class USARTS
 template <USARTS UsartNumber>
 class USART
 {
-public:
+  public:
     static USART& getUsart();
+    static bool initialized();
     Buffer<BUFFER_SIZE>& getBuffer();
     void send(u8 fd, char ch);
     void send(u8 fd, char* str);
     Message getMessage();
-private:
+
+  private:
     USART();
     void init();
     void GPIOInit(u16 pin, u16 pinSource, u16 afUsart, GPIO_TypeDef* port);
@@ -58,8 +66,7 @@ private:
 };
 }
 
-extern "C"
-{
+extern "C" {
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);

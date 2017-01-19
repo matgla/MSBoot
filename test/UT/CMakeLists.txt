@@ -9,13 +9,19 @@ file (GLOB_RECURSE SRCS src/*.c
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_STDPERIPH_DRIVER -DUSE_FULL_ASSERT -DSTM32F40_41xxx -std=c99")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_STDPERIPH_DRIVER -DUSE_FULL_ASSERT -DSTM32F40_41xxx -std=c++1y")
 
-file (GLOB PROD_SRCS  ${PROJECT_SOURCE_DIR}/src/buffer.hpp
-                      ${PROJECT_SOURCE_DIR}/src/logger.hpp
-                      ${PROJECT_SOURCE_DIR}/src/logger.cpp
-                      ${PROJECT_SOURCE_DIR}/src/utils.h
-                      ${PROJECT_SOURCE_DIR}/src/usart.hpp
-                      ${PROJECT_SOURCE_DIR}/src/usart.cpp
-                      ${PROJECT_SOURCE_DIR}/src/types.h)
+file (GLOB PROD_SRCS    ${PROJECT_SOURCE_DIR}/src/buffer.hpp
+                        ${PROJECT_SOURCE_DIR}/src/logger.hpp
+                        ${PROJECT_SOURCE_DIR}/src/logger.cpp
+                        ${PROJECT_SOURCE_DIR}/src/utils.h
+                        ${PROJECT_SOURCE_DIR}/src/usart.hpp
+                        ${PROJECT_SOURCE_DIR}/src/usart.cpp
+                        ${PROJECT_SOURCE_DIR}/src/messages.hpp
+                        ${PROJECT_SOURCE_DIR}/src/messages.cpp
+                        ${PROJECT_SOURCE_DIR}/src/utils.hpp
+                        ${PROJECT_SOURCE_DIR}/src/utils.cpp
+                        ${PROJECT_SOURCE_DIR}/src/usart_downloader.hpp
+                        ${PROJECT_SOURCE_DIR}/src/usart_downloader.cpp
+                        ${PROJECT_SOURCE_DIR}/src/types.h)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 message ("Source dir: ${PROD_SRCS}")
 

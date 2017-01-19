@@ -2,7 +2,11 @@
 
 #include <vector>
 
+#include "gpio_mock.hpp"
+#include "misc_mock.hpp"
 #include "mock.hpp"
+#include "rcc_mock.hpp"
+
 
 USART_TypeDef usart1;
 
@@ -113,4 +117,77 @@ void USART_ClearFlag(USART_TypeDef* USARTx, uint16_t USART_FLAG)
 
 void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT)
 {
+}
+
+
+void expectSendData(u8 fd, char data)
+{
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, fd);
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, 1);
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, data);
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+}
+
+void expectSendData(u8 fd, const char* data)
+{
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, fd);
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, strlen(data));
+    for (int i = 0; i < strlen(data); ++i)
+    {
+        EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+        EXPECT_CALL(USART_SendData, USART1, data[i]);
+    }
+}
+
+void expectClocksConfiguration()
+{
+    EXPECT_CALL(RCC_AHB1PeriphClockCmd, RCC_AHB1Periph_GPIOA, ENABLE);
+    EXPECT_CALL(RCC_APB2PeriphClockCmd, RCC_APB2Periph_USART1, ENABLE);
+}
+
+GPIO_InitTypeDef expectedGpioInitialization;
+GPIO_InitTypeDef expectedGpio2Initialization;
+NVIC_InitTypeDef init;
+
+void expectGpioInit()
+{
+    EXPECT_CALL(GPIO_PinAFConfig, GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
+
+    expectedGpioInitialization.GPIO_Pin = GPIO_Pin_9;
+    expectedGpioInitialization.GPIO_Mode = GPIO_Mode_AF;
+    expectedGpioInitialization.GPIO_OType = GPIO_OType_PP;
+    expectedGpioInitialization.GPIO_Speed = GPIO_Low_Speed;
+    expectedGpioInitialization.GPIO_PuPd = GPIO_PuPd_UP;
+    EXPECT_CALL(GPIO_Init, GPIOA, &expectedGpioInitialization);
+
+    expectedGpio2Initialization.GPIO_Pin = GPIO_Pin_10;
+    expectedGpio2Initialization.GPIO_Mode = GPIO_Mode_AF;
+    expectedGpio2Initialization.GPIO_OType = GPIO_OType_PP;
+    expectedGpio2Initialization.GPIO_Speed = GPIO_Low_Speed;
+    expectedGpio2Initialization.GPIO_PuPd = GPIO_PuPd_UP;
+
+    EXPECT_CALL(GPIO_PinAFConfig, GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
+    EXPECT_CALL(GPIO_Init, GPIOA, &expectedGpio2Initialization);
+}
+
+void expectNvicInit()
+{
+    init.NVIC_IRQChannel = USART1_IRQn;
+    init.NVIC_IRQChannelCmd = ENABLE;
+    init.NVIC_IRQChannelPreemptionPriority = 6;
+    init.NVIC_IRQChannelSubPriority = 0;
+
+    EXPECT_CALL(NVIC_Init, &init);
+}
+
+void expectInitialization()
+{
+    expectClocksConfiguration();
+    expectGpioInit();
+    expectNvicInit();
 }

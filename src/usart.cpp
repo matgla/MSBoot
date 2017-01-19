@@ -28,6 +28,8 @@ void usart_put(USART_TypeDef* USARTx, const char* str)
 namespace hw
 {
 
+bool wasUsart1Initialized = false;
+
 template <USARTS UsartNumber>
 USART<UsartNumber>& USART<UsartNumber>::getUsart()
 {
@@ -86,29 +88,29 @@ template <USARTS UsartNumber>
 Message USART<UsartNumber>::getMessage()
 {
     Message msg;
-    msg.size = 1;
+    msg.size_ = 1;
     int index = 0;
     bool receivedSize = false;
     bool receivedFd = false;
-    while (index < msg.size)
+    while (index < msg.size_)
     {
         if (getBuffer().size())
         {
             if (!receivedFd)
             {
-                msg.fd = getBuffer().getByte();
+                msg.fd_ = getBuffer().getByte();
                 receivedFd = true;
                 continue;
             }
 
             if (!receivedSize)
             {
-                msg.size = getBuffer().getByte();
+                msg.size_ = getBuffer().getByte();
                 receivedSize = true;
                 continue;
             }
 
-            msg.payload[index++] = getBuffer().getByte();
+            msg.payload_[index++] = getBuffer().getByte();
         }
     }
 
@@ -119,6 +121,13 @@ template <USARTS UsartNumber>
 USART<UsartNumber>::USART()
 {
     static_assert(sizeof(UsartNumber) == 0, "Method needs to be specialized");
+}
+
+template <USARTS UsartNumber>
+bool USART<UsartNumber>::initialized()
+{
+    static_assert(sizeof(UsartNumber) == 0, "Method needs to be specialized");
+    return false;
 }
 
 template <USARTS UsartNumber>
@@ -206,8 +215,14 @@ template <>
 USART<USARTS::USART1_PP1>& USART<USARTS::USART1_PP1>::getUsart()
 {
     static USART s1;
-
+    wasUsart1Initialized = true;
     return s1;
+}
+
+template <>
+bool USART<USARTS::USART1_PP1>::initialized()
+{
+    return wasUsart1Initialized;
 }
 
 template <>
@@ -228,11 +243,20 @@ USART<USARTS::USART2_PP1>::USART()
     init();
 }
 
+bool wasUsart2Initialized = false;
+
 template <>
 USART<USARTS::USART2_PP1>& USART<USARTS::USART2_PP1>::getUsart()
 {
     static USART s2;
+    wasUsart2Initialized = true;
     return s2;
+}
+
+template <>
+bool USART<USARTS::USART2_PP1>::initialized()
+{
+    return wasUsart2Initialized;
 }
 
 template <>

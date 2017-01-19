@@ -1,7 +1,10 @@
 #pragma once
 
-template <typename ReturnType, typename... Args>
-class Expectation
+template <typename... Args>
+class Expectation;
+
+template <typename ReturnType>
+class Expectation<ReturnType>
 {
   public:
     Expectation(bool inSequence = false)
@@ -9,24 +12,9 @@ class Expectation
     {
     }
 
-    Expectation(std::tuple<Args...> expectedArgs, bool inSequence = false)
-        : inSequence_(inSequence), expectedArgs_(expectedArgs)
-    {
-    }
-
     void setInSequence()
     {
         inSequence_ = true;
-    }
-
-    void setExpectedArgs(std::tuple<Args...> expectedArgs)
-    {
-        expectedArgs_ = expectedArgs;
-    }
-
-    const std::tuple<Args...>& getExpectedArgs()
-    {
-        return expectedArgs_;
     }
 
     bool inSequence()
@@ -66,8 +54,30 @@ class Expectation
 
   private:
     bool inSequence_;
-    std::tuple<Args...> expectedArgs_;
     std::string file_;
     int line_;
     ReturnType returns_;
+};
+
+template <typename ReturnType, typename... Args>
+class Expectation<ReturnType, Args...> : public Expectation<ReturnType>
+{
+  public:
+    Expectation(std::tuple<Args...> expectedArgs, bool inSequence = false)
+        : Expectation<ReturnType>(inSequence), expectedArgs_(expectedArgs)
+    {
+    }
+
+    void setExpectedArgs(std::tuple<Args...> expectedArgs)
+    {
+        expectedArgs_ = expectedArgs;
+    }
+
+    const std::tuple<Args...>& getExpectedArgs()
+    {
+        return expectedArgs_;
+    }
+
+  private:
+    std::tuple<Args...> expectedArgs_;
 };
