@@ -117,3 +117,15 @@ TEST_F(UsartShould, SendByteCorrectly)
 
     usart.send(EXPECTED_FD, EXPECTED_SEND_DATA);
 }
+
+TEST_F(UsartShould, SendStringCorrectly)
+{
+    char EXPECTED_SEND_DATA[100] = "DataTo send\0";
+    u8 EXPECTED_FD = 1;
+
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+
+    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+
+    usart.send(EXPECTED_FD, EXPECTED_SEND_DATA);
+}
