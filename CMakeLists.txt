@@ -11,6 +11,7 @@ cmake_minimum_required(VERSION 2.8)
 
 # Turn ON/OFF verbose output
 set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(ARM_TOOLCHAIN, $ENV{ARM_TOOLCHAIN})
 
 option(BUILD_TESTS OFF "Build all tests")
 option(BUILD_TARGET OFF "Build target")
@@ -66,7 +67,7 @@ if (BUILD_TARGET)
     target_link_libraries(stm32BootLoader.elf stm32lib ${STM32_LIBRARIES})
 
     add_custom_command(TARGET  POST_BUILD stm32BootLoader.elf
-        COMMAND arm-none-eabi-size --format=berkeley "stm32BootLoader.elf")
+        COMMAND ${ARM_TOOLCHAIN}/bin/arm-none-eabi-size --format=berkeley "stm32BootLoader.elf")
 
     add_custom_target(stm32BootLoader.hex DEPENDS stm32BootLoader.elf COMMAND ${CMAKE_OBJCOPY} -Oihex stm32BootLoader.elf stm32BootLoader.hex)
     add_custom_target(stm32BootLoader.bin DEPENDS stm32BootLoader.elf COMMAND ${CMAKE_OBJCOPY} -Obinary stm32BootLoader.elf stm32BootLoader.bin)

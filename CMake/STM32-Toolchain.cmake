@@ -7,13 +7,13 @@ set(CMAKE_SYSTEM_PROCESSOR arm-eabi)
 # which compilers to use for C and C++
 #
 include (CMakeForceCompiler)
-CMAKE_FORCE_C_COMPILER(    arm-none-eabi-gcc gnu)
-CMAKE_FORCE_CXX_COMPILER(  arm-none-eabi-g++ gnu)
-set(CMAKE_ASM_COMPILER     arm-none-eabi-as CACHE STRING "AS compiler" FORCE)
-set(CMAKE_OBJCOPY     	   arm-none-eabi-objcopy CACHE STRING "OBJ copy" FORCE)
-set(CMAKE_OBJDUMP     	   arm-none-eabi-objdump CACHE STRING "OBJ dump" FORCE)
+set(ARM_TOOLCHAIN $ENV{ARM_TOOLCHAIN})
+CMAKE_FORCE_C_COMPILER(    "${ARM_TOOLCHAIN}/bin/arm-none-eabi-gcc" gnu)
+CMAKE_FORCE_CXX_COMPILER(  "${ARM_TOOLCHAIN}/bin/arm-none-eabi-g++" gnu)
+set(CMAKE_ASM_COMPILER     "${ARM_TOOLCHAIN}/bin/arm-none-eabi-as" CACHE STRING "AS compiler" FORCE)
+set(CMAKE_OBJCOPY     	   "${ARM_TOOLCHAIN}/bin/arm-none-eabi-objcopy" CACHE STRING "OBJ copy" FORCE)
+set(CMAKE_OBJDUMP     	   "${ARM_TOOLCHAIN}/bin/arm-none-eabi-objdump" CACHE STRING "OBJ dump" FORCE)
 
-#set(TOOCHAIN_INC_DIR "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/arm-none-eabi/include")
 set(TOOCHAIN_LIB_DIR "${ARM_TOOLCHAIN}/lib")
 
 SET(CMAKE_C_FLAGS "-mthumb -mcpu=cortex-m4 -fno-builtin -Wall -std=gnu99 -fdata-sections -ffunction-sections -Os -s" CACHE INTERNAL "c compiler flags")

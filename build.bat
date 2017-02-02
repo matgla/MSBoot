@@ -1,3 +1,1 @@
-cd bin
-mingw32-make -j4
-cd ..
+docker run -v //d//repos//stm32-bootloader:/mnt/source docker_stm su - admin -s /bin/bash -c "cd /mnt/source && sh build.sh"

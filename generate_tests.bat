@@ -1,5 +1,1 @@
-rmdir /Q /S bin_test
-mkdir bin_test
-cd bin_test
-cmake .. -G"MinGW Makefiles" -DBUILD_TESTS=ON
-cd ..
+docker run -v //d//repos//stm32-bootloader:/mnt/source docker_stm su - admin -s /bin/bash -c "cd /mnt/source && sh generate_tests.sh"

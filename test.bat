@@ -1,5 +1,1 @@
-cd bin_test
-del test\UT\bootloaderUTs.exe
-mingw32-make -j8
-test\UT\bootloaderUTs
-cd ..
+docker run -v //d//repos//stm32-bootloader:/mnt/source docker_stm su - admin -s /bin/bash -c "cd /mnt/source && sh test.sh"

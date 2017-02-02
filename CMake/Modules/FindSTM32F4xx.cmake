@@ -1,5 +1,7 @@
 # Find the STM32 CMSIS and StdPeriph libraries
 
+set(STM32_LIBRARY_ROOT_DIR $ENV{STM32_LIBRARY_ROOT_DIR})
+
 find_path(STM32_LIBRARY_ROOT_DIR
     CMSIS/Include/core_cm4.h
     STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h
