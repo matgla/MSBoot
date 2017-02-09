@@ -28,8 +28,6 @@ void usart_put(USART_TypeDef* USARTx, const char* str)
 namespace hw
 {
 
-bool wasUsart1Initialized = false;
-
 template <USARTS UsartNumber>
 USART<UsartNumber>& USART<UsartNumber>::getUsart()
 {
@@ -209,6 +207,13 @@ USART<USARTS::USART1_PP1>::USART()
 {
     USARTx_ = USART1;
     init();
+}
+
+bool wasUsart1Initialized = false;
+
+bool returnTrue()
+{
+    return true;
 }
 
 template <>
