@@ -64,5 +64,7 @@ run sudo apt-get update
 run sudo apt-get install -y gcc-5 g++-5
 run sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
 run sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
+run sudo apt-get install -y python-pip
+run sudo pip install behave
 # 7.2 Commands to be executed when docker container starts
 cmd ["/usr/bin/supervisord", "-n"]

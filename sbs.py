@@ -3,17 +3,30 @@
 from os import path
 from subprocess import call
 from colorama import init, Fore, Back, Style
+from build_system.builder import CommandBuilder
+from build_system.docker_builder import DockerBuilder
 import argparse
 import re
 
 init()
 parser = argparse.ArgumentParser()
-parser.add_argument('-n', '--no-docker', dest='nodocker', action='store_true')
-parser.add_argument('-b', '--build', dest='build', action='store_true')
-parser.add_argument('-g', '--generate', dest='generate', action='store_true')
-parser.add_argument('-t', '--test', dest='test', action='store_true')
-parser.add_argument('-c', '--generate_test',
-                    dest='generate_test', action='store_true')
+parser.add_argument('-n', '--native-builder', dest='native', action='store_true',
+                    help="don't use Docker")
+parser.add_argument('-b', '--build', dest='build', action='store_true',
+                    help="build project")
+parser.add_argument('-g', '--generate', dest='generate', action='store_true',
+                    help="generate project")
+parser.add_argument('-t', '--test', dest='test', action='store_true',
+                    help="run all tests")
+parser.add_argument('-c', '--generate_test', dest='generate_test', action='store_true',
+                    help="generate sources for unit tests")
+parser.add_argument('-r', '--rebuild', dest='rebuild', action='store_true',
+                    help="rebuild project (generate & build)")
+parser.add_argument('-u', '--ut', dest='ut', action='store_true',
+                    help="run unit tests")
+parser.add_argument('-s', '--st', dest='st', action='store_true',
+                    help="run system tests")
+
 args = parser.parse_args()
 
 run_command = "build"
@@ -43,48 +56,6 @@ if args.nodocker:
     use_docker = False
 
 builder = None
-
-
-class CommandBuilder:
-
-    def getCmd(self):
-        return "Default"
-
-
-class DOCKER_COMMAND:
-    RUN = 1
-
-
-class DockerBuilder(CommandBuilder):
-
-    def __init__(self):
-        self.command = DOCKER_COMMAND.RUN
-
-    def getDockerCommand(self):
-        if DOCKER_COMMAND.RUN == self.command:
-            return "run"
-
-    def getImageName(self):
-        return " matgla/docker_stm"
-
-    def getMountCommand(self):
-        path_to_working_dir = path.dirname(
-            path.abspath(__file__))
-
-        if path_to_working_dir.find(":") != -1:
-            path_to_working_dir = "//" + path_to_working_dir
-            path_to_working_dir = path_to_working_dir.replace("\\", "//")
-            path_to_working_dir = path_to_working_dir.replace(":", "")
-        return " -v " + path_to_working_dir + ":/mnt/source"
-
-    def getCmd(self):
-        return "docker " + self.getDockerCommand() + self.getMountCommand() + self.getImageName() + self.getLoginCmd() + self.getShellCmd()
-
-    def getLoginCmd(self):
-        return " su - admin -s /bin/bash"
-
-    def getShellCmd(self):
-        return " -c \"\""
 
 
 class DockerBuildBuilder(DockerBuilder):
