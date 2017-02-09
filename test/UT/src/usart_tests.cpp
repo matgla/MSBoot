@@ -12,16 +12,12 @@
 class UsartShould : public ::testing::Test
 {
   public:
-    UsartShould()
+    virtual void SetUp()
     {
         if (!hw::USART<hw::USARTS::USART1_PP1>::initialized())
         {
             expectInitialization();
         }
-    }
-
-    virtual void SetUp()
-    {
     }
 
     virtual void TearDown()

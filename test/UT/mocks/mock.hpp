@@ -154,6 +154,8 @@
 
 #define GET_MOCK(function) mocks::mock_##function
 
+#define MOCK_TYPE(function) WrappedMock<decltype(mocks::mock_##function)>
+
 #define EXPECT_CALL(function, ...) \
     GET_MOCK(function).expectCall(std::make_tuple(__VA_ARGS__), __FILE__, __LINE__)
 
@@ -165,6 +167,28 @@
 namespace mocks
 {
 }
+
+template <typename T>
+class WrappedMock
+{
+    T& mock_;
+
+  public:
+    WrappedMock(T& mock)
+        : mock_(mock)
+    {
+    }
+
+    ~WrappedMock()
+    {
+        mock_.verify();
+    }
+
+    T& get()
+    {
+        return mock_;
+    }
+};
 
 template <typename Tuple, std::size_t N>
 struct TupleToString
@@ -387,8 +411,6 @@ class Mock<ReturnType, Args...> : public Mock<ReturnType>
 
     void verify()
     {
-        EXPECT_EQ(0, expectations_.size());
-
         if (!expectations_.size())
         {
             return;
@@ -399,7 +421,7 @@ class Mock<ReturnType, Args...> : public Mock<ReturnType>
         {
             std::cerr << call.getFile() << ":" << call.getLine() << std::endl;
         }
-
+        EXPECT_EQ(0, expectations_.size());
         expectations_.clear();
     }
 

@@ -23,6 +23,7 @@ void usart_put(USART_TypeDef* USARTx, const char* str);
 
 namespace hw
 {
+extern bool wasUsart1Initialized;
 enum class USARTS
 {
     USART1_PP1,
