@@ -1,3 +1,5 @@
+#!/bin/bash
+cd ..
 rm -rf bin_test
 mkdir bin_test
 cd bin_test

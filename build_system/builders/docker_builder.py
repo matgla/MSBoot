@@ -6,7 +6,14 @@ class DOCKER_COMMAND:
     RUN = 1
 
 
+def get_common_command():
+    return " -c \"source ~/.bashrc && cd /mnt/source/scripts && "
+
+
 class DockerDefaultBuilder:
+
+    def getDockerCommand(self):
+        return "run"
 
     def getImageName(self):
         return " matgla/docker_stm"
@@ -31,6 +38,14 @@ class DockerDefaultBuilder:
     def getShellCmd(self):
         return " -c \"\""
 
+    def getColors(self):
+        return " -it -e \"TERM=xterm-256color\""
+
+    def getCmd(self):
+        return "docker " + self.getDockerCommand() + self.getColors() + \
+            self.getMountCommand() + self.getImageName() + \
+            self.getLoginCmd() + self.getShellCmd()
+
 
 class DockerGenerateBuilder(DockerDefaultBuilder):
 
@@ -38,7 +53,7 @@ class DockerGenerateBuilder(DockerDefaultBuilder):
         return "generate target"
 
     def getShellCmd(self):
-        return ' -c \'source ~/.bashrc && cd /mnt/source && sh generate.sh\''
+        return get_common_command() + "sh generate.sh\""
 
 
 class DockerTargetBuilder(DockerDefaultBuilder):
@@ -47,7 +62,7 @@ class DockerTargetBuilder(DockerDefaultBuilder):
         return "build target"
 
     def getShellCmd(self):
-        return ' -c \'source ~/.bashrc && cd /mnt/source && sh build.sh\''
+        return get_common_command() + "sh build.sh\""
 
 
 class DockerGenerateTestsBuilder(DockerDefaultBuilder):
@@ -56,7 +71,7 @@ class DockerGenerateTestsBuilder(DockerDefaultBuilder):
         return "generate tests"
 
     def getShellCmd(self):
-        return ' -c \'source ~/.bashrc && cd /mnt/source && sh generate_tests.sh\''
+        return get_common_command() + "sh generate_tests.sh\""
 
 
 class DockerUnitTestBuilder(DockerDefaultBuilder):
@@ -65,7 +80,7 @@ class DockerUnitTestBuilder(DockerDefaultBuilder):
         return "build & run UTs"
 
     def getShellCmd(self):
-        return ' -c \'source ~/.bashrc && cd /mnt/source && sh test.sh\''
+        return get_common_command() + "sh test_ut.sh\""
 
 
 class DockerSystemTestRunner(DockerDefaultBuilder):
@@ -74,7 +89,7 @@ class DockerSystemTestRunner(DockerDefaultBuilder):
         return "run STs"
 
     def getShellCmd(self):
-        return ' -c \'source ~/.bashrc && cd /mnt/source && sh test.sh\''
+        return get_common_command() + "sh test_st.sh\""
 
 
 class DockerBuilder:
@@ -119,7 +134,7 @@ class DockerBuilder:
         return " -v " + path_to_working_dir + ":/mnt/source"
 
     def getCmd(self):
-        return "docker " + self.getDockerCommand() + self.getMountCommand() + self.getImageName() + self.getLoginCmd() + self.getShellCmd()
+        return "docker " + self.getDockerCommand() + self.getColors() + self.getMountCommand() + self.getImageName() + self.getLoginCmd() + self.getShellCmd()
 
     def getLoginCmd(self):
         return " su - admin -s /bin/bash"

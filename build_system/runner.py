@@ -1,3 +1,4 @@
+from subprocess import call
 from colorama import init, Fore, Back, Style
 from build_system.builders.docker_builder import DockerBuilder, DockerGenerateBuilder
 from build_system.builders.native_builder import NativeBuilder
@@ -14,9 +15,10 @@ class Runner:
             print Fore.GREEN + 'Selected command: ' + Fore.YELLOW + \
                 command.get_string() + Style.RESET_ALL
 
-    def execute_command(self, command):
+    def execute_commands(self):
         for command in self.commands_to_run:
             print Fore.CYAN + '\nCalling: ' + Style.RESET_ALL + command.getCmd()
+            call(command.getCmd(), shell=True)
 
     def __parse_args(self):
         self.commands_to_run = []
