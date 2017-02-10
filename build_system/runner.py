@@ -1,7 +1,7 @@
 from subprocess import call
 from colorama import init, Fore, Back, Style
-from build_system.builders.docker_builder import DockerBuilder, DockerGenerateBuilder
-from build_system.builders.native_builder import NativeBuilder
+from build_system.builders.docker_builder_factory import DockerBuilderFactory
+from build_system.builders.native_builder_factory import NativeBuilderFactory
 
 
 class Runner:
@@ -13,13 +13,13 @@ class Runner:
     def print_commands_to_be_executed(self):
         for command in self.commands_to_run:
             print Fore.GREEN + 'Selected command: ' + Fore.YELLOW + \
-                command.get_string() + Style.RESET_ALL
+                command.get_cmd_name() + Style.RESET_ALL
 
     def __get_max_command_name_len(self):
         max_length = 0
         for command in self.commands_to_run:
-            if len(command.get_string()) > max_length:
-                max_length = len(command.get_string())
+            if len(command.get_cmd_name()) > max_length:
+                max_length = len(command.get_cmd_name())
         return max_length
 
     def __generate_spaces(self, start, end):
@@ -28,21 +28,21 @@ class Runner:
     def execute_commands(self):
         max_name_len = self.__get_max_command_name_len()
         for command in self.commands_to_run:
-            print Fore.CYAN + '\nCalling: ' + Style.RESET_ALL + command.getCmd()
-            rc = call(command.getCmd(), shell=True)
+            print Fore.CYAN + '\nCalling: ' + Style.RESET_ALL + command.get_cmd()
+            rc = call(command.get_cmd(), shell=True)
             step = 1
             if not self.args.force and rc != 0:
                 for passed_command in self.commands_to_run:
                     if passed_command != command:
-                        print "STEP " + str(step) + ": " + passed_command.get_string() + self.__generate_spaces(len(passed_command.get_string()), max_name_len) + Fore.GREEN + " PASSED!" + Style.RESET_ALL
+                        print "STEP " + str(step) + ": " + passed_command.get_cmd_name() + self.__generate_spaces(len(passed_command.get_cmd_name()), max_name_len) + Fore.GREEN + " PASSED!" + Style.RESET_ALL
                         step = step + 1
                     else:
                         break
-                print "STEP " + str(step) + ": " + command.get_string() + self.__generate_spaces(len(command.get_string()), max_name_len) + Fore.RED + " FAILED(" + str(rc) + ")!" + Style.RESET_ALL
+                print "STEP " + str(step) + ": " + command.get_cmd_name() + self.__generate_spaces(len(command.get_cmd_name()), max_name_len) + Fore.RED + " FAILED(" + str(rc) + ")!" + Style.RESET_ALL
                 step = step + 1
 
                 for stopped_command in self.commands_to_run[step - 1:]:
-                    print "STEP " + str(step) + ": " + stopped_command.get_string() + self.__generate_spaces(len(stopped_command.get_string()), max_name_len) + Fore.YELLOW + " WASN'T RUN!" + Style.RESET_ALL
+                    print "STEP " + str(step) + ": " + stopped_command.get_cmd_name() + self.__generate_spaces(len(stopped_command.get_cmd_name()), max_name_len) + Fore.YELLOW + " WASN'T RUN!" + Style.RESET_ALL
                     step = step + 1
 
                 return
@@ -50,9 +50,9 @@ class Runner:
     def __parse_args(self):
         self.commands_to_run = []
         if self.args.native:
-            self.builder = NativeBuilder()
+            self.builder = NativeBuilderFactory()
         else:
-            self.builder = DockerBuilder()
+            self.builder = DockerBuilderFactory()
 
         if self.args.generate or (self.args.rebuild and self.args.build):
             self.commands_to_run.append(self.builder.generate_target())
