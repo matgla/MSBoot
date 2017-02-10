@@ -15,10 +15,37 @@ class Runner:
             print Fore.GREEN + 'Selected command: ' + Fore.YELLOW + \
                 command.get_string() + Style.RESET_ALL
 
+    def __get_max_command_name_len(self):
+        max_length = 0
+        for command in self.commands_to_run:
+            if len(command.get_string()) > max_length:
+                max_length = len(command.get_string())
+        return max_length
+
+    def __generate_spaces(self, start, end):
+        return " " * (end - start + 1)
+
     def execute_commands(self):
+        max_name_len = self.__get_max_command_name_len()
         for command in self.commands_to_run:
             print Fore.CYAN + '\nCalling: ' + Style.RESET_ALL + command.getCmd()
-            call(command.getCmd(), shell=True)
+            rc = call(command.getCmd(), shell=True)
+            step = 1
+            if not self.args.force and rc != 0:
+                for passed_command in self.commands_to_run:
+                    if passed_command != command:
+                        print "STEP " + str(step) + ": " + passed_command.get_string() + self.__generate_spaces(len(passed_command.get_string()), max_name_len) + Fore.GREEN + " PASSED!" + Style.RESET_ALL
+                        step = step + 1
+                    else:
+                        break
+                print "STEP " + str(step) + ": " + command.get_string() + self.__generate_spaces(len(command.get_string()), max_name_len) + Fore.RED + " FAILED(" + str(rc) + ")!" + Style.RESET_ALL
+                step = step + 1
+
+                for stopped_command in self.commands_to_run[step - 1:]:
+                    print "STEP " + str(step) + ": " + stopped_command.get_string() + self.__generate_spaces(len(stopped_command.get_string()), max_name_len) + Fore.YELLOW + " WASN'T RUN!" + Style.RESET_ALL
+                    step = step + 1
+
+                return
 
     def __parse_args(self):
         self.commands_to_run = []
