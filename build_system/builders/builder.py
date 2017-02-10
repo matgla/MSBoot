@@ -1,7 +1,7 @@
-class CommandBuilder:
+class Builder:
 
-    def get_string(self):
-        return "default"
+    def get_cmd_name(self):
+        raise NotImplementedError("Please implement this abstract method")
 
-    def getCmd(self):
-        return "Default"
+    def get_cmd(self):
+        raise NotImplementedError("Please implement this abstract method")

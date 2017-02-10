@@ -1,16 +1,12 @@
 from os import path
-from builder import CommandBuilder
 
-
-class DOCKER_COMMAND:
-    RUN = 1
+from builder import Builder
 
 
 def get_common_command():
     return " -c \"source ~/.bashrc && cd /mnt/source/scripts && "
 
-
-class DockerDefaultBuilder:
+class DockerDefaultBuilder(Builder):
 
     def getDockerCommand(self):
         return "run"
@@ -41,7 +37,7 @@ class DockerDefaultBuilder:
     def getColors(self):
         return " -it -e \"TERM=xterm-256color\""
 
-    def getCmd(self):
+    def get_cmd(self):
         return "docker " + self.getDockerCommand() + self.getColors() + \
             self.getMountCommand() + self.getImageName() + \
             self.getLoginCmd() + self.getShellCmd()
@@ -49,7 +45,7 @@ class DockerDefaultBuilder:
 
 class DockerGenerateBuilder(DockerDefaultBuilder):
 
-    def get_string(self):
+    def get_cmd_name(self):
         return "generate target"
 
     def getShellCmd(self):
@@ -58,7 +54,7 @@ class DockerGenerateBuilder(DockerDefaultBuilder):
 
 class DockerTargetBuilder(DockerDefaultBuilder):
 
-    def get_string(self):
+    def get_cmd_name(self):
         return "build target"
 
     def getShellCmd(self):
@@ -67,7 +63,7 @@ class DockerTargetBuilder(DockerDefaultBuilder):
 
 class DockerGenerateTestsBuilder(DockerDefaultBuilder):
 
-    def get_string(self):
+    def get_cmd_name(self):
         return "generate tests"
 
     def getShellCmd(self):
@@ -76,7 +72,7 @@ class DockerGenerateTestsBuilder(DockerDefaultBuilder):
 
 class DockerUnitTestBuilder(DockerDefaultBuilder):
 
-    def get_string(self):
+    def get_cmd_name(self):
         return "build & run UTs"
 
     def getShellCmd(self):
@@ -85,29 +81,8 @@ class DockerUnitTestBuilder(DockerDefaultBuilder):
 
 class DockerSystemTestRunner(DockerDefaultBuilder):
 
-    def get_string(self):
+    def get_cmd_name(self):
         return "run STs"
 
     def getShellCmd(self):
         return get_common_command() + "sh test_st.sh\""
-
-
-class DockerBuilder:
-
-    def __init__(self):
-        self.command = DOCKER_COMMAND.RUN
-
-    def build_target(self):
-        return DockerTargetBuilder()
-
-    def build_unit_tests(self):
-        return DockerUnitTestBuilder()
-
-    def generate_target(self):
-        return DockerGenerateBuilder()
-
-    def generate_tests(self):
-        return DockerGenerateTestsBuilder()
-
-    def run_system_tests(self):
-        return DockerSystemTestRunner()
