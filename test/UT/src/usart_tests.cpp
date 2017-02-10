@@ -12,6 +12,28 @@
 class UsartShould : public ::testing::Test
 {
   public:
+    SAFE_MOCK(RCC_AHB1PeriphClockCmd, rcc1Mock_);
+    SAFE_MOCK(RCC_APB2PeriphClockCmd, rcc2Mock_);
+    SAFE_MOCK(GPIO_PinAFConfig, gpioAfMock_);
+    SAFE_MOCK(GPIO_Init, gpioInitMock_);
+    SAFE_MOCK(NVIC_Init, nvicInitMock_);
+    SAFE_MOCK(USART_SendData, usartSendMock_);
+    SAFE_MOCK(USART_GetFlagStatus, usartGetFlagMock_);
+    SAFE_MOCK(USART_GetITStatus, usartGetItMock_);
+
+    UsartShould()
+        : rcc1Mock_(GET_MOCK(RCC_AHB1PeriphClockCmd)),
+          rcc2Mock_(GET_MOCK(RCC_APB2PeriphClockCmd)),
+          gpioAfMock_(GET_MOCK(GPIO_PinAFConfig)),
+          gpioInitMock_(GET_MOCK(GPIO_Init)),
+          nvicInitMock_(GET_MOCK(NVIC_Init)),
+          usartSendMock_(GET_MOCK(USART_SendData)),
+          usartGetFlagMock_(GET_MOCK(USART_GetFlagStatus)),
+          usartGetItMock_(GET_MOCK(USART_GetITStatus))
+    {
+    }
+
+
     virtual void SetUp()
     {
         if (!hw::USART<hw::USARTS::USART1_PP1>::initialized())
@@ -22,14 +44,6 @@ class UsartShould : public ::testing::Test
 
     virtual void TearDown()
     {
-        VERIFY_MOCK(RCC_AHB1PeriphClockCmd);
-        VERIFY_MOCK(RCC_APB2PeriphClockCmd);
-        VERIFY_MOCK(GPIO_PinAFConfig);
-        VERIFY_MOCK(GPIO_Init);
-        VERIFY_MOCK(NVIC_Init);
-        VERIFY_MOCK(USART_SendData);
-        VERIFY_MOCK(USART_GetFlagStatus);
-        VERIFY_MOCK(USART_GetITStatus);
     }
 };
 

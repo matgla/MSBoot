@@ -4,10 +4,13 @@
 
 #include <algorithm>
 #include <exception>
+#include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
+
 
 #include "comparators.hpp"
 #include "expectation.hpp"
@@ -154,8 +157,9 @@
 
 #define GET_MOCK(function) mocks::mock_##function
 
-#define MOCK_TYPE(function) WrappedMock<decltype(mocks::mock_##function)>
-
+// #define SAFE_MOCK(function, name) std::unique_ptr<WrappedMock<decltype(mocks::mock_##function)>> name
+// #define NEW_SAFE_MOCK(function) new WrappedMock<decltype(mocks::mock_##function)>(GET_MOCK(function))
+#define SAFE_MOCK(function, name) WrappedMock<decltype(mocks::mock_##function)> name
 #define EXPECT_CALL(function, ...) \
     GET_MOCK(function).expectCall(std::make_tuple(__VA_ARGS__), __FILE__, __LINE__)
 
@@ -177,6 +181,7 @@ class WrappedMock
     WrappedMock(T& mock)
         : mock_(mock)
     {
+        mock_.clean();
     }
 
     ~WrappedMock()
@@ -288,8 +293,14 @@ class Mock<ReturnType>
         return expectations_[expectations_.size() - 1];
     }
 
+    void clean()
+    {
+        expectations_.clear();
+    }
+
     void verify()
     {
+        std::cerr << "VERIFY" << std::endl;
         EXPECT_EQ(0, expectations_.size());
 
         if (!expectations_.size())
@@ -406,6 +417,11 @@ class Mock<ReturnType, Args...> : public Mock<ReturnType>
         expectation.setLine(line);
         expectations_.push_back(expectation);
         return expectations_[expectations_.size() - 1];
+    }
+
+    void clean()
+    {
+        expectations_.clear();
     }
 
 
