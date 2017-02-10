@@ -27,8 +27,14 @@ class NativeGenerateTestBuilder(NativeDefaultBuilder):
     def get_cmd(self):
         return "cd scripts && ./generate_tests.sh"
         
-class NativeTestBuilder(NativeDefaultBuilder):
+class NativeUnitTestBuilder(NativeDefaultBuilder):
     def get_cmd_name(self):
-        return "generate tests"
+        return "build & run unit tests"
     def get_cmd(self):
-        return "cd scripts && ./generate_tests.sh"
+        return "cd scripts && ./test_ut.sh"
+        
+class NativeSystemTestBuilder(NativeDefaultBuilder):
+    def get_cmd_name(self):
+        return "run system tests"
+    def get_cmd(self):
+        return "cd scripts && ./test_st.sh"

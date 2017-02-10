@@ -10,10 +10,10 @@ class NativeBuilderFactory(BuilderFactory):
         return native_builders.NativeGenerateTargetBuilder()
         
     def generate_tests(self):
-        return native_builders.NativeDefaultBuilder()
+        return native_builders.NativeGenerateTestBuilder()
         
     def build_unit_tests(self):
-        return native_builders.NativeDefaultBuilder()
+        return native_builders.NativeUnitTestBuilder()
         
     def run_system_tests(self):
-        return native_builders.NativeDefaultBuilder()
+        return native_builders.NativeSystemTestBuilder()
