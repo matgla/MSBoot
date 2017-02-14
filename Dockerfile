@@ -66,5 +66,11 @@ run sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1
 run sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1
 run sudo apt-get install -y python-pip
 run sudo pip install behave
+run sudo apt-get install socat
 # 7.2 Commands to be executed when docker container starts
-cmd ["/usr/bin/supervisord", "-n"]
+run sudo echo '#!/bin/bash' >> /usr/bin/startup.sh
+run sudo echo '/usr/bin/supervisord -n' >> /usr/bin/startup.sh
+run sudo echo 'socat PTY,link=/dev/ttyS10 PTY,link=/dev/ttyS11 &' >> /usr/bin/startup.sh
+run sudo echo 'chown admin /dev/ttyS10 && chown admin /dev/ttyS11'  >> /usr/bin/startup.sh
+run sudo chmod +x /usr/bin/startup.sh
+cmd /usr/bin/startup.sh
