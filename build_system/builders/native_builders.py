@@ -7,7 +7,7 @@ class NativeDefaultBuilder(Builder):
         return "default"
     
     def get_cmd_name(self):
-        return "oleole"
+        return "default command"
         
 class NativeTargetBuilder(NativeDefaultBuilder):
     def get_cmd_name(self):
