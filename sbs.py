@@ -45,7 +45,8 @@ def main():
                     + '===================================' + Style.RESET_ALL
     
     runner.print_commands_to_be_executed()
-    return runner.execute_commands()
+    rc =  runner.execute_commands()
+    print "Return code is "  + str(rc)
 
 if __name__ == "__main__":
     main()
