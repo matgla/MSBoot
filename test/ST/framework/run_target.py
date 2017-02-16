@@ -5,7 +5,7 @@ from time import sleep
 from signal import SIGINT
 from os import kill
 import os
-
+import asbasqwa
 
 fo = open("target.log", "w")
 
