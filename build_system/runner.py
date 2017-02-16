@@ -26,11 +26,14 @@ class Runner:
         return " " * (end - start + 1)
 
     def execute_commands(self):
+        returncode = 0
         max_name_len = self.__get_max_command_name_len()
         for command in self.commands_to_run:
             print Fore.CYAN + '\nCalling: ' + Style.RESET_ALL + command.get_cmd()
             rc = call(command.get_cmd(), shell=True)
             step = 1
+            if rc != 0:
+                returncode = rc
             if not self.args.force and rc != 0:
                 for passed_command in self.commands_to_run:
                     if passed_command != command:
@@ -45,7 +48,8 @@ class Runner:
                     print "STEP " + str(step) + ": " + stopped_command.get_cmd_name() + self.__generate_spaces(len(stopped_command.get_cmd_name()), max_name_len) + Fore.YELLOW + " WASN'T RUN!" + Style.RESET_ALL
                     step = step + 1
 
-                return
+                return returncode
+        return returncode
 
     def __parse_args(self):
         self.commands_to_run = []

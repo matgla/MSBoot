@@ -6,12 +6,10 @@ from signal import SIGINT
 from os import kill
 import os
 
-
 fo = open("target.log", "w")
 
 def kill_target(program):
     program.kill()
-    program.terminate()
 
 def run_target(timeout):
     with open("stdout.txt","wb") as out, open("stderr.txt","wb") as err:
