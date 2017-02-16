@@ -6,6 +6,7 @@ from colorama import init, Fore, Back, Style
 from build_system.runner import Runner
 import argparse
 import re
+import sys
 
 init()  # init colorama
 
@@ -47,6 +48,7 @@ def main():
     runner.print_commands_to_be_executed()
     rc =  runner.execute_commands()
     print "Return code is "  + str(rc)
+    sys.exit(rc)
 
 if __name__ == "__main__":
     main()
