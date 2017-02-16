@@ -3,7 +3,7 @@
 # Docker script
 #
 # 1. Initial docker image
-from ubuntu:14.04
+from ubuntu:16.10
 
 # 2. Install dependancies
 # 2.1 Install platform dependancies
