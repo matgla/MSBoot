@@ -2,4 +2,4 @@
 *.user
 *bin*
 .vscode/*
-*.pyc
+*.pyca
