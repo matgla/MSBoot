@@ -42,4 +42,4 @@ print Fore.BLUE + '===================================\n' \
                 + '===================================' + Style.RESET_ALL
 
 runner.print_commands_to_be_executed()
-runner.execute_commands()
+return runner.execute_commands()
