@@ -8,4 +8,4 @@ SEND "stm32f4x mass_erase 0\m"
 WAIT "stm32x mass erase complete"
 SEND "flash write_bank 0 stm32bootloader.bin 0\m"
 WAIT "to flash bank"
-SEND "reset halt\m"
+SEND "reset halt\m"aa
