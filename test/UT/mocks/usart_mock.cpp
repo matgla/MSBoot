@@ -123,8 +123,6 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT)
 void expectSendData(u8 fd, char data)
 {
     EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
-    EXPECT_CALL(USART_SendData, USART1, fd);
-    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
     EXPECT_CALL(USART_SendData, USART1, 1);
     EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
     EXPECT_CALL(USART_SendData, USART1, data);
@@ -134,14 +132,13 @@ void expectSendData(u8 fd, char data)
 void expectSendData(u8 fd, const char* data)
 {
     EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
-    EXPECT_CALL(USART_SendData, USART1, fd);
-    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
     EXPECT_CALL(USART_SendData, USART1, strlen(data));
     for (int i = 0; i < strlen(data); ++i)
     {
         EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
         EXPECT_CALL(USART_SendData, USART1, data[i]);
     }
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
 }
 
 void expectClocksConfiguration()

@@ -5,8 +5,8 @@
 #include <system_stm32f4xx.h>
 
 
-#include "buffer.hpp"
 #include "messages.hpp"
+#include "readerWriterBuffer.hpp"
 
 #define USART_WAIT(USARTx)                       \
     do                                           \
@@ -14,7 +14,7 @@
         while (!((USARTx)->SR & USART_FLAG_TXE)) \
             ;                                    \
     } while (0)
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 1000
 
 void USART_GPIO_init(void);
 void USART_NVIC_init(void);
@@ -36,10 +36,13 @@ class USART
   public:
     static USART& getUsart();
     static bool initialized();
-    Buffer<BUFFER_SIZE>& getBuffer();
-    void send(u8 fd, char ch);
-    void send(u8 fd, char* str);
+    ReaderWriterBuffer<BUFFER_SIZE>& getBuffer();
+    void send(char ch);
+    void send(char* str);
     Message getMessage();
+    bool isTransmissionOngoing();
+    void setTransmissionOngoing(bool ongoing);
+    void receive(u8 data);
 
   private:
     USART();
@@ -48,6 +51,9 @@ class USART
     void NVICInit();
     void USARTInit();
     void InitClocks();
+    void wait();
+    void waitForAck(u32 timeout);
+    void sendRaw(char ch);
 
 
     GPIO_TypeDef* gpioPortRx_;
@@ -62,8 +68,10 @@ class USART
     u16 usartIrqn_;
 
     USART_TypeDef* USARTx_;
+    volatile bool transmissionOngoing_;
+    volatile u8 nrOfBytesToReceive_;
 
-    Buffer<BUFFER_SIZE> buffer_;
+    ReaderWriterBuffer<BUFFER_SIZE> buffer_;
 };
 }
 

@@ -199,7 +199,7 @@ void UsartDownloader::writeToMemory()
 
     logger_ << Level::INFO << "Waiting for soft\n";
     u32 softwareSize = 0;
-    usart::getUsart().send(10, 2);
+    //  usart::getUsart().send(10, 2);
     auto msg = usart::getUsart().getMessage();
     //logger_ << Level::INFO << "Received message: " << msg.payload[0] << ":" << msg.payload[1] << ":" << msg.payload[2] << ":" << msg.payload[3] << ":"  << "\r\n";
     softwareSize = msg.payload_[0] << 24;
@@ -216,7 +216,7 @@ void UsartDownloader::writeToMemory()
     {
         logger_ << Level::INFO << "Requesting block: "
                 << "\r\n";
-        usart::getUsart().send(10, 3);
+        //    usart::getUsart().send(10, 3);
         auto msg1 = usart::getUsart().getMessage();
 
         logger_ << Level::INFO << "Received: " << receivedSize << "/" << softwareSize << "\r\n";
@@ -233,7 +233,7 @@ void UsartDownloader::writeToMemory()
     FLASH_Unlock();
 
     FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
-        FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+                    FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
     while (FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3) != FLASH_COMPLETE)
     {
@@ -243,7 +243,7 @@ void UsartDownloader::writeToMemory()
     // while (FLASH_EraseSector(FLASH_Sector_4, VoltageRange_3) != FLASH_COMPLETE){};
     // while (FLASH_EraseSector(FLASH_Sector_5, VoltageRange_3) != FLASH_COMPLETE){};
     FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
-        FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+                    FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
     // //FLASH_ClearFlag();
     for (u32 j = 0; j < softwareSize; j++)
     {
@@ -299,7 +299,7 @@ void UsartDownloader::waitForProvider()
     logger_ << Level::INFO << "Waiting for connection \r\n";
     while (!connection)
     {
-        usart::getUsart().send(10, 1);
+        //  usart::getUsart().send(10, 1);
 
         logger_ << Level::INFO << "Waiting for message!\r\n";
         auto msg = usart::getUsart().getMessage();

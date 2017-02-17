@@ -4,26 +4,48 @@
 
 #include "types.h"
 
-template<std::size_t BUF_SIZE>
+template <std::size_t BUF_SIZE>
 class Buffer
 {
-public:
-    Buffer() : writerIndex_(0),
-               readerIndex_(0),
-               size_(0)
+  public:
+    Buffer()
+        : writerIndex_(0),
+          readerIndex_(0),
+          size_(0)
     {
-
     }
 
-    u16 write(u8 ch)
+    template <typename Type>
+    u16 write(Type ch)
     {
-        if (writerIndex_ >= BUF_SIZE )
+        if (writerIndex_ >= BUF_SIZE)
         {
             writerIndex_ = 0;
         }
         incrementSize();
         buffer_[writerIndex_++] = ch;
         return writerIndex_;
+    }
+
+    template <typename Type>
+    u16 write(Type ch, int offset)
+    {
+        if (writerIndex_ >= BUF_SIZE)
+        {
+            writerIndex_ = 0;
+        }
+        incrementSize();
+        buffer_[writerIndex_ + offset] = ch;
+        return ++writerIndex_;
+    }
+
+    template <typename Type>
+    void write(Type* str)
+    {
+        for (int i = 0; i < strlen(str); ++i)
+        {
+            write(str[i]);
+        }
     }
 
     u8 getByte()
@@ -40,6 +62,48 @@ public:
         return 0;
     }
 
+    u8 getValue(u16 offset)
+    {
+        if (size_)
+        {
+            int tempIndex = readerIndex_;
+            if (tempIndex >= BUF_SIZE)
+            {
+                tempIndex = 0;
+            }
+            return buffer_[tempIndex + offset];
+        }
+        return 0;
+    }
+
+    bool removeFromBuffer(u16 pos)
+    {
+        if (size_)
+        {
+            int nrOfBytesAfterPos = size() - pos;
+            for (int i = 0; i < nrOfBytesAfterPos; ++i)
+            {
+                int currentPos = readerIndex_;
+                if (readerIndex_ + pos + i >= BUF_SIZE)
+                {
+                    currentPos = 0;
+                }
+                buffer_[currentPos + pos + i] = getValue(i + pos + 1);
+            }
+            --size_;
+
+            if (writerIndex_ == 0)
+            {
+                writerIndex_ = BUF_SIZE;
+            }
+            else
+            {
+                --writerIndex_;
+            }
+        }
+        return false;
+    }
+
     u8* getData()
     {
         return buffer_;
@@ -50,7 +114,7 @@ public:
         return size_;
     }
 
-private:
+  private:
     void flush()
     {
         writerIndex_ = 0;
@@ -67,8 +131,8 @@ private:
             ++readerIndex_;
         }
     }
-    u8 buffer_[BUF_SIZE];
-    u16 writerIndex_;
-    u16 readerIndex_;
-    u16 size_;
+    volatile u8 buffer_[BUF_SIZE];
+    volatile u16 writerIndex_;
+    volatile u16 readerIndex_;
+    volatile u16 size_;
 };

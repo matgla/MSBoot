@@ -10,6 +10,7 @@ enum class FileDescriptors
 
 enum class Messages
 {
+    ACK = 0x06,
     SW_DWN_REQ = 10
 };
 

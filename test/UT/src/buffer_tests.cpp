@@ -115,3 +115,60 @@ TEST_F(BufferTests, cycleWhenReaderInMid)
     EXPECT_EQ(FIFTH_VALUE, buffer.getByte());
     EXPECT_EQ(SIXTH_VALUE, buffer.getByte());
 }
+
+TEST_F(BufferTests, RemoveFromBeginOfBuffer)
+{
+    char INITIAL_BUFFER[] = "ABC\0";
+    Buffer<3> buffer;
+
+    buffer.write(INITIAL_BUFFER);
+    EXPECT_EQ(buffer.size(), 3);
+    
+    buffer.removeFromBuffer(0);
+    EXPECT_EQ(buffer.size(), 2);
+    EXPECT_EQ(buffer.getByte(), 'B');
+    EXPECT_EQ(buffer.getByte(), 'C');
+}
+
+TEST_F(BufferTests, RemoveFromBuffer)
+{
+    char INITIAL_BUFFER[] = "ABCDE\0";
+    Buffer<5> buffer;
+
+    buffer.write(INITIAL_BUFFER);
+    EXPECT_EQ(buffer.size(), 5);
+    
+    buffer.removeFromBuffer(1);
+    EXPECT_EQ(buffer.size(), 4);
+    EXPECT_EQ(buffer.getByte(), 'A');
+    buffer.removeFromBuffer(2);
+    EXPECT_EQ(buffer.size(), 2);
+    EXPECT_EQ(buffer.getByte(), 'C');
+    EXPECT_EQ(buffer.getByte(), 'D');
+    EXPECT_EQ(buffer.size(), 0);
+}
+
+TEST_F(BufferTests, RemoveFromEndOfBuffer)
+{
+    const char INITIAL_BUFFER[] = "ABCDE\0";
+    const char BUFFER_2[] = "FGHIJ\0";
+    Buffer<5> buffer;
+
+    buffer.write(INITIAL_BUFFER);
+    EXPECT_EQ(buffer.size(), 5);
+    
+    buffer.removeFromBuffer(5);
+    EXPECT_EQ(buffer.getByte(), 'A');
+    EXPECT_EQ(buffer.getByte(), 'B');
+    EXPECT_EQ(buffer.getByte(), 'C');
+    EXPECT_EQ(buffer.getByte(), 'D');
+    EXPECT_EQ(buffer.size(), 0);
+    buffer.write(BUFFER_2);
+   // buffer.removeFromBuffer(2);
+    EXPECT_EQ(buffer.getByte(), 'F');
+    EXPECT_EQ(buffer.getByte(), 'G');
+    EXPECT_EQ(buffer.getByte(), 'H');
+    EXPECT_EQ(buffer.getByte(), 'I');
+    EXPECT_EQ(buffer.getByte(), 'J');
+    EXPECT_EQ(buffer.size(), 0);
+}

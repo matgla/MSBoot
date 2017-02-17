@@ -8,13 +8,8 @@ from ubuntu:16.10
 # 2. Install dependancies
 # 2.1 Install platform dependancies
 run export DEBIAN_FRONTEND=noninteractive
-run sudo mv /etc/apt/sources.list /etc/apt/sources.list.old
-run sudo echo 'deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse' >> /etc/apt/sources.list
-run sudo echo 'deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-updates main restricted universe multiverse' >> /etc/apt/sources.list
-run sudo echo 'deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-backports main restricted universe multiverse' >> /etc/apt/sources.list
-run sudo echo 'deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-security main restricted universe multiverse' >> /etc/apt/sources.list
-run sudo apt-get update -q
-run sudo apt-get install -y supervisor sudo ssh openssh-server software-properties-common wget openssl cmake
+run apt-get update
+run apt-get install -y supervisor sudo ssh openssh-server software-properties-common wget openssl cmake
 # The above is required to execute add-apt-repository
 run sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
 run sudo apt-get update -q
@@ -80,4 +75,6 @@ run sudo mkdir /opt/qemu
 run cd /opt; sudo wget https://github.com/gnuarmeclipse/qemu/releases/download/gae-2.7.0-20161128/gnuarmeclipse-qemu-debian64-2.7.0-201611282115-dev.tgz
 run cd /opt; sudo tar xvf /opt/gnuarmeclipse-qemu-debian64-2.7.0-201611282115-dev.tgz qemu
 run echo 'export STM_QEMU_PATH="/opt/qemu/2.7.0-201611282115-dev/"' >> /home/admin/.bashrc
+run sudo pip install colorama behave
+run sudo apt-get install -y clang-tidy
 cmd /usr/bin/startup.sh

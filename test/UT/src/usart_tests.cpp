@@ -72,8 +72,9 @@ TEST_F(UsartShould, SendByteCorrectly)
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
     expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
 
-    usart.send(EXPECTED_FD, EXPECTED_SEND_DATA);
+    usart.send(EXPECTED_SEND_DATA);
 }
 
 TEST_F(UsartShould, SendStringCorrectly)
@@ -83,7 +84,63 @@ TEST_F(UsartShould, SendStringCorrectly)
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
+    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
     expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
 
-    usart.send(EXPECTED_FD, EXPECTED_SEND_DATA);
+    usart.send(EXPECTED_SEND_DATA);
+}
+
+TEST_F(UsartShould, SendDataCorrectlyWhenBufferIsNotEmpty)
+{
+    char DATA_IN_BUFFER[15] = "1Ab2a\0";
+    char EXPECTED_SEND_DATA[15] = "DataTo send\0";
+    u8 EXPECTED_FD = 1;
+
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+    usart.getBuffer().write(DATA_IN_BUFFER);
+
+    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+
+    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+
+    usart.send(EXPECTED_SEND_DATA);
+
+    std::string data;
+
+    while (usart.getBuffer().size())
+    {
+        data += usart.getBuffer().getByte();
+    }
+
+    EXPECT_EQ(DATA_IN_BUFFER, data);
+}
+
+TEST_F(UsartShould, SendDataCorrectlyWhenDataArriveAfterAck)
+{
+    char DATA_IN_BUFFER[15] = "1Ab2a\0";
+    char DATA_AFTER_ACK[15] = "aaabsd\0";
+    char EXPECTED_SEND_DATA[15] = "DataTo send\0";
+    std::string EXPECTED_OUTPUT = DATA_IN_BUFFER;
+    EXPECTED_OUTPUT += DATA_AFTER_ACK;
+    u8 EXPECTED_FD = 1;
+
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+    usart.getBuffer().write(DATA_IN_BUFFER);
+
+    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+
+    usart.getBuffer().write(DATA_AFTER_ACK);
+
+    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+
+    usart.send(EXPECTED_SEND_DATA);
+
+    std::string data;
+
+    while (usart.getBuffer().size())
+    {
+        data += usart.getBuffer().getByte();
+    }
+
+    EXPECT_EQ(EXPECTED_OUTPUT, data);
 }

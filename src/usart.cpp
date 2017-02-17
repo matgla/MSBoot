@@ -37,49 +37,34 @@ USART<UsartNumber>& USART<UsartNumber>::getUsart()
 }
 
 template <USARTS UsartNumber>
-Buffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
+ReaderWriterBuffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
 {
     return buffer_;
 }
 
 template <USARTS UsartNumber>
-void USART<UsartNumber>::send(u8 fd, char ch)
+void USART<UsartNumber>::send(char ch)
 {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
-    USART_SendData(USARTx_, fd);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
+    wait();
     USART_SendData(USARTx_, 1);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
+    wait();
     USART_SendData(USARTx_, ch);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
+    waitForAck(10);
+    wait();
 }
 
 template <USARTS UsartNumber>
-void USART<UsartNumber>::send(u8 fd, char* str)
+void USART<UsartNumber>::send(char* str)
 {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
-    USART_SendData(USARTx_, fd);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
+    wait();
     USART_SendData(USARTx_, strlen(str));
     for (int i = 0; i < strlen(str); ++i)
     {
-        while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET)
-        {
-        };
+        wait();
         USART_SendData(USARTx_, str[i]);
     }
+    waitForAck(10);
+    wait();
 }
 
 template <USARTS UsartNumber>
@@ -197,12 +182,77 @@ void USART<UsartNumber>::InitClocks()
     static_assert(sizeof(UsartNumber) == 0, "Method needs to be specialized");
 }
 
+template <USARTS UsartNumber>
+void USART<UsartNumber>::wait()
+{
+    while (USART_GetFlagStatus(USARTx_, USART_FLAG_TC) == RESET)
+    {
+    };
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::waitForAck(u32 timeout)
+{
+    bool receivedAck = false;
+
+    while (buffer_.findInBuffer(static_cast<u8>(Messages::ACK)) == -1)
+    {
+    }
+
+    buffer_.removeAt(buffer_.findInBuffer(static_cast<u8>(Messages::ACK)));
+}
+
+template <USARTS UsartNumber>
+bool USART<UsartNumber>::isTransmissionOngoing()
+{
+    return transmissionOngoing_;
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::setTransmissionOngoing(bool ongoing)
+{
+    transmissionOngoing_ = ongoing;
+}
+
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::receive(u8 data)
+{
+    if (!transmissionOngoing_)
+    {
+        transmissionOngoing_ = true;
+        nrOfBytesToReceive_ = data;
+        buffer_.write(data);
+    }
+    else
+    {
+        buffer_.write(data);
+        --nrOfBytesToReceive_;
+        if (nrOfBytesToReceive_ == 0)
+        {
+            transmissionOngoing_ = false;
+            sendRaw(static_cast<u8>(Messages::ACK));
+        }
+    }
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::sendRaw(char ch)
+{
+
+    wait();
+    USART_SendData(USARTx_, ch);
+    wait();
+}
+
 /////////////////////////////////////////////
 //     specializations for USART1_PP1
 /////////////////////////////////////////////
 template <>
 USART<USARTS::USART1_PP1>::USART()
-    : gpioPortRx_(GPIOA), gpioPortTx_(GPIOA), gpioPinRx_(GPIO_Pin_10), gpioPinTx_(GPIO_Pin_9), gpioPinSourceRx_(GPIO_PinSource10), gpioPinSourceTx_(GPIO_PinSource9), gpioAF_(GPIO_AF_USART1), usartIrqn_(USART1_IRQn)
+    : gpioPortRx_(GPIOA), gpioPortTx_(GPIOA), gpioPinRx_(GPIO_Pin_10), gpioPinTx_(GPIO_Pin_9),
+      gpioPinSourceRx_(GPIO_PinSource10), gpioPinSourceTx_(GPIO_PinSource9), gpioAF_(GPIO_AF_USART1),
+      usartIrqn_(USART1_IRQn), transmissionOngoing_(false)
 {
     USARTx_ = USART1;
     init();
@@ -241,7 +291,9 @@ void USART<USARTS::USART1_PP1>::InitClocks()
 /////////////////////////////////////////////
 template <>
 USART<USARTS::USART2_PP1>::USART()
-    : gpioPortRx_(GPIOB), gpioPortTx_(GPIOB), gpioPinRx_(GPIO_Pin_11), gpioPinTx_(GPIO_Pin_10), gpioPinSourceRx_(GPIO_PinSource11), gpioPinSourceTx_(GPIO_PinSource10), gpioAF_(GPIO_AF_USART3), usartIrqn_(USART3_IRQn)
+    : gpioPortRx_(GPIOB), gpioPortTx_(GPIOB), gpioPinRx_(GPIO_Pin_11), gpioPinTx_(GPIO_Pin_10),
+      gpioPinSourceRx_(GPIO_PinSource11), gpioPinSourceTx_(GPIO_PinSource10), gpioAF_(GPIO_AF_USART3),
+      usartIrqn_(USART3_IRQn), transmissionOngoing_(false)
 {
     USARTx_ = USART3;
     init();
