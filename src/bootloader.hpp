@@ -4,14 +4,17 @@
 
 class BootLoader
 {
-public:
-    BootLoader(const Logger& logger) : logger_(logger) {}
+  public:
+    BootLoader(Logger& logger);
+    ~BootLoader();
     bool specialMode();
     void bootSpecialMode();
     void bootFW();
-private:
+    static void handleEvent(void* event);
+
+  private:
     void bootRecovery();
     void bootDFU();
-    
-    const Logger& logger_;
+
+    Logger& logger_;
 };

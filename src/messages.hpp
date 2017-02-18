@@ -5,26 +5,37 @@
 enum class FileDescriptors
 {
     LOG = 1,
-    SW_DWN = 10
+    SW_DWN = 10,
+    COMMUNICATION = 11
 };
 
 enum class Messages
 {
     ACK = 0x06,
-    SW_DWN_REQ = 10
+    SW_DWN_REQ = 0x0a,
+    CLIENT_INFO = 0x0b
 };
 
-struct Message
+struct MessageHeader
 {
-    Message(u8 fd = 0, u8 size = 0);
-    ~Message() = default;
+    MessageHeader(u8 fd = 0);
+    ~MessageHeader() = default;
 
     u8 fd_;
-    u8 size_;
-    u8 payload_[255];
+    u8 id_;
 };
 
-struct RequestDownload : public Message
+struct RequestDownload : public MessageHeader
 {
+    using MessageHeader::MessageHeader;
     RequestDownload();
+    ~RequestDownload() = default;
+};
+
+struct ClientInfo : public MessageHeader
+{
+    using MessageHeader::MessageHeader;
+    ClientInfo();
+    ~ClientInfo() = default;
+    char name_[10];
 };

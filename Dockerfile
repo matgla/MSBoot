@@ -63,13 +63,6 @@ run sudo apt-get install -y python-pip
 
 run sudo apt-get install -y socat clang
 run sudo pip install pyserial
-# 7.2 Commands to be executed when docker container starts
-run sudo echo '#!/bin/bash' >> /usr/bin/startup.sh
-run sudo echo '/usr/bin/supervisord -n' >> /usr/bin/startup.sh
-run sudo echo 'socat PTY,link=/dev/ttyS10 PTY,link=/dev/ttyS11 &' >> /usr/bin/startup.sh
-run sudo echo 'chown admin /dev/ttyS10 && chown admin /dev/ttyS11'  >> /usr/bin/startup.sh
-run sudo chmod +x /usr/bin/startup.sh
-run sudo pip install pyserial
 run sudo pip install behave
 run sudo mkdir /opt/qemu
 run cd /opt; sudo wget https://github.com/gnuarmeclipse/qemu/releases/download/gae-2.7.0-20161128/gnuarmeclipse-qemu-debian64-2.7.0-201611282115-dev.tgz
@@ -77,4 +70,12 @@ run cd /opt; sudo tar xvf /opt/gnuarmeclipse-qemu-debian64-2.7.0-201611282115-de
 run echo 'export STM_QEMU_PATH="/opt/qemu/2.7.0-201611282115-dev/"' >> /home/admin/.bashrc
 run sudo pip install colorama behave
 run sudo apt-get install -y clang-tidy
+
+# 7.2 Commands to be executed when docker container starts
+run sudo echo '#!/bin/bash' >> /usr/bin/startup.sh
+run sudo echo 'socat PTY,link=/dev/ttyS10 PTY,link=/dev/ttyS11 &' >> /usr/bin/startup.sh
+run sudo echo 'sleep 1' >> /usr/bin/startup.sh
+run sudo echo 'chown admin /dev/ttyS10 && chown admin /dev/ttyS11'  >> /usr/bin/startup.sh
+run sudo chmod +x /usr/bin/startup.sh
+run sudo apt-get install -y ninja
 cmd /usr/bin/startup.sh

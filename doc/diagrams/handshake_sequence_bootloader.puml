@@ -1,0 +1,12 @@
+@startuml
+
+start
+
+if (received BootloaderIdent?) then (yes)
+    : reset whole communication;
+else (no)
+    : 
+
+end
+
+@enduml

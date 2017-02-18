@@ -6,6 +6,7 @@ from builder import Builder
 def get_common_command():
     return " -c \"source ~/.bashrc && cd /mnt/source/scripts && "
 
+
 class DockerDefaultBuilder(Builder):
 
     def getDockerCommand(self):
@@ -67,7 +68,7 @@ class DockerGenerateTestsBuilder(DockerDefaultBuilder):
         return "generate tests"
 
     def getShellCmd(self):
-        return get_common_command() + "sh generate_tests.sh\""
+        return get_common_command() + "sh generate_tests.sh -DLSAN=ON -DASAN=ON\""
 
 
 class DockerUnitTestBuilder(DockerDefaultBuilder):
@@ -85,4 +86,4 @@ class DockerSystemTestRunner(DockerDefaultBuilder):
         return "run STs"
 
     def getShellCmd(self):
-        return get_common_command() + "sh test_st.sh\""
+        return get_common_command() + " sudo /usr/bin/startup.sh && sh test_st.sh\""

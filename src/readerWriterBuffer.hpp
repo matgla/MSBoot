@@ -1,10 +1,12 @@
+#pragma once
+
 #include "buffer.hpp"
 #include "types.h"
 
-template<std::size_t BUF_SIZE>
+template <std::size_t BUF_SIZE>
 class ReaderWriterBuffer
 {
-public:
+  public:
     u32 size()
     {
         return readerBuf_.size() + writerBuf_.size();
@@ -19,13 +21,22 @@ public:
     template <typename Type>
     u16 write(Type byte)
     {
-        writerBuf_.write(byte);
+        return writerBuf_.write(byte);
     }
 
     template <typename Type>
     void write(Type* str)
     {
-         writerBuf_.write(str);
+        writerBuf_.write(str);
+    }
+
+    template <typename Type>
+    void write(Type* payload, u8 size)
+    {
+        for (u16 i = 0; i < size; ++i)
+        {
+            writerBuf_.write(payload[i]);
+        }
     }
 
     u16 findInBuffer(u8 value)
@@ -47,7 +58,7 @@ public:
         readerBuf_.removeFromBuffer(pos);
     }
 
-private:
+  private:
     void synchronizeBuffer()
     {
         while (writerBuf_.size())

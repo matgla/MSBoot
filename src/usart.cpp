@@ -28,6 +28,10 @@ void usart_put(USART_TypeDef* USARTx, const char* str)
 namespace hw
 {
 
+void defaultHandler(void*)
+{
+}
+
 template <USARTS UsartNumber>
 USART<UsartNumber>& USART<UsartNumber>::getUsart()
 {
@@ -45,59 +49,67 @@ ReaderWriterBuffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(char ch)
 {
-    wait();
-    USART_SendData(USARTx_, 1);
+    // wait();
+    //  USART_SendData(USARTx_, 1);
     wait();
     USART_SendData(USARTx_, ch);
-    waitForAck(10);
+    // waitForAck(10);
     wait();
 }
 
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(char* str)
 {
-    wait();
-    USART_SendData(USARTx_, strlen(str));
+    //  wait();
+    //  USART_SendData(USARTx_, strlen(str));
     for (int i = 0; i < strlen(str); ++i)
     {
-        wait();
-        USART_SendData(USARTx_, str[i]);
+        send(str[i]);
     }
-    waitForAck(10);
-    wait();
+    //  waitForAck(10);
 }
 
 template <USARTS UsartNumber>
-Message USART<UsartNumber>::getMessage()
+void USART<UsartNumber>::send(u8* str, u8 size)
 {
-    Message msg;
-    msg.size_ = 1;
+    //  wait();
+    //  USART_SendData(USARTx_, size);
+    for (int i = 0; i < size; ++i)
+    {
+        send(str[i]);
+    }
+    //waitForAck(10);
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::sendMessage(u8* payload, u8 size)
+{
+    sendRaw(size);
+    send(payload, size);
+    waitForAck(10);
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::getMessage(u8* buffer)
+{
+    u8 msgSize = 1;
     int index = 0;
     bool receivedSize = false;
-    bool receivedFd = false;
-    while (index < msg.size_)
+    while (index < msgSize)
     {
         if (getBuffer().size())
         {
-            if (!receivedFd)
-            {
-                msg.fd_ = getBuffer().getByte();
-                receivedFd = true;
-                continue;
-            }
-
             if (!receivedSize)
             {
-                msg.size_ = getBuffer().getByte();
+                msgSize = getBuffer().getByte();
                 receivedSize = true;
-                continue;
             }
-
-            msg.payload_[index++] = getBuffer().getByte();
+            else
+            {
+                buffer[index++] = getBuffer().getByte();
+            }
         }
     }
-
-    return msg;
 }
 
 template <USARTS UsartNumber>
@@ -218,21 +230,29 @@ void USART<UsartNumber>::setTransmissionOngoing(bool ongoing)
 template <USARTS UsartNumber>
 void USART<UsartNumber>::receive(u8 data)
 {
+    if (data == static_cast<u8>(Messages::ACK))
+    {
+        buffer_.write(data);
+        return;
+    }
+
     if (!transmissionOngoing_)
     {
         transmissionOngoing_ = true;
         nrOfBytesToReceive_ = data;
         buffer_.write(data);
+        return;
     }
-    else
+
+    buffer_.write(data);
+    --nrOfBytesToReceive_;
+    if (nrOfBytesToReceive_ == 0)
     {
-        buffer_.write(data);
-        --nrOfBytesToReceive_;
-        if (nrOfBytesToReceive_ == 0)
-        {
-            transmissionOngoing_ = false;
-            sendRaw(static_cast<u8>(Messages::ACK));
-        }
+        transmissionOngoing_ = false;
+        sendRaw(static_cast<u8>(Messages::ACK));
+        u8 buffer[255];
+        getMessage(buffer);
+        receiveCallback_(static_cast<void*>(buffer));
     }
 }
 
@@ -251,6 +271,18 @@ void USART<UsartNumber>::flush()
     nrOfBytesToReceive_ = 0;
 }
 
+template <USARTS UsartNumber>
+void USART<UsartNumber>::setDefaultReceiver()
+{
+    receiveCallback_ = defaultHandler;
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::setReceiveCallback(void (*callback)(void*))
+{
+    receiveCallback_ = callback;
+}
+
 /////////////////////////////////////////////
 //     specializations for USART1_PP1
 /////////////////////////////////////////////
@@ -258,7 +290,7 @@ template <>
 USART<USARTS::USART1_PP1>::USART()
     : gpioPortRx_(GPIOA), gpioPortTx_(GPIOA), gpioPinRx_(GPIO_Pin_10), gpioPinTx_(GPIO_Pin_9),
       gpioPinSourceRx_(GPIO_PinSource10), gpioPinSourceTx_(GPIO_PinSource9), gpioAF_(GPIO_AF_USART1),
-      usartIrqn_(USART1_IRQn), transmissionOngoing_(false)
+      usartIrqn_(USART1_IRQn), transmissionOngoing_(false), receiveCallback_(defaultHandler)
 {
     USARTx_ = USART1;
     init();
@@ -299,7 +331,7 @@ template <>
 USART<USARTS::USART2_PP1>::USART()
     : gpioPortRx_(GPIOB), gpioPortTx_(GPIOB), gpioPinRx_(GPIO_Pin_11), gpioPinTx_(GPIO_Pin_10),
       gpioPinSourceRx_(GPIO_PinSource11), gpioPinSourceTx_(GPIO_PinSource10), gpioAF_(GPIO_AF_USART3),
-      usartIrqn_(USART3_IRQn), transmissionOngoing_(false)
+      usartIrqn_(USART3_IRQn), transmissionOngoing_(false), receiveCallback_(defaultHandler)
 {
     USARTx_ = USART3;
     init();

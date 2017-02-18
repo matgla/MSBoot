@@ -1,3 +1,5 @@
+#pragma once
+
 #include "utils.hpp"
 #include <cstdint>
 #include <stm32f4xx_gpio.h>
@@ -39,11 +41,16 @@ class USART
     ReaderWriterBuffer<BUFFER_SIZE>& getBuffer();
     void send(char ch);
     void send(char* str);
-    Message getMessage();
+    void send(u8* str, u8 size);
+    void sendMessage(u8* message, u8 size);
+    void getMessage(u8* buffer);
     bool isTransmissionOngoing();
     void setTransmissionOngoing(bool ongoing);
     void receive(u8 data);
     void flush();
+    void waitForAck(u32 timeout);
+    void setReceiveCallback(void (*callback)(void*));
+    void setDefaultReceiver();
 
   private:
     USART();
@@ -53,7 +60,6 @@ class USART
     void USARTInit();
     void InitClocks();
     void wait();
-    void waitForAck(u32 timeout);
     void sendRaw(char ch);
 
 
@@ -73,6 +79,7 @@ class USART
     volatile u8 nrOfBytesToReceive_;
 
     ReaderWriterBuffer<BUFFER_SIZE> buffer_;
+    void (*receiveCallback_)(void*);
 };
 }
 

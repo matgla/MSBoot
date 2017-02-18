@@ -10,9 +10,10 @@ import sys
 
 init()  # init colorama
 
+
 def main():
     default_target = "stm32f429-Discovery"
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--native-builder', dest='native', action='store_true',
                         help='don\'t use Docker')
@@ -34,20 +35,22 @@ def main():
                         help='run system tests')
     parser.add_argument('-f', '--force', dest='force', action='store_true',
                         help='building even if the step failed')
-    
+    parser.add_argument('-l', '--lsan', dest='lsan', action='store_true',
+                        help='leak sanitizer')
+    parser.add_argument('-e', '--asan', dest='asan', action='store_true',
+                        help='address sanitizer')
+
     args = parser.parse_args()
-    
-    
-    
+
     runner = Runner(args)
-    
+
     print Fore.BLUE + '===================================\n' \
                     + '=  STM32 BootLoader Build System  =\n' \
                     + '===================================' + Style.RESET_ALL
-    
+
     runner.print_commands_to_be_executed()
-    rc =  runner.execute_commands()
-    print "Return code is "  + str(rc)
+    rc = runner.execute_commands()
+    print "Return code is " + str(rc)
     sys.exit(rc)
 
 if __name__ == "__main__":

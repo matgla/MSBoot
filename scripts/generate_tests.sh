@@ -15,7 +15,7 @@ RC="$?"
 if [ $RC -ne 0 ]; then
     exit $RC
 fi
-cmake .. -DBUILD_TESTS=ON
+cmake .. -G"Unix Makefiles" -DBUILD_TESTS=ON $1 $2
 RC="$?"
 if [ $RC -ne 0 ]; then
     exit $RC

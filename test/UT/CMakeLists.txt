@@ -21,9 +21,10 @@ file (GLOB PROD_SRCS    ${PROJECT_SOURCE_DIR}/src/buffer.hpp
                         ${PROJECT_SOURCE_DIR}/src/utils.cpp
                         ${PROJECT_SOURCE_DIR}/src/usart_downloader.hpp
                         ${PROJECT_SOURCE_DIR}/src/usart_downloader.cpp
+                        ${PROJECT_SOURCE_DIR}/src/bootloader.hpp
+                        ${PROJECT_SOURCE_DIR}/src/bootloader.cpp
                         ${PROJECT_SOURCE_DIR}/src/types.h)
 include_directories(${PROJECT_SOURCE_DIR}/src)
-message ("Source dir: ${PROD_SRCS}")
 
 file (GLOB_RECURSE STUB_SRCS ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.cpp
                              ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.c
@@ -33,8 +34,6 @@ file (GLOB_RECURSE STUB_SRCS ${PROJECT_SOURCE_DIR}/test/UT/hw_stub/*.cpp
                              ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.c
                              ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.hpp
                              ${PROJECT_SOURCE_DIR}/test/UT/mocks/*.h)
-
-message ("Stubs srcs: ${STUB_SRCS}")
 
 include_directories(hw_stub)
 include_directories(mocks)

@@ -76,64 +76,64 @@ TEST_F(UsartShould, ShoudAckAfterReceive)
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
+    auto handler = [](void* data) {
+        u8* receivedData = reinterpret_cast<u8*>(data);
+        EXPECT_EQ(receivedData[0], EXPECTED_VALUE);
+    };
+    usart.setReceiveCallback(handler);
+
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
     USART1_IRQHandler();
     EXPECT_TRUE(usart.isTransmissionOngoing());
     USART1->DR = EXPECTED_VALUE;
+
+    expectSendData(static_cast<u8>(Messages::ACK));
+
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
-
-    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
-    EXPECT_CALL(USART_SendData, USART1, static_cast<u8>(Messages::ACK));
-    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
-
     USART1_IRQHandler();
     EXPECT_FALSE(usart.isTransmissionOngoing());
-    EXPECT_EQ(usart.getBuffer().size(), 2);
-    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_SIZE);
-    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_VALUE);
-    EXPECT_EQ(usart.getBuffer().size(), 0);
 }
 
 TEST_F(UsartShould, SendByteCorrectly)
 {
     char EXPECTED_SEND_DATA = 156;
-    u8 EXPECTED_FD = 1;
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
-    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+    expectSendData(EXPECTED_SEND_DATA);
     usart.getBuffer().write(static_cast<u8>(Messages::ACK));
 
     usart.send(EXPECTED_SEND_DATA);
+    usart.waitForAck(5);
 }
 
 TEST_F(UsartShould, SendStringCorrectly)
 {
     char EXPECTED_SEND_DATA[100] = "DataTo send\0";
-    u8 EXPECTED_FD = 1;
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
     usart.getBuffer().write(static_cast<u8>(Messages::ACK));
-    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+    expectSendData(EXPECTED_SEND_DATA);
 
     usart.send(EXPECTED_SEND_DATA);
+    usart.waitForAck(5);
 }
 
 TEST_F(UsartShould, SendDataCorrectlyWhenBufferIsNotEmpty)
 {
     char DATA_IN_BUFFER[15] = "1Ab2a\0";
     char EXPECTED_SEND_DATA[15] = "DataTo send\0";
-    u8 EXPECTED_FD = 1;
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     usart.getBuffer().write(DATA_IN_BUFFER);
 
     usart.getBuffer().write(static_cast<u8>(Messages::ACK));
 
-    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+    expectSendData(EXPECTED_SEND_DATA);
 
     usart.send(EXPECTED_SEND_DATA);
+    usart.waitForAck(5);
 
     std::string data;
 
@@ -152,7 +152,6 @@ TEST_F(UsartShould, SendDataCorrectlyWhenDataArriveAfterAck)
     char EXPECTED_SEND_DATA[15] = "DataTo send\0";
     std::string EXPECTED_OUTPUT = DATA_IN_BUFFER;
     EXPECTED_OUTPUT += DATA_AFTER_ACK;
-    u8 EXPECTED_FD = 1;
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     usart.getBuffer().write(DATA_IN_BUFFER);
@@ -161,9 +160,10 @@ TEST_F(UsartShould, SendDataCorrectlyWhenDataArriveAfterAck)
 
     usart.getBuffer().write(DATA_AFTER_ACK);
 
-    expectSendData(EXPECTED_FD, EXPECTED_SEND_DATA);
+    expectSendData(EXPECTED_SEND_DATA);
 
     usart.send(EXPECTED_SEND_DATA);
+    usart.waitForAck(5);
 
     std::string data;
 
@@ -180,13 +180,13 @@ TEST_F(UsartShould, ReceiveMessageCorrectly)
     const u8 EXPECTED_FD = 6;
     RequestDownload msg;
     msg.fd_ = EXPECTED_FD;
-    const u8 EXPECTED_SIZE = sizeof(msg) + 1;
+    const u8 EXPECTED_SIZE = sizeof(msg);
     const u8 EXPECTED_MSG_TYPE = static_cast<u8>(Messages::SW_DWN_REQ);
 
     EXPECT_EQ(msg.id_, EXPECTED_MSG_TYPE);
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
-    usart.getBuffer().write(sizeof(msg));
+    usart.getBuffer().write(EXPECTED_SIZE);
     usart.getBuffer().write(reinterpret_cast<u8*>(&msg), sizeof(RequestDownload));
 
     u8 buffer[255];
@@ -196,4 +196,27 @@ TEST_F(UsartShould, ReceiveMessageCorrectly)
     memcpy(&receivedMessage, buffer, sizeof(RequestDownload));
     EXPECT_EQ(receivedMessage.id_, EXPECTED_MSG_TYPE);
     EXPECT_EQ(receivedMessage.fd_, EXPECTED_FD);
+}
+
+TEST_F(UsartShould, SendMessageCorrectly)
+{
+    const u8 EXPECTED_FD = 6;
+    RequestDownload msg;
+    msg.fd_ = EXPECTED_FD;
+    const u8 EXPECTED_SIZE = sizeof(msg);
+    const u8 EXPECTED_MSG_TYPE = static_cast<u8>(Messages::SW_DWN_REQ);
+
+    EXPECT_EQ(msg.id_, EXPECTED_MSG_TYPE);
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, EXPECTED_SIZE);
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+
+    expectSendData(EXPECTED_FD);
+    expectSendData(EXPECTED_MSG_TYPE);
+
+    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+
+    usart.sendMessage(reinterpret_cast<u8*>(&msg), sizeof(msg));
 }

@@ -1,15 +1,15 @@
 //#include "fs/romfs/fileSystemHeader.hpp"
-#include <unistd.h>
-#include <cstring>
 #include "stm32f4xx.h"
 #include "stm32f4xx_gpio.h"
+#include <cstring>
+#include <unistd.h>
 // #include "stm32f4xx_rcc.h"
 #include "kernel.hpp"
 #include "logger.hpp"
 // #include "usart.hpp"
+#include "bootloader.hpp"
 #include "types.h"
 #include "utils.hpp"
-#include "bootloader.hpp"
 // //#include <stdio.h>
 // //#include "usart.hpp"
 // #include "kernel.hpp"
@@ -20,7 +20,8 @@
 #include "usart.hpp"
 
 
-void initializeBoardLeds() {
+void initializeBoardLeds()
+{
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14;
@@ -39,7 +40,7 @@ int main(void)
     hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     //u1.init();
 
-    Logger logger("boot");
+    Logger logger("boot\0");
     initializeBoardLeds();
     GPIO_SetBits(GPIOD, GPIO_Pin_14);
 
@@ -60,10 +61,9 @@ int main(void)
         bl.bootFW();
     }
 
-    while (1) {
-
+    while (1)
+    {
     }
-
 }
 
 
@@ -75,8 +75,7 @@ void assert_failed(u8* file, u32 line)
     utils::itoa(line, buf, 10);
     write(0, buf, strlen(buf));
     write(0, " assertion failed!", 18);
-    while(true)
+    while (true)
     {
-
     }
 }

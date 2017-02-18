@@ -1,13 +1,16 @@
 #include "messages.hpp"
 
-Message::Message(u8 fd, u8 size)
-    : fd_(fd),
-      size_(size)
+MessageHeader::MessageHeader(u8 fd)
+    : fd_(fd)
 {
 }
 
 RequestDownload::RequestDownload()
-    : Message(static_cast<u8>(FileDescriptors::SW_DWN),
-          static_cast<u8>(Messages::SW_DWN_REQ))
 {
+    id_ = static_cast<u8>(Messages::SW_DWN_REQ);
+}
+
+ClientInfo::ClientInfo()
+{
+    id_ = static_cast<u8>(Messages::CLIENT_INFO);
 }

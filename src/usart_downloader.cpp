@@ -200,13 +200,13 @@ void UsartDownloader::writeToMemory()
     logger_ << Level::INFO << "Waiting for soft\n";
     u32 softwareSize = 0;
     //  usart::getUsart().send(10, 2);
-    auto msg = usart::getUsart().getMessage();
+    //  msg = usart::getUsart().getMessage();
     //logger_ << Level::INFO << "Received message: " << msg.payload[0] << ":" << msg.payload[1] << ":" << msg.payload[2] << ":" << msg.payload[3] << ":"  << "\r\n";
-    softwareSize = msg.payload_[0] << 24;
-    softwareSize += msg.payload_[1] << 16;
-    softwareSize += msg.payload_[2] << 8;
-    softwareSize += msg.payload_[3];
-    logger_ << Level::INFO << "Received soft size: " << softwareSize << ":" << msg.payload_[3] << "\r\n";
+    // softwareSize = msg.payload_[0] << 24;
+    // softwareSize += msg.payload_[1] << 16;
+    // softwareSize += msg.payload_[2] << 8;
+    // softwareSize += msg.payload_[3];
+    // logger_ << Level::INFO << "Received soft size: " << softwareSize << ":" << msg.payload_[3] << "\r\n";
 
     u32 receivedSize = 0;
     u8* page = (u8*)0x20005000;
@@ -217,17 +217,17 @@ void UsartDownloader::writeToMemory()
         logger_ << Level::INFO << "Requesting block: "
                 << "\r\n";
         //    usart::getUsart().send(10, 3);
-        auto msg1 = usart::getUsart().getMessage();
+        //  auto msg1 = usart::getUsart().getMessage();
 
         logger_ << Level::INFO << "Received: " << receivedSize << "/" << softwareSize << "\r\n";
         //page[++i%100] = msg1.size;
-        memcpy(page + receivedSize, msg1.payload_, msg1.size_);
+        // memcpy(page + receivedSize, msg1.payload_, msg1.size_);
         // receivedSize += msg1.size;
         // for(int i = 0; i < msg1.size; ++i)
         // {
         //    mpage[receivedSize++] = msg1.payload[i];
         // }
-        receivedSize += msg1.size_;
+        // receivedSize += msg1.size_;
     }
 
     FLASH_Unlock();
@@ -302,13 +302,13 @@ void UsartDownloader::waitForProvider()
         //  usart::getUsart().send(10, 1);
 
         logger_ << Level::INFO << "Waiting for message!\r\n";
-        auto msg = usart::getUsart().getMessage();
-        logger_ << Level::INFO << "Received message with: " << msg.fd_ << "\r\n";
-        if (msg.fd_ == 10 && msg.payload_[0] == 1)
-        {
-            logger_ << Level::INFO << "Connected to device\r\n";
-            connection = true;
-        }
+        // auto msg = usart::getUsart().getMessage();
+        // logger_ << Level::INFO << "Received message with: " << msg.fd_ << "\r\n";
+        //   if (msg.fd_ == 10 && msg.payload_[0] == 1)
+        //   {
+        //       logger_ << Level::INFO << "Connected to device\r\n";
+        //        connection = true;
+        //    }
 
         //     logger_ << Level::INFO << "Received byte: " << (int)data << "\n";
         //     if (data == '\n')

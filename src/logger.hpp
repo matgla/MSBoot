@@ -7,14 +7,23 @@
 
 #define SPACE_SIZE 10
 
-enum class Level {
+#ifdef BUILD_TESTS
+#define DEFAULT_FD 2
+#else
+#define DEFAULT_FD 0
+#endif
+
+
+enum class Level
+{
     DEBUG,
     INFO,
     ERROR,
     TRACE
 };
 
-enum class Output {
+enum class Output
+{
     STDOUT,
     FILE,
     NONE
@@ -23,67 +32,69 @@ enum class Output {
 
 class Logger
 {
-public:
+  public:
     Logger();
-    Logger(const char *space);
+    Logger(const char* space, int fd = 0);
 
     // template <typename
 
     template <typename Type>
-    Logger& operator << (Type text)
+    Logger& operator<<(Type text)
     {
-        // TODO: Add api for system calls ( all ) with splitted backend 
-        write(0, text, strlen(text));
+        // TODO: Add api for system calls ( all ) with splitted backend
+        write(fd_, text, strlen(text));
         return *this;
     }
 
-    Logger& operator << (u8 ch)
+    Logger& operator<<(u8 ch)
     {
         char text[4];
         utils::itoa(ch, text, 10);
-        write(0, text, strlen(text));
+        write(fd_, text, strlen(text));
         return *this;
     }
-    
-    Logger& operator << (u32 ch)
+
+    Logger& operator<<(u32 ch)
     {
         char text[40];
         utils::itoa(ch, text, 10);
-        write(0, text, strlen(text));
+        write(fd_, text, strlen(text));
         return *this;
     }
 
-    Logger& operator << (char ch)
+    Logger& operator<<(char ch)
     {
         char text[1];
         text[0] = ch;
-        write(0, text, strlen(text));
+        write(fd_, text, strlen(text));
         return *this;
     }
 
-    Logger& operator << (int ch)
+    Logger& operator<<(int ch)
     {
         char text[20];
         utils::itoa(ch, text, 10);
-        write(0, text, strlen(text));
+        write(fd_, text, strlen(text));
         return *this;
     }
 
-    Logger& operator << (const Level& level)
+    Logger& operator<<(const Level& level)
     {
-        write(0, "<", 1);
+        write(fd_, "<", 1);
         const char* time = getTimeString();
-        write(0, time, strlen(time));
-        write(0, "> ", 2);
-        write(0, getLevelString(level), strlen(getLevelString(level)));
-        write(0, "/", 1);
-        write(0, name_, strlen(name_));
-        write(0, ": ", 2);
+        write(fd_, time, strlen(time));
+        write(fd_, "> ", 2);
+        write(fd_, getLevelString(level), strlen(getLevelString(level)));
+        write(fd_, "/", 1);
+        write(fd_, name_, strlen(name_));
+        write(fd_, ": ", 2);
         return *this;
     }
 
-    char name_[SPACE_SIZE];
-private:
+
+  private:
     const char* getLevelString(const Level& level);
-    const char *getTimeString();
+    const char* getTimeString();
+    char name_[SPACE_SIZE];
+    int fd_;
 };

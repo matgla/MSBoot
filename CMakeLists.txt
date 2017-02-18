@@ -30,6 +30,16 @@ endif (BUILD_TARGET)
 
 project(STM32BootLoader C CXX ASM)
 
+if (ASAN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+endif (ASAN)
+
+if (LSAN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=leak")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
+endif (LSAN)
+
 if (BUILD_TARGET)
 
     include_directories(
@@ -84,5 +94,6 @@ if (BUILD_TARGET)
 endif (BUILD_TARGET)
 
 if (BUILD_TESTS)
+    add_definitions(-DBUILD_TESTS)
     add_subdirectory(test)
 endif (BUILD_TESTS)
