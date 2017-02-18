@@ -78,7 +78,7 @@ TEST_F(UsartShould, ShoudAckAfterReceive)
 
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
     USART1_IRQHandler();
-
+    EXPECT_TRUE(usart.isTransmissionOngoing());
     USART1->DR = EXPECTED_VALUE;
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
 
@@ -87,7 +87,7 @@ TEST_F(UsartShould, ShoudAckAfterReceive)
     EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
 
     USART1_IRQHandler();
-
+    EXPECT_FALSE(usart.isTransmissionOngoing());
     EXPECT_EQ(usart.getBuffer().size(), 2);
     EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_SIZE);
     EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_VALUE);
@@ -173,4 +173,27 @@ TEST_F(UsartShould, SendDataCorrectlyWhenDataArriveAfterAck)
     }
 
     EXPECT_EQ(EXPECTED_OUTPUT, data);
+}
+
+TEST_F(UsartShould, ReceiveMessageCorrectly)
+{
+    const u8 EXPECTED_FD = 6;
+    RequestDownload msg;
+    msg.fd_ = EXPECTED_FD;
+    const u8 EXPECTED_SIZE = sizeof(msg) + 1;
+    const u8 EXPECTED_MSG_TYPE = static_cast<u8>(Messages::SW_DWN_REQ);
+
+    EXPECT_EQ(msg.id_, EXPECTED_MSG_TYPE);
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+
+    usart.getBuffer().write(sizeof(msg));
+    usart.getBuffer().write(reinterpret_cast<u8*>(&msg), sizeof(RequestDownload));
+
+    u8 buffer[255];
+    usart.getMessage(buffer);
+
+    RequestDownload receivedMessage;
+    memcpy(&receivedMessage, buffer, sizeof(RequestDownload));
+    EXPECT_EQ(receivedMessage.id_, EXPECTED_MSG_TYPE);
+    EXPECT_EQ(receivedMessage.fd_, EXPECTED_FD);
 }

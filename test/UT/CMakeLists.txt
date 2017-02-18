@@ -41,4 +41,4 @@ include_directories(mocks)
 
 add_executable (bootloaderUTs ${SRCS} ${PROD_SRCS} ${STUB_SRCS})
 
-target_link_libraries (bootloaderUTs gmock gtest gtest_main)
+target_link_libraries (bootloaderUTs gmock gtest gtest_main pthread)
