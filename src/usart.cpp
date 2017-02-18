@@ -239,10 +239,16 @@ void USART<UsartNumber>::receive(u8 data)
 template <USARTS UsartNumber>
 void USART<UsartNumber>::sendRaw(char ch)
 {
-
     wait();
     USART_SendData(USARTx_, ch);
     wait();
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::flush()
+{
+    transmissionOngoing_ = false;
+    nrOfBytesToReceive_ = 0;
 }
 
 /////////////////////////////////////////////
@@ -334,7 +340,7 @@ void USART1_IRQHandler(void)
     if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
     {
         char c = USART1->DR;
-        hw::USART<hw::USARTS::USART1_PP1>::getUsart().getBuffer().write(c);
+        hw::USART<hw::USARTS::USART1_PP1>::getUsart().receive(c);
     }
 }
 
@@ -343,6 +349,6 @@ void USART2_IRQHandler(void)
     if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
     {
         char c = USART2->DR;
-        hw::USART<hw::USARTS::USART2_PP1>::getUsart().getBuffer().write(c);
+        hw::USART<hw::USARTS::USART2_PP1>::getUsart().receive(c);
     }
 }

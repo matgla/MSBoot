@@ -43,6 +43,7 @@ class USART
     bool isTransmissionOngoing();
     void setTransmissionOngoing(bool ongoing);
     void receive(u8 data);
+    void flush();
 
   private:
     USART();

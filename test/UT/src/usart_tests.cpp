@@ -40,6 +40,10 @@ class UsartShould : public ::testing::Test
         {
             expectInitialization();
         }
+        else
+        {
+            hw::USART<hw::USARTS::USART1_PP1>::getUsart().flush();
+        }
     }
 
     virtual void TearDown()
@@ -60,6 +64,32 @@ TEST_F(UsartShould, HandleIrqRequestCorrect)
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
     USART1_IRQHandler();
     EXPECT_EQ(usart.getBuffer().size(), 1);
+    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_VALUE);
+    EXPECT_EQ(usart.getBuffer().size(), 0);
+}
+
+TEST_F(UsartShould, ShoudAckAfterReceive)
+{
+    const u16 EXPECTED_VALUE = 4;
+    const u16 EXPECTED_SIZE = 1;
+    USART1->DR = EXPECTED_SIZE;
+
+    auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
+
+    EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
+    USART1_IRQHandler();
+
+    USART1->DR = EXPECTED_VALUE;
+    EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
+
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+    EXPECT_CALL(USART_SendData, USART1, static_cast<u8>(Messages::ACK));
+    EXPECT_CALL(USART_GetFlagStatus, USART1, USART_FLAG_TC).willReturn(SET);
+
+    USART1_IRQHandler();
+
+    EXPECT_EQ(usart.getBuffer().size(), 2);
+    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_SIZE);
     EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_VALUE);
     EXPECT_EQ(usart.getBuffer().size(), 0);
 }
