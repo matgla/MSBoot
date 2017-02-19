@@ -28,10 +28,6 @@ void usart_put(USART_TypeDef* USARTx, const char* str)
 namespace hw
 {
 
-void defaultHandler(void*)
-{
-}
-
 template <USARTS UsartNumber>
 USART<UsartNumber>& USART<UsartNumber>::getUsart()
 {
@@ -250,9 +246,6 @@ void USART<UsartNumber>::receive(u8 data)
     {
         transmissionOngoing_ = false;
         sendRaw(static_cast<u8>(Messages::ACK));
-        u8 buffer[255];
-        getMessage(buffer);
-        receiveCallback_(static_cast<void*>(buffer));
     }
 }
 
@@ -267,20 +260,9 @@ void USART<UsartNumber>::sendRaw(char ch)
 template <USARTS UsartNumber>
 void USART<UsartNumber>::flush()
 {
+    buffer_.flush();
     transmissionOngoing_ = false;
     nrOfBytesToReceive_ = 0;
-}
-
-template <USARTS UsartNumber>
-void USART<UsartNumber>::setDefaultReceiver()
-{
-    receiveCallback_ = defaultHandler;
-}
-
-template <USARTS UsartNumber>
-void USART<UsartNumber>::setReceiveCallback(void (*callback)(void*))
-{
-    receiveCallback_ = callback;
 }
 
 /////////////////////////////////////////////
@@ -290,7 +272,7 @@ template <>
 USART<USARTS::USART1_PP1>::USART()
     : gpioPortRx_(GPIOA), gpioPortTx_(GPIOA), gpioPinRx_(GPIO_Pin_10), gpioPinTx_(GPIO_Pin_9),
       gpioPinSourceRx_(GPIO_PinSource10), gpioPinSourceTx_(GPIO_PinSource9), gpioAF_(GPIO_AF_USART1),
-      usartIrqn_(USART1_IRQn), transmissionOngoing_(false), receiveCallback_(defaultHandler)
+      usartIrqn_(USART1_IRQn), transmissionOngoing_(false)
 {
     USARTx_ = USART1;
     init();
@@ -331,7 +313,7 @@ template <>
 USART<USARTS::USART2_PP1>::USART()
     : gpioPortRx_(GPIOB), gpioPortTx_(GPIOB), gpioPinRx_(GPIO_Pin_11), gpioPinTx_(GPIO_Pin_10),
       gpioPinSourceRx_(GPIO_PinSource11), gpioPinSourceTx_(GPIO_PinSource10), gpioAF_(GPIO_AF_USART3),
-      usartIrqn_(USART3_IRQn), transmissionOngoing_(false), receiveCallback_(defaultHandler)
+      usartIrqn_(USART3_IRQn), transmissionOngoing_(false)
 {
     USARTx_ = USART3;
     init();

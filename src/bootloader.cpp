@@ -6,12 +6,10 @@
 BootLoader::BootLoader(Logger& logger)
     : logger_(logger)
 {
-    hw::USART<hw::USARTS::USART1_PP1>::getUsart().setReceiveCallback(&BootLoader::handleEvent);
 }
 
 BootLoader::~BootLoader()
 {
-    hw::USART<hw::USARTS::USART1_PP1>::getUsart().setDefaultReceiver();
 }
 
 void BootLoader::handleEvent(void* event)
@@ -26,6 +24,7 @@ void BootLoader::handleEvent(void* event)
             ClientInfo info;
             memcpy(&info, event, sizeof(ClientInfo));
             logger << Level::INFO << "Received handshake from: " << info.name_ << "\n";
+            handshake_.registerClient(info);
         }
         break;
         default:
@@ -41,6 +40,12 @@ bool BootLoader::specialMode()
 
 void BootLoader::bootSpecialMode()
 {
+    u8 buffer[255];
+    while (true)
+    {
+        hw::USART<hw::USARTS::USART1_PP1>::getUsart().getMessage(buffer);
+        handleEvent(static_cast<void*>(buffer));
+    }
     //Handshake
 }
 

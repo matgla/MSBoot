@@ -58,6 +58,12 @@ class ReaderWriterBuffer
         readerBuf_.removeFromBuffer(pos);
     }
 
+    void flush()
+    {
+        readerBuf_.flush();
+        writerBuf_.flush();
+    }
+
   private:
     void synchronizeBuffer()
     {

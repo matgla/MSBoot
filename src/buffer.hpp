@@ -114,12 +114,14 @@ class Buffer
         return size_;
     }
 
-  private:
     void flush()
     {
         writerIndex_ = 0;
+        readerIndex_ = 0;
+        size_ = 0;
     }
 
+  private:
     void incrementSize()
     {
         if (size_ < BUF_SIZE)

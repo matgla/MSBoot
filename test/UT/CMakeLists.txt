@@ -23,6 +23,10 @@ file (GLOB PROD_SRCS    ${PROJECT_SOURCE_DIR}/src/buffer.hpp
                         ${PROJECT_SOURCE_DIR}/src/usart_downloader.cpp
                         ${PROJECT_SOURCE_DIR}/src/bootloader.hpp
                         ${PROJECT_SOURCE_DIR}/src/bootloader.cpp
+                        ${PROJECT_SOURCE_DIR}/src/handshake.hpp
+                        ${PROJECT_SOURCE_DIR}/src/handshake.cpp
+                        ${PROJECT_SOURCE_DIR}/src/deviceInfoReader.hpp
+                        ${PROJECT_SOURCE_DIR}/src/deviceInfoReader.cpp
                         ${PROJECT_SOURCE_DIR}/src/types.h)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 

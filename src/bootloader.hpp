@@ -1,5 +1,6 @@
 #pragma once
 
+#include "handshake.hpp"
 #include "logger.hpp"
 
 class BootLoader
@@ -10,11 +11,12 @@ class BootLoader
     bool specialMode();
     void bootSpecialMode();
     void bootFW();
-    static void handleEvent(void* event);
+    void handleEvent(void* event);
 
   private:
     void bootRecovery();
     void bootDFU();
 
     Logger& logger_;
+    Handshake handshake_;
 };

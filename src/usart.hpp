@@ -49,8 +49,6 @@ class USART
     void receive(u8 data);
     void flush();
     void waitForAck(u32 timeout);
-    void setReceiveCallback(void (*callback)(void*));
-    void setDefaultReceiver();
 
   private:
     USART();
@@ -79,7 +77,6 @@ class USART
     volatile u8 nrOfBytesToReceive_;
 
     ReaderWriterBuffer<BUFFER_SIZE> buffer_;
-    void (*receiveCallback_)(void*);
 };
 }
 

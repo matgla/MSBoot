@@ -39,3 +39,11 @@ struct ClientInfo : public MessageHeader
     ~ClientInfo() = default;
     char name_[10];
 };
+
+struct DeviceInfo : public MessageHeader
+{
+    u16 deviceSignature_;
+    u16 deviceRevision_;
+    u16 flashSize_;
+    u8 uniqueId_[12];
+};

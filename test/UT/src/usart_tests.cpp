@@ -76,12 +76,6 @@ TEST_F(UsartShould, ShoudAckAfterReceive)
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
-    auto handler = [](void* data) {
-        u8* receivedData = reinterpret_cast<u8*>(data);
-        EXPECT_EQ(receivedData[0], EXPECTED_VALUE);
-    };
-    usart.setReceiveCallback(handler);
-
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
     USART1_IRQHandler();
     EXPECT_TRUE(usart.isTransmissionOngoing());
@@ -92,6 +86,8 @@ TEST_F(UsartShould, ShoudAckAfterReceive)
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
     USART1_IRQHandler();
     EXPECT_FALSE(usart.isTransmissionOngoing());
+    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_SIZE);
+    EXPECT_EQ(usart.getBuffer().getByte(), EXPECTED_VALUE);
 }
 
 TEST_F(UsartShould, SendByteCorrectly)
