@@ -5,14 +5,19 @@
 from behave import given, when, then
 from framework.run_target import run_target
 import serial
-fo = open("target2.log", "w")
+from framework.message_loop import MessageLoop
+import time
+#fo = open("target2.log", "w")
 
 
 @given('we have behave installed')
 def step_impl(context):
-    serialConnection = serial.Serial("/dev/ttyS11")
+    serial_connection = serial.Serial("/dev/ttyS11")
+    msgLoop = MessageLoop(serial_connection)
+    msgLoop.run()
     # fo.write(serialConnection.read(10))
     target, timer = run_target(5)
+    time.sleep(2)
 
     target.terminate()
     timer.cancel()

@@ -348,7 +348,7 @@ template class
 template class
     USART<USARTS::USART2_PP1>;
 }
-// volatile u8 flag =0;
+
 void USART1_IRQHandler(void)
 {
     if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)

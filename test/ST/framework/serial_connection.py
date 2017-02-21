@@ -1,2 +1,0 @@
-class SerialConnection:
-    def 
