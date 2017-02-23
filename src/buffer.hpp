@@ -62,8 +62,13 @@ class Buffer
         return 0;
     }
 
-    u8 getValue(u16 offset)
+    bool getValue(u16 offset, u8& value)
     {
+        if (offset >= size_)
+        {
+            return false;
+        }
+
         if (size_)
         {
             int tempIndex = readerIndex_;
@@ -71,9 +76,10 @@ class Buffer
             {
                 tempIndex = 0;
             }
-            return buffer_[tempIndex + offset];
+            value = buffer_[tempIndex + offset];
+            return true;
         }
-        return 0;
+        return false;
     }
 
     bool removeFromBuffer(u16 pos)
@@ -88,7 +94,14 @@ class Buffer
                 {
                     currentPos = 0;
                 }
-                buffer_[currentPos + pos + i] = getValue(i + pos + 1);
+                u8 value;
+
+                if (!getValue(i + pos + 1, value))
+                {
+                    buffer_[currentPos + pos + i] = value;
+                    break;
+                }
+                buffer_[currentPos + pos + i] = value;
             }
             --size_;
 

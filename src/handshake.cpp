@@ -2,8 +2,9 @@
 #include "deviceInfoReader.hpp"
 #include "usart.hpp"
 
-Handshake::Handshake()
-    : connectedToClient_(false)
+Handshake::Handshake(Logger& logger)
+    : connectedToClient_(false),
+      logger_(logger)
 {
 }
 
@@ -22,6 +23,8 @@ void Handshake::sendDeviceIdData()
     deviceInfo.flashSize_ = deviceInfoReader::readFlashSize();
     deviceInfoReader::readUniqueId(deviceInfo.uniqueId_);
 
+    logger_ << Level::INFO << "sending device info\n";
     hw::USART<hw::USARTS::USART1_PP1>::getUsart()
         .sendMessage(reinterpret_cast<u8*>(&deviceInfo), sizeof(DeviceInfo));
+    logger_ << Level::INFO << "Received ack\n";
 }

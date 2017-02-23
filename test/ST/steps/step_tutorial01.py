@@ -3,35 +3,17 @@
 # STEPS:
 # ----------------------------------------------------------------------------
 from behave import given, when, then
-from framework.run_target import run_target
-import serial
-from framework.message_loop import MessageLoop
 import time
-import shutil
-import logging
-from framework.file_log import setup_logger
-import os
-import errno
-#fo = open("target2.log", "w")
+from framework.test_utils import TestFramework
 
 
 @given('we have behave installed')
 def step_impl(context):
-    if os.path.exists(os.path.dirname("../../artifacts/run.log")):
-        shutil.rmtree("../../artifacts")
-    if not os.path.exists(os.path.dirname("../../artifacts/run.log")):
-        try:
-            os.makedirs(os.path.dirname("../../artifacts/run.log"))
-        except OSError as err:
-            if err.errno != errno.EEXIST:
-                raise
-    setup_logger("TEST", True, logging.DEBUG, "../../artifacts/run.log")
-    serial_connection = serial.Serial("/dev/ttyS11")
-    msgLoop = MessageLoop(serial_connection)
-    msgLoop.run()
+    tf = TestFramework()
+    tf.init_framework()
 
-    # fo.write(serialConnection.read(10))
-    target, timer = run_target(5)
+    connection = tf.get_connection()
+
     time.sleep(4)
     msg = bytearray()
     msg.append(6)
@@ -41,12 +23,12 @@ def step_impl(context):
     msg.append('S')
     msg.append('T')
     msg.append(0)
-    serial_connection.write(msg)
+
+    connection.write(msg)
 
     time.sleep(1)
 
-    target.terminate()
-    timer.cancel()
+    tf.teardown()
     pass
 
 

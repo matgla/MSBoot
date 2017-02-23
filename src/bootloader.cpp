@@ -4,7 +4,8 @@
 #include "usart_downloader.hpp"
 
 BootLoader::BootLoader(Logger& logger)
-    : logger_(logger)
+    : logger_(logger),
+      handshake_(logger)
 {
 }
 

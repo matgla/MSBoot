@@ -39,12 +39,19 @@ class ReaderWriterBuffer
         }
     }
 
-    u16 findInBuffer(u8 value)
+    short int findInBuffer(u8 value)
     {
         synchronizeBuffer();
         for (int i = 0; i < readerBuf_.size(); ++i)
         {
-            if (readerBuf_.getValue(i) == value)
+            u8 valueFromBuffer;
+
+            if (!readerBuf_.getValue(i, valueFromBuffer))
+            {
+                return -1;
+            }
+
+            if (value == valueFromBuffer)
             {
                 return i;
             }

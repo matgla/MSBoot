@@ -118,5 +118,8 @@ int _write(int file, const char* ptr, int len)
     while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
     {
     };
+
+    //TODO: Maybe there should be wait for ack
+
     return len;
 }

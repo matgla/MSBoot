@@ -53,6 +53,10 @@ class MessageLoop:
                 logger.debug("received_bytes: " + strb)
                 if payload[0] == 0:  # log
                     self.log(payload[1:].decode())
+                else:
+                    msg = bytearray()
+                    msg.append(0x06)
+                    self.serial.write(msg)
         except Exception as err:
             logger.error("Error in loop: " + str(err))
             raise

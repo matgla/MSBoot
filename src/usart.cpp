@@ -1,4 +1,5 @@
 #include "usart.hpp"
+#include "logger.hpp"
 #include "utils.hpp"
 
 #include <cstdint>
@@ -80,9 +81,13 @@ void USART<UsartNumber>::send(u8* str, u8 size)
 template <USARTS UsartNumber>
 void USART<UsartNumber>::sendMessage(u8* payload, u8 size)
 {
+    Logger logger("USART");
+    logger << Level::INFO << "Send raw\n";
     sendRaw(size);
     send(payload, size);
+    logger << Level::INFO << "Wait for ack\n";
     waitForAck(10);
+    logger << Level::INFO << "Received Ack\n";
 }
 
 template <USARTS UsartNumber>
@@ -202,8 +207,9 @@ void USART<UsartNumber>::wait()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::waitForAck(u32 timeout)
 {
+    Logger logger("USART");
     bool receivedAck = false;
-
+    logger << Level::INFO << "buffer size: " << buffer_.size() << "\n";
     while (buffer_.findInBuffer(static_cast<u8>(Messages::ACK)) == -1)
     {
     }
