@@ -72,10 +72,11 @@ run sudo pip install colorama behave
 run sudo apt-get install -y clang-tidy
 
 # 7.2 Commands to be executed when docker container starts
+run sudo apt-get install -y ninja
 run sudo echo '#!/bin/bash' >> /usr/bin/startup.sh
-run sudo echo 'socat PTY,link=/dev/ttyS10 PTY,link=/dev/ttyS11 &' >> /usr/bin/startup.sh
+run sudo echo 'socat PTY,link=/dev/ttyS10,raw PTY,link=/dev/ttyS11,raw &' >> /usr/bin/startup.sh
 run sudo echo 'sleep 1' >> /usr/bin/startup.sh
+run sudo echo 'stty -F /dev/ttyS10 -onlcr && stty -F /dev/ttyS11 -onlcr' >> /usr/bin/startup.sh
 run sudo echo 'chown admin /dev/ttyS10 && chown admin /dev/ttyS11'  >> /usr/bin/startup.sh
 run sudo chmod +x /usr/bin/startup.sh
-run sudo apt-get install -y ninja
 cmd /usr/bin/startup.sh

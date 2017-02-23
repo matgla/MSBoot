@@ -48,16 +48,16 @@ int main(void)
     hardwareInitialize();
 
     BootLoader bl(logger);
-    logger << Level::INFO << "Bootloader started\r\n";
+    logger << Level::INFO << "Bootloader started\r";
 
     if (bl.specialMode())
     {
-        logger << Level::INFO << "Boot in special mode\r\n";
+        logger << Level::INFO << "Boot in special mode\n";
         bl.bootSpecialMode();
     }
     else
     {
-        logger << Level::INFO << "Boot FW\r\n";
+        logger << Level::INFO << "Boot FW\n";
         bl.bootFW();
     }
 

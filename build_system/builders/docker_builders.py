@@ -86,4 +86,4 @@ class DockerSystemTestRunner(DockerDefaultBuilder):
         return "run STs"
 
     def getShellCmd(self):
-        return get_common_command() + " sudo /usr/bin/startup.sh && sh test_st.sh\""
+        return get_common_command() + " sudo /usr/bin/startup.sh && sudo stty -ocrnl && sh test_st.sh\""

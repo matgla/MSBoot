@@ -12,7 +12,7 @@ BootLoader::~BootLoader()
 {
 }
 
-void BootLoader::handleEvent(void* event)
+void BootLoader::handleEvent(void* event, u8 size)
 {
     Logger logger("EV_HAN\0");
     u8* payload = static_cast<u8*>(event);
@@ -22,7 +22,7 @@ void BootLoader::handleEvent(void* event)
         case Messages::CLIENT_INFO:
         {
             ClientInfo info;
-            memcpy(&info, event, sizeof(ClientInfo));
+            memcpy(&info, event, size);
             logger << Level::INFO << "Received handshake from: " << info.name_ << "\n";
             handshake_.registerClient(info);
         }
@@ -43,8 +43,8 @@ void BootLoader::bootSpecialMode()
     u8 buffer[255];
     while (true)
     {
-        hw::USART<hw::USARTS::USART1_PP1>::getUsart().getMessage(buffer);
-        handleEvent(static_cast<void*>(buffer));
+        u8 size = hw::USART<hw::USARTS::USART1_PP1>::getUsart().getMessage(buffer);
+        handleEvent(static_cast<void*>(buffer), size);
     }
     //Handshake
 }

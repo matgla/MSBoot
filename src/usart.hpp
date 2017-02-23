@@ -43,7 +43,7 @@ class USART
     void send(char* str);
     void send(u8* str, u8 size);
     void sendMessage(u8* message, u8 size);
-    void getMessage(u8* buffer);
+    u8 getMessage(u8* buffer);
     bool isTransmissionOngoing();
     void setTransmissionOngoing(bool ongoing);
     void receive(u8 data);

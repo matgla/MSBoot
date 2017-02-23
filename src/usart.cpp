@@ -86,7 +86,7 @@ void USART<UsartNumber>::sendMessage(u8* payload, u8 size)
 }
 
 template <USARTS UsartNumber>
-void USART<UsartNumber>::getMessage(u8* buffer)
+u8 USART<UsartNumber>::getMessage(u8* buffer)
 {
     u8 msgSize = 1;
     int index = 0;
@@ -106,6 +106,7 @@ void USART<UsartNumber>::getMessage(u8* buffer)
             }
         }
     }
+    return msgSize;
 }
 
 template <USARTS UsartNumber>

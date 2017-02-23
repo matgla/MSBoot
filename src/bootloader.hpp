@@ -11,7 +11,7 @@ class BootLoader
     bool specialMode();
     void bootSpecialMode();
     void bootFW();
-    void handleEvent(void* event);
+    void handleEvent(void* event, u8 size);
 
   private:
     void bootRecovery();

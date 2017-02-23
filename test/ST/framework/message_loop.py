@@ -1,6 +1,11 @@
 import threading
 import time
 import os
+import errno
+import binascii
+from logging import getLogger
+
+logger = getLogger("TEST")
 
 
 class MessageLoop:
@@ -9,42 +14,45 @@ class MessageLoop:
         self.serial = serial_connection
         self.log_file_name = "../../artifacts/target.log"
 
-        if not os.path.exists(os.path.dirname(self.log_file_name)):
-            try:
-                os.makedirs(os.path.dirname(self.log_file_name))
-            except OSError as err:
-                # if err.errno != errno.EEXIST: TODO: fix it
-                #    raise
-                print "jakis error"
-
     def log(self, bytearray):
         with open(self.log_file_name, "a") as file:
-            file.write(bytearray)
+            file.write(bytearray.encode("utf-8"))
 
     def run(self):
         try:
             self.runner_thread = threading.Thread(
                 target=self.loop)
             self.runner_thread.setDaemon(True)
+            logger.info("Created runner thread.")
             self.runner_thread.start()
+            logger.info("Runner started.")
+
         except Exception as err:
-            print "Can't start thread for message handling" + str(err)
+            logger.error(
+                "Can't start thread for message handling" + str(err))
+            raise
 
     def loop(self):
-        while True:
-            size = 0
-            while size == 0:
-                while self.serial.in_waiting != 0:
-                    size = 0
-                size = self.serial.read(1)
-                log = "size to recv: " + str(size) + "!\n"
-                self.log(log)
-            received_bytes = 0
-            payload = bytearray()
-            while received_bytes < size:
-                if self.serial.in_waiting != 0:
-                    payload.append(self.serial.read(1))
-                    received_bytes = received_bytes + 1
-            # if payload[0] == 1:
-            self.log(bytearray)
-            size = 0
+        try:
+            while True:
+                size = 0
+                while size == 0:
+                    while self.serial.in_waiting == 0:
+                        pass
+                    size = ord(self.serial.read(1))
+                    logger.debug("Bytes to receive: " + str(size))
+                received_bytes = 0
+                payload = bytearray()
+                strb = ""
+                while received_bytes < size:
+                    if self.serial.in_waiting != 0:
+                        byte = ord(self.serial.read(1))
+                        strb = strb + " " + str(byte)
+                        payload.append(byte)
+                        received_bytes = received_bytes + 1
+                logger.debug("received_bytes: " + strb)
+                if payload[0] == 0:  # log
+                    self.log(payload[1:].decode())
+        except Exception as err:
+            logger.error("Error in loop: " + str(err))
+            raise
