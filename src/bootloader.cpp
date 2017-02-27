@@ -23,6 +23,7 @@ void BootLoader::handleEvent(void* event, u8 size)
         case Messages::CLIENT_INFO:
         {
             ClientInfo info;
+            logger << Level::INFO << "Handshake with size: " << size << "\n";
             memcpy(&info, event, size);
             logger << Level::INFO << "Received handshake from: " << info.name_ << "\n";
             handshake_.registerClient(info);
@@ -45,6 +46,7 @@ void BootLoader::bootSpecialMode()
     while (true)
     {
         u8 size = hw::USART<hw::USARTS::USART1_PP1>::getUsart().getMessage(buffer);
+        logger_ << Level::INFO << "Received with size: " << size << "\n";
         handleEvent(static_cast<void*>(buffer), size);
     }
     //Handshake

@@ -40,7 +40,6 @@ class MessageLoop:
                     while self.serial.in_waiting == 0:
                         pass
                     size = ord(self.serial.read(1))
-                    logger.debug("Bytes to receive: " + str(size))
                 received_bytes = 0
                 payload = bytearray()
                 strb = ""
@@ -50,7 +49,6 @@ class MessageLoop:
                         strb = strb + " " + str(byte)
                         payload.append(byte)
                         received_bytes = received_bytes + 1
-                logger.debug("received_bytes: " + strb)
                 if payload[0] == 0:  # log
                     self.log(payload[1:].decode())
                 else:

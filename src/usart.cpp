@@ -81,18 +81,15 @@ void USART<UsartNumber>::send(u8* str, u8 size)
 template <USARTS UsartNumber>
 void USART<UsartNumber>::sendMessage(u8* payload, u8 size)
 {
-    Logger logger("USART");
-    logger << Level::INFO << "Send raw\n";
     sendRaw(size);
     send(payload, size);
-    logger << Level::INFO << "Wait for ack\n";
     waitForAck(10);
-    logger << Level::INFO << "Received Ack\n";
 }
 
 template <USARTS UsartNumber>
 u8 USART<UsartNumber>::getMessage(u8* buffer)
 {
+    Logger logger("USART");
     u8 msgSize = 1;
     int index = 0;
     bool receivedSize = false;
@@ -103,14 +100,18 @@ u8 USART<UsartNumber>::getMessage(u8* buffer)
             if (!receivedSize)
             {
                 msgSize = getBuffer().getByte();
+                logger << Level::INFO << "Received size: " << msgSize << "\n";
+                logger << Level::INFO << "Data: ";
                 receivedSize = true;
             }
             else
             {
                 buffer[index++] = getBuffer().getByte();
+                logger << buffer[index - 1];
             }
         }
     }
+    logger << "\n";
     return msgSize;
 }
 

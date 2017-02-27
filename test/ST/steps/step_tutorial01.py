@@ -5,6 +5,11 @@
 from behave import given, when, then
 import time
 from framework.test_utils import TestFramework
+from messages import messages
+import binascii
+from logging import getLogger
+
+logger = getLogger("TEST")
 
 
 @given('we have behave installed')
@@ -14,19 +19,24 @@ def step_impl(context):
 
     connection = tf.get_connection()
 
-    time.sleep(4)
+    time.sleep(3)
+
+    #msg = messages.ClientInfo(8, "abcd\0")
+
     msg = bytearray()
-    msg.append(6)
+    msg.append(7)
     msg.append(8)
     msg.append(0x0b)
     msg.append('T')
+    msg.append('E')
     msg.append('S')
     msg.append('T')
     msg.append(0)
 
+    logger.debug("ClientInfo: " + binascii.hexlify(msg))
     connection.write(msg)
 
-    time.sleep(1)
+    time.sleep(2)
 
     tf.teardown()
     pass
