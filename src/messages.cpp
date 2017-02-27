@@ -5,6 +5,11 @@ MessageHeader::MessageHeader(u8 fd)
 {
 }
 
+Ack::Ack()
+{
+    id_ = static_cast<u8>(Messages::ACK);
+}
+
 RequestDownload::RequestDownload()
 {
     id_ = static_cast<u8>(Messages::SW_DWN_REQ);

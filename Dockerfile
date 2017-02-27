@@ -79,4 +79,7 @@ run sudo echo 'sleep 1' >> /usr/bin/startup.sh
 run sudo echo 'stty -F /dev/ttyS10 -onlcr && stty -F /dev/ttyS11 -onlcr' >> /usr/bin/startup.sh
 run sudo echo 'chown admin /dev/ttyS10 && chown admin /dev/ttyS11'  >> /usr/bin/startup.sh
 run sudo chmod +x /usr/bin/startup.sh
+
+run sudo apt-get install -y gdb gdbserver
+run sudo apt-get install -y lsof
 cmd /usr/bin/startup.sh

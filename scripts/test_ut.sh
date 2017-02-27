@@ -6,7 +6,9 @@ RC="$?"
 if [ $RC -ne 0 ]; then
     exit $RC
 fi
+
 test/UT/bootloaderUTs
+
 RC="$?"
 if [ $RC -ne 0 ]; then
     exit $RC

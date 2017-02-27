@@ -11,6 +11,7 @@ DECLARE_MOCK_VOID_FUNCTION(USART_SendData, USART_TypeDef*, uint16_t);
 
 void expectSendData(char data);
 void expectSendData(const char* data);
+void expectSendData(u8* data, u8 size);
 void expectClocksConfiguration();
 void expectGpioInit();
 void expectNvicInit();

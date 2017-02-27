@@ -46,42 +46,42 @@ ReaderWriterBuffer<BUFFER_SIZE>& USART<UsartNumber>::getBuffer()
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(char ch)
 {
-    // wait();
-    //  USART_SendData(USARTx_, 1);
     wait();
     USART_SendData(USARTx_, ch);
-    // waitForAck(10);
     wait();
 }
 
 template <USARTS UsartNumber>
 void USART<UsartNumber>::send(char* str)
 {
-    //  wait();
-    //  USART_SendData(USARTx_, strlen(str));
     for (int i = 0; i < strlen(str); ++i)
     {
         send(str[i]);
     }
-    //  waitForAck(10);
 }
 
 template <USARTS UsartNumber>
-void USART<UsartNumber>::send(u8* str, u8 size)
+void USART<UsartNumber>::send(u8* str, int size)
 {
-    //  wait();
-    //  USART_SendData(USARTx_, size);
     for (int i = 0; i < size; ++i)
     {
         send(str[i]);
     }
-    //waitForAck(10);
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::send(const char* str, int size)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        send(str[i]);
+    }
 }
 
 template <USARTS UsartNumber>
 void USART<UsartNumber>::sendMessage(u8* payload, u8 size)
 {
-    sendRaw(size);
+    send(size);
     send(payload, size);
     waitForAck(10);
 }
@@ -111,7 +111,7 @@ u8 USART<UsartNumber>::getMessage(u8* buffer)
             }
         }
     }
-    logger << "\n";
+    logger << " \n";
     return msgSize;
 }
 
@@ -206,16 +206,67 @@ void USART<UsartNumber>::wait()
 }
 
 template <USARTS UsartNumber>
+i16 USART<UsartNumber>::findMessageInBuffer(u8 msgId, u8& msgSize)
+{
+    while (true)
+    {
+        msgSize = 1;
+
+        int index = 0;
+        u16 readerIndex = 0;
+        bool receivedSize = false;
+        // receive message
+        while (index < msgSize)
+        {
+            u8 value;
+            if (!buffer_.getValue(readerIndex, value))
+            {
+                return -1;
+            }
+            if (!receivedSize)
+            {
+                msgSize = value;
+                receivedSize = true;
+            }
+            else
+            {
+                if (1 == index)
+                {
+                    if (msgId == value)
+                    {
+                        return readerIndex;
+                    }
+                }
+                ++index;
+            }
+            ++readerIndex;
+        }
+    }
+}
+
+template <USARTS UsartNumber>
+void USART<UsartNumber>::removeDataFromBuffer(i16 pos, u8 nrOfBytes)
+{
+    for (int i = 0; i < nrOfBytes; ++i)
+    {
+        buffer_.removeAt(pos);
+    }
+}
+
+template <USARTS UsartNumber>
 void USART<UsartNumber>::waitForAck(u32 timeout)
 {
     Logger logger("USART");
-    bool receivedAck = false;
-    logger << Level::INFO << "buffer size: " << buffer_.size() << "\n";
-    while (buffer_.findInBuffer(static_cast<u8>(Messages::ACK)) == -1)
+    u8 size = 0;
+    short int pos = -1;
+    // find ack message
+    while (pos == -1)
     {
+        pos = findMessageInBuffer(static_cast<u8>(Messages::ACK), size);
     }
 
-    buffer_.removeAt(buffer_.findInBuffer(static_cast<u8>(Messages::ACK)));
+    // remove ack message
+    removeDataFromBuffer(pos, size);
 }
 
 template <USARTS UsartNumber>
@@ -234,12 +285,6 @@ void USART<UsartNumber>::setTransmissionOngoing(bool ongoing)
 template <USARTS UsartNumber>
 void USART<UsartNumber>::receive(u8 data)
 {
-    if (data == static_cast<u8>(Messages::ACK))
-    {
-        buffer_.write(data);
-        return;
-    }
-
     if (!transmissionOngoing_)
     {
         transmissionOngoing_ = true;
@@ -253,17 +298,11 @@ void USART<UsartNumber>::receive(u8 data)
     if (nrOfBytesToReceive_ == 0)
     {
         transmissionOngoing_ = false;
-        sendRaw(static_cast<u8>(Messages::ACK));
+        Ack ack;
+        send(reinterpret_cast<u8*>(&ack), sizeof(Ack));
     }
 }
 
-template <USARTS UsartNumber>
-void USART<UsartNumber>::sendRaw(char ch)
-{
-    wait();
-    USART_SendData(USARTx_, ch);
-    wait();
-}
 
 template <USARTS UsartNumber>
 void USART<UsartNumber>::flush()

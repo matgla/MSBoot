@@ -29,7 +29,7 @@ class TestFramework:
         self.target, self.timer = run_target(5)
 
     def teardown(self):
-        self.target.terminate()
+        self.target.kill()
         self.timer.cancel()
 
     def get_connection(self):

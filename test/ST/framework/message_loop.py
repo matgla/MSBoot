@@ -3,6 +3,7 @@ import time
 import os
 import errno
 import binascii
+from messages import messages
 from logging import getLogger
 
 logger = getLogger("TEST")
@@ -49,10 +50,17 @@ class MessageLoop:
                         strb = strb + " " + str(byte)
                         payload.append(byte)
                         received_bytes = received_bytes + 1
+                logger.info("Payload[0] = " + str(payload[0]) + " p[1]: " + str(payload[1])
+                            + " when size: " + str(size) + " len size: " + str(len(payload)))
                 if payload[0] == 0:  # log
                     self.log(payload[1:].decode())
+                elif len(payload) > 1 and size == 2 and payload[1] is messages.EventType.ACK.value:
+                    logger.info("received ack")
                 else:
+                    logger.info("sending ack")
                     msg = bytearray()
+                    msg.append(0x02)
+                    msg.append(0x08)
                     msg.append(0x06)
                     self.serial.write(msg)
         except Exception as err:

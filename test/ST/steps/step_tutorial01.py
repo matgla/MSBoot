@@ -19,7 +19,7 @@ def step_impl(context):
 
     connection = tf.get_connection()
 
-    time.sleep(3)
+    time.sleep(2)
 
     #msg = messages.ClientInfo(8, "abcd\0")
 

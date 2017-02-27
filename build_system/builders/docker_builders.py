@@ -36,7 +36,7 @@ class DockerDefaultBuilder(Builder):
         return " -c \"\""
 
     def getColors(self):
-        return " -it -e \"TERM=xterm-256color\""
+        return " -it --privileged=true -e \"TERM=xterm-256color\""
 
     def get_cmd(self):
         return "docker " + self.getDockerCommand() + self.getColors() + \
@@ -77,7 +77,7 @@ class DockerUnitTestBuilder(DockerDefaultBuilder):
         return "build & run UTs"
 
     def getShellCmd(self):
-        return get_common_command() + "sh test_ut.sh\""
+        return get_common_command() + "sh test_ut.sh -g\""
 
 
 class DockerSystemTestRunner(DockerDefaultBuilder):

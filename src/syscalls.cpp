@@ -1,8 +1,10 @@
 #include "stm32f4xx_conf.h"
-
+#include "syscall.hpp"
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
+#include "usart.hpp"
 
 
 int _gettimeofday(struct timeval* tv, void* tzvp)
@@ -13,7 +15,6 @@ int _gettimeofday(struct timeval* tv, void* tzvp)
     return 0;                              // return non-zero for error
 }
 
-int __errno;
 
 int _close(int file)
 {
@@ -96,30 +97,9 @@ caddr_t _sbrk(int incr)
 int _write(int file, const char* ptr, int len)
 {
     int i;
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
-    USART_SendData(USART1, len + 1);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
-    USART_SendData(USART1, file);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
-    // USART_SendData(USART1, len && 0x000000ff);
-    for (i = 0; i < len; i++)
-    {
-        while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-        {
-        };
-        USART_SendData(USART1, (uint8_t)ptr[i]);
-    }
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-    {
-    };
-
-    //TODO: Maybe there should be wait for ack
+    hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(len + 1);
+    hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(file);
+    hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(ptr, len);
 
     return len;
 }

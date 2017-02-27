@@ -135,6 +135,15 @@ void expectSendData(const char* data)
     }
 }
 
+void expectSendData(u8* data, u8 size)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        expectSendData(data[i]);
+    }
+}
+
+
 void expectClocksConfiguration()
 {
     EXPECT_CALL(RCC_AHB1PeriphClockCmd, RCC_AHB1Periph_GPIOA, ENABLE);

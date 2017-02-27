@@ -41,7 +41,8 @@ class USART
     ReaderWriterBuffer<BUFFER_SIZE>& getBuffer();
     void send(char ch);
     void send(char* str);
-    void send(u8* str, u8 size);
+    void send(u8* str, int size);
+    void send(const char* str, int size);
     void sendMessage(u8* message, u8 size);
     u8 getMessage(u8* buffer);
     bool isTransmissionOngoing();
@@ -58,7 +59,8 @@ class USART
     void USARTInit();
     void InitClocks();
     void wait();
-    void sendRaw(char ch);
+    i16 findMessageInBuffer(u8 msgId, u8& size);
+    void removeDataFromBuffer(i16 pos, u8 nrOfBytes);
 
 
     GPIO_TypeDef* gpioPortRx_;

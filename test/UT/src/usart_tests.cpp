@@ -81,7 +81,8 @@ TEST_F(UsartShould, ShoudAckAfterReceive)
     EXPECT_TRUE(usart.isTransmissionOngoing());
     USART1->DR = EXPECTED_VALUE;
 
-    expectSendData(static_cast<u8>(Messages::ACK));
+    Ack ack;
+    usart.getBuffer().write(reinterpret_cast<u8*>(&ack), sizeof(Ack));
 
     EXPECT_CALL(USART_GetITStatus, USART1, USART_IT_RXNE).willReturn(SET);
     USART1_IRQHandler();
@@ -97,7 +98,9 @@ TEST_F(UsartShould, SendByteCorrectly)
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
     expectSendData(EXPECTED_SEND_DATA);
-    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+
+    Ack ack;
+    usart.getBuffer().write(reinterpret_cast<u8*>(&ack), sizeof(Ack));
 
     usart.send(EXPECTED_SEND_DATA);
     usart.waitForAck(5);
@@ -109,7 +112,8 @@ TEST_F(UsartShould, SendStringCorrectly)
 
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
 
-    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+    Ack ack;
+    usart.getBuffer().write(reinterpret_cast<u8*>(&ack), sizeof(Ack));
     expectSendData(EXPECTED_SEND_DATA);
 
     usart.send(EXPECTED_SEND_DATA);
@@ -124,7 +128,8 @@ TEST_F(UsartShould, SendDataCorrectlyWhenBufferIsNotEmpty)
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     usart.getBuffer().write(DATA_IN_BUFFER);
 
-    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+    Ack ack;
+    usart.getBuffer().write(reinterpret_cast<u8*>(&ack), sizeof(Ack));
 
     expectSendData(EXPECTED_SEND_DATA);
 
@@ -152,7 +157,8 @@ TEST_F(UsartShould, SendDataCorrectlyWhenDataArriveAfterAck)
     auto& usart = hw::USART<hw::USARTS::USART1_PP1>::getUsart();
     usart.getBuffer().write(DATA_IN_BUFFER);
 
-    usart.getBuffer().write(static_cast<u8>(Messages::ACK));
+    Ack ack;
+    usart.getBuffer().write(reinterpret_cast<u8*>(&ack), sizeof(Ack));
 
     usart.getBuffer().write(DATA_AFTER_ACK);
 

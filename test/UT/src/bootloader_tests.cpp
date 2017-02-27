@@ -76,6 +76,7 @@ TEST_F(BootLoaderTests, shouldSetReceiverCallback)
     EXPECT_EQ(payload[5], info.name_[3]);
     EXPECT_EQ(payload[6], info.name_[4]);
 
+    expectSendData(1); // ack size
     expectSendData(static_cast<u8>(Messages::ACK));
 
     usart.receive(size);

@@ -11,6 +11,7 @@ enum class FileDescriptors
 
 enum class Messages
 {
+    LOG = 0x02,
     ACK = 0x06,
     SW_DWN_REQ = 0x0a,
     CLIENT_INFO = 0x0b
@@ -23,6 +24,12 @@ struct MessageHeader
 
     u8 fd_;
     u8 id_;
+};
+
+struct Ack : public MessageHeader
+{
+    Ack();
+    ~Ack() = default;
 };
 
 struct RequestDownload : public MessageHeader

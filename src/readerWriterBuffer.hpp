@@ -60,6 +60,12 @@ class ReaderWriterBuffer
         return -1;
     }
 
+    bool getValue(u16 offset, u8& value)
+    {
+        synchronizeBuffer();
+        return readerBuf_.getValue(offset, value);
+    }
+
     void removeAt(u16 pos)
     {
         readerBuf_.removeFromBuffer(pos);
