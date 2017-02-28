@@ -230,7 +230,7 @@ i16 USART<UsartNumber>::findMessageInBuffer(u8 msgId, u8& msgSize)
             }
             else
             {
-                if (1 == index)
+                if (0 == index)
                 {
                     if (msgId == value)
                     {

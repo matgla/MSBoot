@@ -19,7 +19,7 @@ def step_impl(context):
 
     connection = tf.get_connection()
 
-    time.sleep(2)
+    time.sleep(0.2)
 
     #msg = messages.ClientInfo(8, "abcd\0")
 
@@ -36,7 +36,7 @@ def step_impl(context):
     logger.debug("ClientInfo: " + binascii.hexlify(msg))
     connection.write(msg)
 
-    time.sleep(2)
+    time.sleep(0.2)
 
     tf.teardown()
     pass

@@ -26,10 +26,12 @@ struct MessageHeader
     u8 id_;
 };
 
-struct Ack : public MessageHeader
+struct Ack
 {
     Ack();
     ~Ack() = default;
+    
+    u8 id_;
 };
 
 struct RequestDownload : public MessageHeader

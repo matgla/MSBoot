@@ -100,6 +100,7 @@ int _write(int file, const char* ptr, int len)
     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(len + 1);
     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(file);
     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(ptr, len);
+    hw::USART<hw::USARTS::USART1_PP1>::getUsart().waitForAck(100);
 
     return len;
 }
