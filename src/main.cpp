@@ -10,6 +10,7 @@
 #include "logger.hpp"
 // #include "usart.hpp"
 #include "bootloader.hpp"
+#include "state_machine/main_sm.hpp"
 #include "types.h"
 #include "utils.hpp"
 // //#include <stdio.h>
@@ -85,10 +86,13 @@ int main(void)
     initializeBoardLeds();
     GPIO_SetBits(GPIOD, GPIO_Pin_14);
 
-
     hardwareInitialize();
+    boost::sml::sm<MainSm> sm;
 
-    BootLoader bl(logger);
+    sm.process_event(MainSm::evInitialize{});
+
+
+    // BootLoader bl(logger);
     //logger << Level::INFO << "Bootloader started\r";
 
     //logger << Level::INFO << "allocated on: " << (int)test << "\n";
@@ -115,9 +119,9 @@ int main(void)
     // sm.process_event(timeout{});
 
 
-    //  while (1)
-    //    {
-    //    }
+    while (1)
+    {
+    }
 }
 
 
