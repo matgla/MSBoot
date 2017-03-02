@@ -3,6 +3,7 @@
 #include "stm32f4xx_gpio.h"
 #include <boost/sml.hpp>
 #include <cstring>
+#include <cstdlib>
 #include <unistd.h>
 // #include "stm32f4xx_rcc.h"
 #include "kernel.hpp"
@@ -88,9 +89,22 @@ int main(void)
     hardwareInitialize();
 
     BootLoader bl(logger);
-    logger << Level::INFO << "Bootloader started\r";
+    //logger << Level::INFO << "Bootloader started\r";
+    for (int i = 0; i < 100; i++)
+    {
+         char* test = (char*)malloc(100*sizeof(char));
+         
+         //free(test);
+        printf("Allocated memory at address: %p\n", test);
+        if (i % 2 == 0)
+        {
+            //free(test);
+        }
+    }
+   
+    //logger << Level::INFO << "allocated on: " << (int)test << "\n";
 
-    if (bl.specialMode())
+    /*if (bl.specialMode())
     {
         logger << Level::INFO << "Boot in special mode\n";
         bl.bootSpecialMode();
@@ -99,7 +113,7 @@ int main(void)
     {
         logger << Level::INFO << "Boot FW\n";
         bl.bootFW();
-    }
+    }*/
 
     // sml::sm<hello_world> sm;
 
@@ -112,9 +126,9 @@ int main(void)
     // sm.process_event(timeout{});
 
 
-    while (1)
-    {
-    }
+  //  while (1)
+//    {
+//    }
 }
 
 

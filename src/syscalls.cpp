@@ -64,43 +64,33 @@ char* heap = NULL;
 register char* stack_ptr asm("sp");
 caddr_t _sbrk(int incr)
 {
-    extern char _heap asm("_heap");   /* Defined by the linker.  */
-    extern char _eheap asm("_eheap"); /* Defined by the linker.  */
-    caddr_t prevHeap;
-    caddr_t nextHeap;
+      extern char end asm("end");
+  static char* heap_end;
+  char* prev_heap_end, *min_stack_ptr;
 
-    if (heap == NULL)
-    { // first allocation
-        heap = (caddr_t)&_heap;
-    }
+  if (heap_end == 0) {
+    heap_end = &end;
+  }
 
-    prevHeap = heap;
+  prev_heap_end = heap_end;
 
-    // Always return data aligned on a 8 byte boundary
-    nextHeap = (caddr_t)(((unsigned int)(heap + incr) + 7) & ~7);
+  if (heap_end + incr > stack_ptr)
+  {
+		_write(1, "Heap and stack collision\n", 25);
+//		abort();
+   // errno = ENOMEM;
+    return (caddr_t) - 1;
+  }
 
-    // Check enough space and there is no collision with stack coming the other way
-    // if stack is above start of heap
-    if (nextHeap >= (caddr_t)&_eheap)
-    {
-        //errno = 1;
-        _write(1, "no more memory", 10);
-        return NULL; // error - no more memory
-    }
-    else
-    {
-        heap = nextHeap;
-        return (caddr_t)prevHeap;
-    }
+  heap_end += incr;
+
+  return (caddr_t) prev_heap_end;
 }
 
 int _write(int file, const char* ptr, int len)
 {
     int i;
-    hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(len + 1);
-    hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(file);
     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(ptr, len);
-    hw::USART<hw::USARTS::USART1_PP1>::getUsart().waitForAck(100);
 
     return len;
 }
