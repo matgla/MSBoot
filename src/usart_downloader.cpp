@@ -7,7 +7,7 @@
 
 using usart = hw::USART<hw::USARTS::USART1_PP1>;
 
-UsartDownloader::UsartDownloader(const Logger& logger)
+UsartDownloader::UsartDownloader(Logger& logger)
     : logger_(logger)
 {
 }

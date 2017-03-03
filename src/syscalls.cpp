@@ -3,6 +3,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <errno.h>
+
 
 #include "usart.hpp"
 
@@ -15,6 +17,8 @@ int _gettimeofday(struct timeval* tv, void* tzvp)
     return 0;                              // return non-zero for error
 }
 
+#undef errno
+int errno = 0;
 
 int _close(int file)
 {
@@ -78,6 +82,7 @@ caddr_t _sbrk(int incr)
     {
         /* Heap and stack collision */
         _write(1, "Heap and stack collision\n", 25);
+        errno = ENOMEM;
         return (caddr_t)0;
     }
 
@@ -87,7 +92,6 @@ caddr_t _sbrk(int incr)
 
 int _write(int file, const char* ptr, int len)
 {
-    int i;
     hw::USART<hw::USARTS::USART1_PP1>::getUsart().send(ptr, len);
 
     return len;

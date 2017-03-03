@@ -63,8 +63,7 @@ if (BUILD_TARGET)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -d -DUSE_FULL_ASSERT")
     endif (DEBUG)
 
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld")
-    #set(CMAKE_EXE_LINKER_FLAGS_INIT  "-T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_SOURCE_DIR}/lkr/stm32f407vg_flash.ld --specs=nano.specs")
 
     file(GLOB_RECURSE PROD_SOURCES "src/*.c" "src/*.cpp" "src/*.h" "src/*.hpp")
 

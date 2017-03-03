@@ -6,10 +6,10 @@
 
 extern "C" {
 
+extern int errno;
 
 int _gettimeofday(struct timeval* tv, void* tzvp);
 
-//int __errno;
 
 int _close(int file);
 int _fstat(int file, struct stat* st);

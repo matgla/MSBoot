@@ -6,9 +6,9 @@
 class UsartDownloader
 {
 public:
-    UsartDownloader(const Logger& logger);
+    UsartDownloader(Logger& logger);
     void waitForProvider();
     void writeToMemory();
 private:
-    Logger logger_;
+    Logger& logger_;
 };

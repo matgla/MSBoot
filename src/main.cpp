@@ -10,7 +10,7 @@
 #include "logger.hpp"
 // #include "usart.hpp"
 #include "bootloader.hpp"
-#include "state_machine/main_sm.hpp"
+#include "state_machine/bootloader_sm.hpp"
 #include "types.h"
 #include "utils.hpp"
 // //#include <stdio.h>
@@ -87,9 +87,9 @@ int main(void)
     GPIO_SetBits(GPIOD, GPIO_Pin_14);
 
     hardwareInitialize();
-    boost::sml::sm<MainSm> sm;
+    boost::sml::sm<BootLoaderSm> sm;
 
-    sm.process_event(MainSm::evInitialize{});
+    sm.process_event(BootLoaderSm::evInitialize{});
 
 
     // BootLoader bl(logger);

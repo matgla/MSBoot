@@ -2,17 +2,18 @@
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
+#include <cstdlib>
+#include <memory>
 
 #include "utils.hpp"
 
-#define SPACE_SIZE 10
+#define SPACE_SIZE 40
 
 #ifdef BUILD_TESTS
 #define DEFAULT_FD 2
 #else
 #define DEFAULT_FD 0
 #endif
-
 
 enum class Level
 {
@@ -29,6 +30,15 @@ enum class Output
     NONE
 };
 
+
+struct Deleter
+{
+    template <typename T>
+    void operator()(T* obj) 
+    {
+        free(obj);
+    }
+};
 
 class Logger
 {
@@ -86,7 +96,7 @@ class Logger
         write(fd_, "> ", 2);
         write(fd_, getLevelString(level), strlen(getLevelString(level)));
         write(fd_, "/", 1);
-        write(fd_, name_, strlen(name_));
+        write(fd_, name_.get(), strlen(name_.get()));
         write(fd_, ": ", 2);
         return *this;
     }
@@ -95,6 +105,6 @@ class Logger
   private:
     const char* getLevelString(const Level& level);
     const char* getTimeString();
-    char name_[SPACE_SIZE];
+    std::unique_ptr<char, Deleter> name_;
     int fd_;
 };

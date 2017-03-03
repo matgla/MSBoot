@@ -6,20 +6,22 @@
 
 #define TIME_BUFFER_SIZE 18
 
-// Logger *Logger::pInstance = nullptr;
+const char* default_name = "default\0";
+
 char buffer[TIME_BUFFER_SIZE];
 
 Logger::Logger()
-    : name_("default"),
+    : name_(reinterpret_cast<char*>(malloc(sizeof(char) * strlen(default_name) ))),
       fd_(DEFAULT_FD)
 {
+    std::memcpy(name_.get(), default_name, strlen(default_name));
 }
 
 Logger::Logger(const char* name, int fd)
-    : name_(""),
+    : name_(reinterpret_cast<char*>(malloc(sizeof(char) * strlen(name) ))),
       fd_(fd)
 {
-    std::memcpy(name_, name, strlen(name));
+    std::memcpy(name_.get(), name, strlen(name));
 }
 
 const char* Logger::getLevelString(const Level& level)
