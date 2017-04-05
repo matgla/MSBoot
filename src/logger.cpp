@@ -11,17 +11,17 @@ const char* default_name = "default\0";
 char buffer[TIME_BUFFER_SIZE];
 
 Logger::Logger()
-    : name_(reinterpret_cast<char*>(malloc(sizeof(char) * strlen(default_name) ))),
+    : name_(reinterpret_cast<char*>(malloc(sizeof(char) * (strlen(default_name) + 1)))),
       fd_(DEFAULT_FD)
 {
-    std::memcpy(name_.get(), default_name, strlen(default_name));
+    std::memcpy(name_.get(), default_name, strlen(default_name) + 1);
 }
 
 Logger::Logger(const char* name, int fd)
-    : name_(reinterpret_cast<char*>(malloc(sizeof(char) * strlen(name) ))),
+    : name_(reinterpret_cast<char*>(malloc(sizeof(char) * (strlen(name) + 1)))),
       fd_(fd)
 {
-    std::memcpy(name_.get(), name, strlen(name));
+    std::memcpy(name_.get(), name, strlen(name) + 1);
 }
 
 const char* Logger::getLevelString(const Level& level)
