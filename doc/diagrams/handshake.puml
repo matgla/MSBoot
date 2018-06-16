@@ -1,6 +1,0 @@
-@startuml
-Bootloader -> Client: Send BootloaderIdent
-Client --> Bootloader: Send ClientIdent
-
-
-@enduml
