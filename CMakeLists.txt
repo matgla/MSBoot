@@ -1,99 +1,51 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(ARCH "X86" CACHE STRING "Target architecture (X86|ARM)")
-set(ARM_TOOLCHAIN $ENV{ARM_TOOLCHAIN} CACHE STRING "Path to ARM toolchain")
-set(BOARD "STM32_Black_Pill" CACHE STRING "Board name for choose board support platform")
+set (unknown "Unknown" CACHE STRING "Unknown Tag" FORCE)
 
-set(BUILD_TARGET OFF CACHE STRING "Build target")
-set(BUILD_TESTS  OFF CACHE STRING "Build tests")
+##  DEDUCE TARGET ##
 
-set(ASAN_ENABLED OFF CACHE STRING "Enable address sanitizer")
-set(LSAN_ENABLED OFF CACHE STRING "Enable leak sanitizer")
-set(TSAN_ENABLED OFF CACHE STRING "Enable thread sanitizer")
-set(USAN_ENABLED OFF CACHE STRING "Enable undefined sanitizer")
-set(CLANG_TIDY   OFF CACHE STRING "Enable clang tidy")
-set(CPPCHECK     OFF CACHE STRING "Enable cppcheck")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(DEBUG        OFF CACHE STRING "Debug")
+set(BOARD ${unknown} CACHE STRING "Board name")
+set(MCU ${unknown} CACHE STRING "Target MCU")
+set(MCU_FAMILY ${unknown} CACHE STRING "Target MCU family")
 
-if (${ARCH} STREQUAL "STM32")
-    message("-- Include toolchain for STM32")
-    set(STM32_FAMILY "STM32F10x" CACHE STRING "STM32 version")
-    include("cmake/STM32.cmake")
-endif (${ARCH} STREQUAL "STM32")
+if (NOT ${BOARD} STREQUAL ${unknown})
+    include (cmake/BoardToMcu.cmake)
+    message ("-- Board set to: ${BOARD}. Deducing hardware...")
+    board_to_mcu(${BOARD} mcu)
+endif ()
 
-project(AquaLampDriver CXX C ASM)
+if ((NOT mcu) AND (NOT ${MCU} STREQUAL ${unknown}))
+    set(mcu ${MCU})    
+elseif (NOT mcu)
+    message (FATAL_ERROR "Can't deduce MCU family!")
+endif ()
 
-if (ASAN_ENABLED)
-    if (${ARCH} STREQUAL "STM32")
-        message(WARNING "STM32 not support undefined behaviour sanitizer")
-    else (${ARCH} STREQUAL "STM32")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
-    endif (${ARCH} STREQUAL "STM32")
-endif (ASAN_ENABLED)
+message ("-- MCU: ${mcu}")
+include (cmake/McuToMcuFamily.cmake)
+message ("-- Deducing MCU family...")
+mcu_to_mcufamily(${mcu} mcu_family)
 
-if (LSAN_ENABLED)
-    if (${ARCH} STREQUAL "STM32")
-        message(WARNING "STM32 not support undefined behaviour sanitizer")
-    else (${ARCH} STREQUAL "STM32")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=leak")
-    endif (${ARCH} STREQUAL "STM32")
-endif (LSAN_ENABLED)
+if ((NOT mcu_family) AND (NOT ${MCU_FAMILY} STREQUAL ${unknown}))
+    set(mcu_family ${MCU_FAMILY})
+elseif (NOT mcu_family)
+    message (FATAL_ERROR "Can't deduce architecture!")
+endif ()
 
-if(ENABLE_USAN)
-    if (${ARCH} STREQUAL "STM32")
-        message(WARNING "STM32 not support undefined behaviour sanitizer")
-    else (${ARCH} STREQUAL "STM32")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-    endif (${ARCH} STREQUAL "STM32")
+message ("-- MCU family: ${mcu_family}")
+include (cmake/McuFamilyToArch.cmake)
+message ("-- Deducing architecture...")
+mcufamily_to_arch(${mcu_family} arch vendor)
+message ("-- Arch: ${arch}")
+
+## LOAD TOOLSET ##
+
+if (${vendor} STREQUAL "STM32")
+    include(cmake/stm32/McuToClass.cmake)
+    mcu_to_class(${mcu} device_class)
+    message("-- STM32 device class: ${device_class}")
+    include(cmake/STM32.cmake)
 endif()
 
-set (clang_tidy_srcs "" CACHE INTERNAL "clang tidy sources")
-    if (CLANG_TIDY)
-    find_program(CLANG_TIDY_BIN clang-tidy-5.0)
+project(MsOS_Boot CXX C ASM)
 
-    if(CLANG_TIDY_BIN STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
-        message(FATAL_ERROR "unable to locate clang-tidy-5.0")
-    endif()
-
-    set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 0)
-endif (CLANG_TIDY)
-
-if (GCOV)
-    if (${ARCH} STREQUAL "STM32")
-        message(WARNING "STM32 not support coverage")
-    endif (${ARCH} STREQUAL "STM32")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-endif (GCOV)
-
-include_directories(libs/include)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-if (BUILD_TARGET)
-    add_subdirectory(src)
-endif (BUILD_TARGET)
-
-if (BUILD_TESTS)
-    message("Building Tests")
-    if (NOT ${ARCH} STREQUAL "X86")
-        message(FATAL_ERROR "Tests can be build only for X86")
-    endif (NOT ${ARCH} STREQUAL "X86")
-
-    add_subdirectory(test)
-endif (BUILD_TESTS)
-
-
-add_subdirectory(lib)
-
-if (CLANG_TIDY)
-    add_custom_target(
-        clang_tidy
-        COMMAND ${CLANG_TIDY_BIN} -checks=clan*,cert*,misc*,perf*,cppc*,read*,mode*,-cert-err58-cpp,-cert-dcl58-cpp,-misc-noexcept-move-constructor -header-filter="src" -p . ${clang_tidy_srcs}
-        COMMENT "running clang tidy"
-    )
-endif (CLANG_TIDY)
+add_subdirectory(src)

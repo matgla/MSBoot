@@ -1,49 +1,72 @@
-# Find the STM32 CMSIS and StdPeriph libraries
+if (DEFINED $ENV{STM32_LIBRARIES_ROOT_DIR})
+    file(TO_CMAKE_PATH $ENV{STM32_LIBRARIES_ROOT_DIR} stm32_libraries_root_dir_converted)
+    set(stm32_libraries_root_dir ${stm32_library_root_dir_converted})
+elseif (DEFINED STM32_LIBRARIES_PATH)
+    set(stm32_libraries_root_dir ${STM32_LIBRARIES_PATH})
+endif()
 
-set(STM32_LIBRARY_ROOT_DIR $ENV{STM32_LIBRARY_ROOT_DIR})
+if (stm32_libraries_root_dir)
+    message("-- STM32 Libraries path: ${stm32_libraries_root_dir}")
+endif()
 
-file(TO_CMAKE_PATH $ENV{STM32_LIBRARY_ROOT_DIR} STM32_LIBRARY_ROOT_DIR_CONVERTED)
-set(STM32_LIBRARY_ROOT_DIR ${STM32_LIBRARY_ROOT_DIR_CONVERTED} CACHE PATH "Path to STM32 library" FORCE)
-
-
-find_path(STM32_LIBRARY_ROOT_DIR
-    CMSIS/Include/core_cm4.h
-    STM32F10x_StdPeriph_Driver/inc
-    DOC "STM32 libraries root directory: STM32F10x_DSP_StdPeriph_Lib_V1.0.1/Libraries"
+set(stm32_libraries_path 
+    "/usr/lib"
+    "/lib"
+    "${stm32_libraries_root_dir}/*"
 )
 
-message("-- Library root ${STM32_LIBRARY_ROOT_DIR}")
+message(${stm32_libraries_root_dir})
 
-set(STM32_STARTUP_SOURCE ${STM32_LIBRARY_ROOT_DIR}/stm32f1/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md.s)
-
-set(STM32_INCLUDE_DIRS
-    ${STM32_LIBRARY_ROOT_DIR}/stm32f1/Libraries/STM32F10x_StdPeriph_Driver/inc/
-    ${STM32_LIBRARY_ROOT_DIR}/stm32f1/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/
-    ${STM32_LIBRARY_ROOT_DIR}/stm32f1/Libraries/CMSIS/CM3/CoreSupport/
+find_path(stm32_library_path
+    NAMES
+        "Libraries/CMSIS/CM3/CoreSupport/core_cm3.c"
+        "Libraries/STM32F10x_StdPeriph_Driver/inc/misc.h"
+    PATHS 
+        ${stm32_libraries_path}
 )
 
-set(SOURCES_DIR ${STM32_LIBRARY_ROOT_DIR}/stm32f1/Libraries/STM32F10x_StdPeriph_Driver/src/)
+message("startup: ${stm32_library_path}")
 
-file(GLOB STM32_SOURCES ${SOURCES_DIR}/misc.c
-                        ${SOURCES_DIR}/stm32f10x_gpio.c
-                        ${SOURCES_DIR}/stm32f10x_flash.c
-                        ${SOURCES_DIR}/stm32f10x_usart.c
-                        ${SOURCES_DIR}/stm32f10x_rcc.c
-                        ${SOURCES_DIR}/stm32f10x_tim.c
-                        ${SOURCES_DIR}/stm32f10x_rtc.c
-                        ${SOURCES_DIR}/stm32f10x_pwr.c
-                        ${SOURCES_DIR}/stm32f10x_bkp.c
-                        ${SOURCES_DIR}/stm32f10x_exti.c
-                        ${SOURCES_DIR}/stm32f10x_spi.c
-                        ${SOURCES_DIR}/stm32f10x_adc.c
-                        ${SOURCES_DIR}/stm32f10x_iwdg.c
-                        ${STM32_STARTUP_SOURCE})
+set(stm32_startup_file ${stm32_library_path}/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_${device_class}.s)
 
-find_package(PackageHandleStandardArgs)
-find_package_handle_standard_args(CMSIS DEFAULT_MSG
-        STM32_LIBRARY_ROOT_DIR
-        STM32_STARTUP_SOURCE
-        STM32_SOURCES
-        STM32_INCLUDE_DIRS
-        )
+set(std_periph_include_path ${stm32_library_path}/Libraries/STM32F10x_StdPeriph_Driver/inc)
+set(cmsis_include_path ${stm32_library_path}/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x)
+set(core_include_path ${stm32_library_path}/Libraries/CMSIS/CM3/CoreSupport)
+
+
+set(sources_path ${stm32_library_path}/Libraries/STM32F10x_StdPeriph_Driver/src)
+
+file(GLOB sources 
+    ${sources_path}/*.c 
+    ${std_periph_include_path}/*.h 
+    ${cmsis_include_path}/*.c
+    ${cmsis_include_path}/*.h
+    ${core_include_path}/*.h    
+    ${stm32_startup_file}
+)
+
+string(TOUPPER ${device_class} device_class_uppercased)
+add_definitions(-DSTM32F10X_${device_class_uppercased})
+
+SET(CMAKE_C_FLAGS "-mthumb -mcpu=cortex-m3 -fno-builtin -Wall -std=gnu99 -fdata-sections -ffunction-sections -mfloat-abi=soft " CACHE INTERNAL "c compiler flags")
+SET(CMAKE_CXX_FLAGS "-mthumb -mcpu=cortex-m3 -fno-builtin -Wall -std=c++1z -fdata-sections -ffunction-sections -mfloat-abi=soft -fno-rtti -fno-use-cxa-atexit -fno-exceptions -fno-threadsafe-statics" CACHE INTERNAL "cxx compiler flags")
+SET(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m3" CACHE INTERNAL "asm compiler flags")
+
+SET(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -Wl,--gc-sections -mthumb -mcpu=cortex-m3 -T${CMAKE_SOURCE_DIR}/lkr/STM32F103C8Tx_FLASH.ld --specs=nano.specs" CACHE INTERNAL "exe link flags")
+
+
+add_library(stm32 ${sources} )
+
+target_include_directories(stm32 PUBLIC 
+    ${std_periph_include_path}
+    ${cmsis_include_path}
+    ${core_include_path}
+)
+# find_package(PackageHandleStandardArgs)
+# find_package_handle_standard_args(CMSIS DEFAULT_MSG
+#     STM32_LIBRARY_ROOT_DIR
+#     STM32_STARTUP_SOURCE
+#     STM32_SOURCES
+#     STM32_INCLUDE_DIRS
+# )
 
