@@ -7,8 +7,6 @@ set (sources
 
 include_directories(${sources_path})
 
-add_subdirectory(hal)
-
 add_executable(msboot ${sources}) 
 target_link_libraries(msboot stm32 stm32_hal_common)
 

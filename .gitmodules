@@ -8,3 +8,6 @@
 [submodule "cmake"]
 	path = cmake
 	url = git@github.com:matgla/EmbeddedCMakes.git
+[submodule "lib/hal"]
+	path = lib/hal
+	url = git@github.com:matgla/EmbeddedHAL.git
