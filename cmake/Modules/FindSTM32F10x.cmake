@@ -7,27 +7,27 @@ endif()
 
 if (stm32_libraries_root_dir)
     message("-- STM32 Libraries path: ${stm32_libraries_root_dir}")
-endif()
+else ()
+    message(FATAL_ERROR "STM32 Libraries can't be found. Please set environment variable: STM32_LIBRARIES_ROOT_DIR or pass path to cmake with -DSTM32_LIBRARIES_PATH")
+endif ()
 
-set(stm32_libraries_path 
-    "/usr/lib"
-    "/lib"
-    "${stm32_libraries_root_dir}/*"
-)
 
-message(${stm32_libraries_root_dir})
+#find_path(stm32_library_path
+#    NAMES
+#        "Libraries/CMSIS/CM3/CoreSupport/core_cm3.c"
+#        "Libraries/STM32F10x_StdPeriph_Driver/inc/misc.h"
+#    PATHS 
+#        ${stm32_libraries_path}
+#)
 
-find_path(stm32_library_path
-    NAMES
-        "Libraries/CMSIS/CM3/CoreSupport/core_cm3.c"
-        "Libraries/STM32F10x_StdPeriph_Driver/inc/misc.h"
-    PATHS 
-        ${stm32_libraries_path}
-)
+message("startup: ${stm32_libraries_root_dir}/**.s")
 
-message("startup: ${stm32_library_path}")
+file(GLOB_RECURSE stm32_startup_file ${stm32_libraries_root_dir}/**/startup_stm32f40xx.s)
+message("startup file: ${stm32_startup_file}")
 
-set(stm32_startup_file ${stm32_library_path}/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_${device_class}.s)
+if (NOT EXISTS ${stm32_startup_file})
+    message(FATAL_ERROR "Can't find gcc_ride7/startup_stm32f10x_${device_class}.s under: ${stm32_library_path}")
+endif ()
 
 set(std_periph_include_path ${stm32_library_path}/Libraries/STM32F10x_StdPeriph_Driver/inc)
 set(cmsis_include_path ${stm32_library_path}/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x)

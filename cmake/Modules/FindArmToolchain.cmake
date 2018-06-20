@@ -1,8 +1,10 @@
+cmake_minimum_required(VERSION 3.6)
 
-if (DEFINED $ENV{ARM_TOOLCHAIN})
+message("no! $ENV{ARM_TOOLCHAIN}")
+if (EXISTS $ENV{ARM_TOOLCHAIN})
     file(TO_CMAKE_PATH $ENV{ARM_TOOLCHAIN} arm_toolchain_path_converted)
-    set(arm_toolchain_path ${arm_toolchain_path})
-elseif (DEFINED ARM_TOOLCHAIN_PATH)
+    set(arm_toolchain_path "${arm_toolchain_path_converted}/bin")
+elseif (ARM_TOOLCHAIN_PATH)
     set(arm_toolchain_path "${ARM_TOOLCHAIN_PATH}/bin")
 endif()
 
@@ -13,7 +15,7 @@ endif()
 set(binary_paths 
     "/bin" 
     "/usr/bin" 
-    ${arm_toolchain_path}
+    "${arm_toolchain_path}"
 )
 
 find_program(arm_c_compiler 
