@@ -1,9 +1,10 @@
-#include <stm32f10x.h>
-#include <stm32f10x_iwdg.h>
+#include "hal/gpio/digitalOut.hpp"
 
 int main()
 {
-    IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+    hal::gpio::DigitalOut<hal::gpio::Port::A> led(1);
+    led.high();
+    led.low();
 
     while (true)
     {

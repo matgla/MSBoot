@@ -9,7 +9,7 @@ set (sources
 include_directories(${sources_path})
 
 add_executable(msboot ${sources}) 
-target_link_libraries(msboot stm32 stm32_hal_common)
+target_link_libraries(msboot stm32 hal)
 
 target_compile_options(stm32 PUBLIC
     -fno-builtin
