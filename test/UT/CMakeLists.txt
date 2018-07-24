@@ -1,24 +1,21 @@
 enable_testing()
 
-include(../cmake/ut_sources.cmake)
-include(../cmake/production_sources.cmake)
-include(../cmake/bsp_testing_sources.cmake)
+set(ut_source "${CMAKE_SOURCE_DIR}/test/UT")
+set(binary_name "MsBoot_UT")
 
-include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${PROJECT_SOURCE_DIR}/test/UT)
-
-include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-include_directories(SYSTEM ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
-
-set(CMAKE_CXX_STANDARD 14)
-set(target_libs ${target_libs} ${Boost_LIBRARIES} gsl)
-
-add_executable(AquaLampServerUTs
-    ${ut_sources}
-    ${production_sources}
-    ${bsp_sources}
+add_executable(${binary_name}
+    ${ut_source}/empty.cpp
+    ${ut_source}/main.cpp
 )
+
+target_include_directories(${binary_name} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories(${binary_name} PRIVATE ${PROJECT_SOURCE_DIR}/test/UT)
+
+target_include_directories(${binary_name} SYSTEM PRIVATE ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+target_include_directories(${binary_name} SYSTEM PRIVATE ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
+
+set(CMAKE_CXX_STANDARD 17)
 
 set(testing_libs ${testing_libs} gmock gtest pthread)
 
-target_link_libraries(AquaLampServerUTs ${target_libs} ${common_libs} ${testing_libs})
+target_link_libraries(${binary_name} ${common_libs} ${testing_libs})
