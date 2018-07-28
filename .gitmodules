@@ -11,3 +11,6 @@
 [submodule "lib/hal"]
 	path = lib/hal
 	url = git@github.com:matgla/EmbeddedHAL.git
+[submodule "lib/eul"]
+	path = lib/eul
+	url = git@github.com:matgla/EmbeddedUtilityLibraries.git

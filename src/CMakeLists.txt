@@ -9,7 +9,7 @@ set (sources
 include_directories(${sources_path})
 
 add_executable(msboot ${sources}) 
-target_link_libraries(msboot hal)
+target_link_libraries(msboot hal eul)
 
 target_compile_options(msboot PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
