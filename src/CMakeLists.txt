@@ -13,7 +13,7 @@ target_link_libraries(msboot hal)
 
 target_compile_options(msboot PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
-    $<$<COMPILE_LANGUAGE:CXX>:-std=c++1z -fconcepts>
+    $<$<COMPILE_LANGUAGE:CXX>:-std=c++1z -fconcepts -Wall -Werror>
     $<$<CONFIG:DEBUG>:-Og -g>
     $<$<CONFIG:RELEASE>:-Os>
 )
