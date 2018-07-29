@@ -14,3 +14,9 @@
 [submodule "lib/eul"]
 	path = lib/eul
 	url = git@github.com:matgla/EmbeddedUtilityLibraries.git
+[submodule "lib/msmp"]
+	path = lib/msmp
+	url = git@github.com:matgla/MSMP.git
+[submodule "lib/crcpp"]
+	path = lib/crcpp
+	url = https://github.com/d-bahr/CRCpp
