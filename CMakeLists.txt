@@ -8,12 +8,10 @@ set(BUILD_UT ${unknown} CACHE STRING "build UT's")
 
 if (NOT ${BUILD_UT})
     message (STATUS "Build: target")
+    set(linker_scripts_directory "${CMAKE_CURRENT_SOURCE_DIR}/linker_scripts" CACHE STRING "Path to linker scripts")
+
     include(cmake/ConfigureProject.cmake)
-#    if (${vendor} STREQUAL "STM32")
-#        set(linker_script "${CMAKE_CURRENT_SOURCE_DIR}/lkr/STM32F103C8Tx_FLASH.ld")
-#        message(STATUS "Linker script: ${linker_script}")
-#    endif()
-    
+
     project(MsBoot CXX C ASM)
 
     add_subdirectory(lib)
@@ -23,7 +21,7 @@ elseif (${BUILD_UT})
     message (STATUS "Build: UT")
 
     project(MsBoot CXX C ASM)
-    
+
     add_subdirectory(lib)
     add_subdirectory(src)
     add_subdirectory(test)
