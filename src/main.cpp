@@ -14,13 +14,12 @@ extern "C"
 
 int main()
 {
-    // constexpr hal::gpio::PA0 pin;
+    constexpr hal::gpio::PA5 pin;
     // constexpr hal::gpio::PA1 pin2;
-    // pin.init(hal::gpio::GpioSpeed::Low,
-    //          hal::gpio::GpioMode::OutputPushPull);
-
-    // pin.setLow();
-    // pin.setHigh();
+    pin.init(hal::gpio::GpioSpeed::Low,
+             hal::gpio::GpioMode::OutputPushPull);
+    pin.setHigh();
+    //pin.setHigh();
     // hal::usart::USART1::init();
     // eul::Logger<hal::usart::USART1> logger("main");
     while (true)
