@@ -9,7 +9,7 @@ set (sources
 include_directories(${sources_path})
 
 add_executable(msboot ${sources})
-target_link_libraries(msboot hal eul)
+target_link_libraries(msboot PUBLIC hal eul)
 
 if (${arch} STREQUAL "ARM")
 
