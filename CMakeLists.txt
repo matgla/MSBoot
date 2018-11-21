@@ -9,11 +9,9 @@ if (NOT ${BUILD_UT})
     message (STATUS "Build: target")
 
     set(linker_scripts_directory "${CMAKE_CURRENT_SOURCE_DIR}/linker_scripts" CACHE STRING "Path to linker scripts")
-    message (STATUS "Linker script directory: ${linker_scripts_directory}")    
-    
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
-    set(HAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/hal")
-    find_package(EmbeddedHAL REQUIRED)
+    message (STATUS "Linker script directory: ${linker_scripts_directory}")
+
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/hal")
 
     project(MsBoot CXX C ASM)
 

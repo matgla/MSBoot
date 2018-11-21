@@ -12,11 +12,11 @@ add_executable(msboot ${sources})
 target_link_libraries(msboot PUBLIC hal eul)
 
 if (${arch} STREQUAL "ARM")
+    message (STATUS "Configure specific ARM properties")
     set_target_properties(msboot PROPERTIES LINK_DEPENDS ${linker_script})
 
-    message("${CMAKE_MODULE_PATH}")
     include(GenerateBinary)
-    generate_binary(msboot)
+    generate_binary(msboot ${vendor})
 else ()
 endif ()
 
