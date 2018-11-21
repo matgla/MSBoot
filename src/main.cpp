@@ -22,7 +22,8 @@ int main()
     pin.init(hal::gpio::Speed::Low,
              hal::gpio::Output::OutputPushPull);
     //pin.setHigh();
-    // hal::usart::USART1::init();
+    // hal::usart::USART1::init(9600);
+    // hal::usart::USART1::write("aaa");
     // eul::Logger<hal::usart::USART1> logger("main");
     while (true)
     {

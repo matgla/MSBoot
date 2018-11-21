@@ -12,28 +12,11 @@ add_executable(msboot ${sources})
 target_link_libraries(msboot PUBLIC hal eul)
 
 if (${arch} STREQUAL "ARM")
-
-    target_compile_options(msboot PRIVATE
-        -fno-builtin
-        -fdata-sections
-        -fdata-sections
-        -ffunction-sections
-        $<$<COMPILE_LANGUAGE:C>:-std=gnu99 -Wno-implicit-function-declaration>
-        $<$<COMPILE_LANGUAGE:CXX>:-std=c++1z -fno-rtti -fno-use-cxa-atexit -fno-exceptions -fconcepts -fno-threadsafe-statics>
-        $<$<CONFIG:DEBUG>:-Og -g>
-        $<$<CONFIG:RELEASE>:-Os>
-    )
-
     set_target_properties(msboot PROPERTIES LINK_DEPENDS ${linker_script})
 
-    include(../cmake/GenerateBinary.cmake)
+    message("${CMAKE_MODULE_PATH}")
+    include(GenerateBinary)
     generate_binary(msboot)
 else ()
-    target_compile_options(msboot PRIVATE
-        $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
-        $<$<COMPILE_LANGUAGE:CXX>:-std=c++1z -fconcepts -Wall -Werror>
-        $<$<CONFIG:DEBUG>:-Og -g>
-        $<$<CONFIG:RELEASE>:-Os>
-    )
 endif ()
 
