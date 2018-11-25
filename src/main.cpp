@@ -14,6 +14,12 @@ int main()
     constexpr hal::gpio::PB12 pin;
     constexpr hal::interfaces::Usart1 usart;
     hal::time::Time::init();
+    // Clock clock {
+    //     [](const uint32_t clock)
+    //     {
+    //         hal::interfaces::Usart1::up
+    //     }
+    // }
     // constexpr hal::gpio::PA1 pin2;
     pin.init(hal::gpio::Output::OutputPushPull, hal::gpio::Speed::Low);
     //pin.setHigh();
