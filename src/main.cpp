@@ -4,6 +4,7 @@
 #include <gsl/span>
 
 #include "eul/logger.hpp"
+#include "hal/clock.hpp"
 #include "hal/gpio.hpp"
 #include "hal/time/sleep.hpp"
 #include "hal/time/time.hpp"
@@ -14,12 +15,10 @@ int main()
     constexpr hal::gpio::PB12 pin;
     constexpr hal::interfaces::Usart1 usart;
     hal::time::Time::init();
-    // Clock clock {
-    //     [](const uint32_t clock)
-    //     {
-    //         hal::interfaces::Usart1::up
-    //     }
-    // }
+    hal::clock::Clock clock{
+        [](const uint32_t clock) {
+            hal::interfaces::Usart1::set_baudrate(9600);
+        }};
     // constexpr hal::gpio::PA1 pin2;
     pin.init(hal::gpio::Output::OutputPushPull, hal::gpio::Speed::Low);
     //pin.setHigh();
