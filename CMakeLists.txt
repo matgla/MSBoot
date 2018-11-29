@@ -21,7 +21,10 @@ if (NOT ${BUILD_UT})
 elseif (${BUILD_UT})
     message(STATUS "Build: UT")
 
-    project(MsBoot CXX C ASM)
+    set(BOARD "X86_mock")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/hal")
+
+    project(MsBoot_UTs CXX C ASM)
 
     add_subdirectory(lib)
     add_subdirectory(src)

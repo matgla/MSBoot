@@ -1,15 +1,18 @@
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-set (sources_path "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(sources_path "${PROJECT_SOURCE_DIR}/src")
+set(target_name "msboot")
 
-set (sources
+add_executable(msboot)
+
+target_sources(${target_name} PRIVATE
     ${sources_path}/main.cpp
 )
 
-include_directories(${sources_path})
+add_subdirectory(app)
+add_subdirectory(messages)
 
-add_executable(msboot ${sources})
-target_link_libraries(msboot PUBLIC hal eul)
+target_link_libraries(${target_name} PRIVATE msboot_app)
 
 if (${arch} STREQUAL "ARM")
     message (STATUS "Configure specific ARM properties")
