@@ -1,7 +1,5 @@
 #include "app/app.hpp"
 
-namespace bootloader
-{
 namespace app
 {
 
@@ -11,4 +9,3 @@ int App::run()
 }
 
 } // namespace app
-} // namespace bootloader

@@ -19,9 +19,13 @@ if (NOT ${BUILD_UT})
     add_subdirectory(src)
 
 elseif (${BUILD_UT})
+    set(BUILD_UT OFF)
+
     message(STATUS "Build: UT")
 
-    set(BOARD "X86_mock")
+    set(BOARD "x86_mock")
+    set(CMAKE_CXX_STANDARD 17)
+
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/hal")
 
     project(MsBoot_UTs CXX C ASM)

@@ -7,7 +7,7 @@ add_executable(${binary_name})
 
 target_sources(${binary_name}
     PRIVATE
-        ${ut_source}/empty.cpp
+        ${ut_source}/request/messages/HandshakeTests.cpp
         ${ut_source}/main.cpp
 )
 
@@ -17,10 +17,6 @@ target_include_directories(${binary_name} PRIVATE ${PROJECT_SOURCE_DIR}/test/UT)
 target_include_directories(${binary_name} SYSTEM PRIVATE ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 target_include_directories(${binary_name} SYSTEM PRIVATE ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
-set(CMAKE_CXX_STANDARD 17)
-
-set(testing_libs ${testing_libs} gmock gtest pthread)
-
 target_link_libraries(${binary_name}
     PRIVATE
         ## testing libs
@@ -28,6 +24,7 @@ target_link_libraries(${binary_name}
         gtest
         pthread
 
+        gsl
         ## production
-        msboot_messages
+        msboot_request
 )

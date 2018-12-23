@@ -1,7 +1,5 @@
 #pragma once
 
-namespace bootloader
-{
 namespace app
 {
 
@@ -12,4 +10,3 @@ public:
 };
 
 } // namespace app
-} // namespace bootloader

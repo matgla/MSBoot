@@ -17,4 +17,5 @@ target_include_directories(${library_name} PRIVATE "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(${library_name}
     PUBLIC
         hal
+        msboot_request
 )

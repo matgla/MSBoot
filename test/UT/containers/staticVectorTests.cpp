@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "containers/staticVector.hpp"
+#include "containers/static_vector.hpp"
 
 namespace containers
 {
@@ -11,7 +11,7 @@ constexpr int data3 = 3;
 
 TEST(StaticVectorTests, returnSize)
 {
-    StaticVector<int, 2> vec;
+    static_vector<int, 2> vec;
     EXPECT_EQ(0, vec.size());
     vec.push_back(data1);
     EXPECT_EQ(1, vec.size());
@@ -21,7 +21,7 @@ TEST(StaticVectorTests, returnSize)
 
 TEST(StaticVectorTests, push_back)
 {
-    StaticVector<int, 2> vec;
+    static_vector<int, 2> vec;
 
     EXPECT_EQ(0, vec.size());
 
@@ -32,7 +32,7 @@ TEST(StaticVectorTests, push_back)
 
 TEST(StaticVectorTests, push_back_notOverflow)
 {
-    StaticVector<int, 1> vec;
+    static_vector<int, 1> vec;
 
     EXPECT_EQ(0, vec.size());
 
@@ -47,7 +47,7 @@ TEST(StaticVectorTests, push_back_notOverflow)
 
 TEST(StaticVectorTests, pop_back_whenEmpty)
 {
-    StaticVector<int, 2> vec;
+    static_vector<int, 2> vec;
 
     EXPECT_EQ(0, vec.size());
 
@@ -63,7 +63,7 @@ TEST(StaticVectorTests, pop_back_whenEmpty)
 
 TEST(StaticVectorTests, pop_back_returnElement)
 {
-    StaticVector<int, 2> vec;
+    static_vector<int, 2> vec;
 
     EXPECT_EQ(0, vec.size());
 
@@ -84,7 +84,7 @@ TEST(StaticVectorTests, pop_back_returnElement)
 
 TEST(StaticVectorTests, getLast_returnNullptrWhenEmpty)
 {
-    StaticVector<int, 1> vec;
+    static_vector<int, 1> vec;
 
     EXPECT_EQ(0, vec.size());
     EXPECT_EQ(0, vec.get_last());
@@ -92,7 +92,7 @@ TEST(StaticVectorTests, getLast_returnNullptrWhenEmpty)
 
 TEST(StaticVectorTests, getLast_returnLast)
 {
-    StaticVector<int, 2> vec;
+    static_vector<int, 2> vec;
 
     vec.push_back(data1);
     EXPECT_EQ(data1, vec.get_last());
@@ -103,7 +103,7 @@ TEST(StaticVectorTests, getLast_returnLast)
 
 TEST(StaticVectorTests, getLast_returnLastAfterOverflow)
 {
-    StaticVector<int, 2> vec;
+    static_vector<int, 2> vec;
 
     vec.push_back(data1);
     EXPECT_EQ(data1, vec.get_last());
