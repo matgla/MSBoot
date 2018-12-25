@@ -8,6 +8,7 @@ add_executable(${binary_name})
 target_sources(${binary_name}
     PRIVATE
         ${ut_source}/request/messages/HandshakeTests.cpp
+        ${ut_source}/request/PayloadReceiverTests.cpp
         ${ut_source}/main.cpp
 )
 
@@ -25,6 +26,7 @@ target_link_libraries(${binary_name}
         pthread
 
         gsl
+        eul
         ## production
         msboot_request
 )

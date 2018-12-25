@@ -5,9 +5,6 @@
 [submodule "lib/hal"]
 	path = lib/hal
 	url = git@github.com:matgla/EmbeddedHAL.git
-[submodule "lib/msmp"]
-	path = lib/msmp
-	url = git@github.com:matgla/MSMP.git
-[submodule "lib/crcpp"]
-	path = lib/crcpp
+[submodule "lib/crcpp/crcpp"]
+	path = lib/crcpp/crcpp
 	url = https://github.com/d-bahr/CRCpp

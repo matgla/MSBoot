@@ -1,5 +1,7 @@
-#include "receiver/payload_receiver.hpp"
+#include "request/payload_receiver.hpp"
 
+#include <chrono>
+#include <iostream>
 
 /*
 TX
@@ -8,27 +10,92 @@ TX
 3) MessageType
 a - control, b - data
 4a)
-
-
 */
 
-namespace receiver
+namespace request
 {
 
-PayloadReceiver::PayloadReceiver(const WriterCallback& writer, const TransmitCallback& transmitter)
-    : writer_(writer), transmitter_(transmitter), payload_length_(0), transaction_id_(0), state_(States::Idle)
+using namespace std::chrono_literals;
+
+constexpr auto TransmissionTimeout = 2s;
+
+PayloadReceiver::PayloadReceiver(const WriterCallback& writer, const TransmitCallback& transmitter, hal::time::Time& time, hal::common::timer::TimerManager& timer_manager)
+    : writer_(writer), transmitter_(transmitter), payload_length_(0), transaction_id_(0), state_(States::Idle), receiving_special_character_(false), timer_(time)
 {
+    timer_.setCallback([this]() {
+        state_ = States::Idle;
+        // respondNack();
+    });
+
+    timer_manager.register_timer(timer_);
 }
 
 void PayloadReceiver::receive(const uint8_t byte)
 {
+    if (!receiving_special_character_)
+    {
+        if (receiveControl(static_cast<ControlByte>(byte)) == ProcessingState::Completed)
+        {
+            return;
+        }
+    }
+    else
+    {
+        receiving_special_character_ = false;
+    }
+
+    processState(byte);
+}
+
+PayloadReceiver::ProcessingState PayloadReceiver::receiveControl(const ControlByte byte)
+{
+    if (byte == ControlByte::StartFrame)
+    {
+        state_ = States::StartTransmission;
+        return ProcessingState::NotCompleted;
+    }
+    else if (byte == ControlByte::EscapeCode)
+    {
+        receiving_special_character_ = true;
+        return ProcessingState::Completed;
+    }
+    else if (byte == ControlByte::EndFrame)
+    {
+        state_ = States::TransmissionEnd;
+        return ProcessingState::NotCompleted;
+    }
+    return ProcessingState::NotCompleted;
+}
+
+void receiveLength(const uint8_t byte);
+void receiveMessageType(const uint8_t byte);
+void receivePayload(const uint8_t byte);
+void receiveCrc(const uint8_t byte);
+void receiveControlCallback(const uint8_t byte);
+void verifyPayload();
+
+void PayloadReceiver::respondNack(const NackReason reason) const
+{
+    constexpr uint8_t nack[2] = {
+        static_cast<const uint8_t>(ControlByte::Nack),
+        static_cast<const uint8_t>(NackReason::WrongMessageType)};
+    transmitter_(nack);
+}
+
+void PayloadReceiver::processState(const uint8_t byte)
+{
     switch (state_)
     {
-        case States::Idle:
+        case States::StartTransmission:
         {
             buffer_.flush();
             crc_buffer_.flush();
 
+            state_ = States::ReceivingTransactionId;
+        }
+        break;
+        case States::ReceivingTransactionId:
+        {
             transaction_id_ = byte;
             state_          = States::ReceivingMessageType;
         }
@@ -39,43 +106,49 @@ void PayloadReceiver::receive(const uint8_t byte)
             if (type_ == MessageType::Control)
             {
                 state_ = States::ReceivingControlPayload;
+                return;
             }
-            else if (type_ == MessageType::Data)
+            if (type_ == MessageType::Data)
             {
-                state_ = States::ReceivingPayload;
+                state_ = States::ReceivingLength;
+                return;
             }
             else
             {
-                //report_wrong()
+                respondNack(NackReason::WrongMessageType);
+                state_ = States::Idle;
             }
+        }
+        break;
+        case States::ReceivingLength:
+        {
+            payload_length_ = byte;
+            state_          = States::ReceivingPayload;
         }
         break;
         case States::ReceivingPayload:
         {
-            buffer_.push_back(byte);
-            if (--payload_length_ = 0)
+            if (payload_length_ == 0)
             {
-                state_ = States::ReceivingCrc;
+                state_          = States::ReceivingCrc;
+                payload_length_ = 4;
+                return;
             }
+            buffer_.push_back(byte);
+            --payload_length_;
         }
         break;
         case States::ReceivingCrc:
         {
-            crc_buffer_.push_back(byte);
-            if (crc_buffer_.size() == 4)
+            if (payload_length_ == 0)
             {
+                state_ = States::TransmissionEnd;
+                return;
             }
+            crc_buffer_.push_back(byte);
+            --payload_length_;
         }
-        break;
     }
 }
 
-void receiveLength(const uint8_t byte);
-void receiveMessageType(const uint8_t byte);
-void receivePayload(const uint8_t byte);
-void receiveCrc(const uint8_t byte);
-void receiveControlCallback(const uint8_t byte);
-void verifyPayload();
-
-
-} // namespace receiver
+} // namespace request
