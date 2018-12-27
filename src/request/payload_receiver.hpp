@@ -5,8 +5,8 @@
 
 #include <gsl/span>
 
+#include <eul/container/static_vector.hpp>
 #include <eul/function.hpp>
-#include <eul/static_vector.hpp>
 
 #include <hal/common/timer/timeout_timer.hpp>
 #include <hal/common/timer/timer_manager.hpp>
@@ -20,8 +20,9 @@ constexpr std::size_t BUFFER_SIZE = 255;
 class PayloadReceiver
 {
 public:
-    using WriterCallback   = eul::function<void(const gsl::span<const uint8_t>&), sizeof(void*)>;
-    using TransmitCallback = eul::function<void(const gsl::span<const uint8_t>&), sizeof(void*)>;
+    using StreamType       = gsl::span<const uint8_t>;
+    using WriterCallback   = eul::function<void(const StreamType&), sizeof(void*)>;
+    using TransmitCallback = eul::function<void(const StreamType&), sizeof(void*)>;
     PayloadReceiver(const WriterCallback& writer, const TransmitCallback& transmitter, hal::time::Time& time, hal::common::timer::TimerManager& timer_manager);
 
     void receive(const uint8_t byte);
@@ -76,13 +77,14 @@ private:
     bool verifyPayload();
     void processState(const uint8_t byte);
 
+    void processPayload();
     void respondNack(const NackReason reason) const;
 
     WriterCallback writer_;
     TransmitCallback transmitter_;
 
-    eul::static_vector<uint8_t, BUFFER_SIZE> buffer_;
-    eul::static_vector<uint8_t, 4> crc_buffer_;
+    eul::container::static_vector<uint8_t, BUFFER_SIZE> buffer_;
+    eul::container::static_vector<uint8_t, 4> crc_buffer_;
 
     uint8_t transaction_id_;
     uint8_t payload_length_;

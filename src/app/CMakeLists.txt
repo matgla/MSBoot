@@ -18,4 +18,5 @@ target_link_libraries(${library_name}
     PUBLIC
         hal
         msboot_request
+        crcpp
 )

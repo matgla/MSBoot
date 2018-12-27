@@ -27,6 +27,7 @@ target_link_libraries(${binary_name}
 
         gsl
         eul
+        crcpp
         ## production
         msboot_request
 )

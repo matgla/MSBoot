@@ -89,9 +89,18 @@ TEST_F(PayloadReceiverShould, ReceiveMessage)
         sut.receive(byte);
     }
 
-    // sut.receive();
-    ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(payload_size));
-    EXPECT_THAT(transmitterBuffer.front(), nack);
+    const uint32_t crc = CRC::Calculate(payload, sizeof(payload), CRC::CRC_32());
+    const uint8_t crc0 = (crc & 0xFF000000) >> 24;
+    const uint8_t crc1 = (crc & 0x00FF0000) >> 16;
+    const uint8_t crc2 = (crc & 0x0000FF00) >> 8;
+    const uint8_t crc3 = crc & 0x000000FF;
+
+    sut.receive(crc0);
+    sut.receive(crc1);
+    sut.receive(crc2);
+    sut.receive(crc3);
+    ASSERT_THAT(messageBuffer, ::testing::SizeIs(payload_size));
+    EXPECT_THAT(messageBuffer, ::testing::ElementsAreArray(payload));
 }
 
 } // namespace request

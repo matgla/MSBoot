@@ -21,4 +21,5 @@ target_link_libraries(${library_name}
         gsl
         eul
         hal
+        crcpp
 )

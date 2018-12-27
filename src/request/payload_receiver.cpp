@@ -3,6 +3,8 @@
 #include <chrono>
 #include <iostream>
 
+#include <CRC.h>
+
 /*
 TX
 1) TransactionId
@@ -72,7 +74,27 @@ void receiveMessageType(const uint8_t byte);
 void receivePayload(const uint8_t byte);
 void receiveCrc(const uint8_t byte);
 void receiveControlCallback(const uint8_t byte);
-void verifyPayload();
+
+void PayloadReceiver::processPayload()
+{
+    if (verifyPayload())
+    {
+        StreamType span(buffer_.data(), static_cast<StreamType::index_type>(buffer_.size()));
+        writer_(span);
+    }
+}
+
+
+bool PayloadReceiver::verifyPayload()
+{
+    const uint32_t payload_crc = CRC::Calculate(buffer_.data(), buffer_.size(), CRC::CRC_32());
+
+    uint32_t received_crc = static_cast<uint32_t>(crc_buffer_[0]) << 24;
+    received_crc |= static_cast<uint32_t>(crc_buffer_[1]) << 16;
+    received_crc |= static_cast<uint32_t>(crc_buffer_[2]) << 8;
+    received_crc |= static_cast<uint32_t>(crc_buffer_[3]);
+    return payload_crc == received_crc;
+}
 
 void PayloadReceiver::respondNack(const NackReason reason) const
 {
@@ -128,25 +150,24 @@ void PayloadReceiver::processState(const uint8_t byte)
         break;
         case States::ReceivingPayload:
         {
-            if (payload_length_ == 0)
+            buffer_.push_back(byte);
+
+            if (--payload_length_ == 0)
             {
                 state_          = States::ReceivingCrc;
                 payload_length_ = 4;
-                return;
             }
-            buffer_.push_back(byte);
-            --payload_length_;
         }
         break;
         case States::ReceivingCrc:
         {
-            if (payload_length_ == 0)
+            crc_buffer_.push_back(byte);
+            if (--payload_length_ == 0)
             {
+                processPayload();
                 state_ = States::TransmissionEnd;
                 return;
             }
-            crc_buffer_.push_back(byte);
-            --payload_length_;
         }
     }
 }
