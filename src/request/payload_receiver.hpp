@@ -38,13 +38,19 @@ private:
     {
         StartFrame = 0x7e,
         EndFrame   = 0x55,
-        EscapeCode = 0x7c,
-        Nack       = 0xff
+        EscapeCode = 0x7c
+    };
+
+    enum class ControlMessage : uint8_t
+    {
+        Ack  = 0x01,
+        Nack = 0x02
     };
 
     enum class NackReason : uint8_t
     {
-        WrongMessageType = 0x01
+        WrongMessageType = 0x01,
+        CrcMismatch      = 0x02
     };
 
     enum class States : uint8_t
@@ -79,6 +85,7 @@ private:
 
     void processPayload();
     void respondNack(const NackReason reason) const;
+    void respondAck() const;
 
     WriterCallback writer_;
     TransmitCallback transmitter_;

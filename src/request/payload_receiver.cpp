@@ -81,6 +81,11 @@ void PayloadReceiver::processPayload()
     {
         StreamType span(buffer_.data(), static_cast<StreamType::index_type>(buffer_.size()));
         writer_(span);
+        respondAck();
+    }
+    else
+    {
+        respondNack(NackReason::CrcMismatch);
     }
 }
 
@@ -98,10 +103,20 @@ bool PayloadReceiver::verifyPayload()
 
 void PayloadReceiver::respondNack(const NackReason reason) const
 {
-    constexpr uint8_t nack[2] = {
-        static_cast<const uint8_t>(ControlByte::Nack),
-        static_cast<const uint8_t>(NackReason::WrongMessageType)};
+    const uint8_t nack[] = {
+        static_cast<const uint8_t>(ControlByte::StartFrame),
+        static_cast<const uint8_t>(ControlMessage::Nack),
+        static_cast<const uint8_t>(reason),
+        transaction_id_};
     transmitter_(nack);
+}
+
+void PayloadReceiver::respondAck() const
+{
+    const uint8_t ack[2] = {
+        static_cast<const uint8_t>(ControlByte::Ack),
+        transaction_id_};
+    transmitter_(ack);
 }
 
 void PayloadReceiver::processState(const uint8_t byte)
