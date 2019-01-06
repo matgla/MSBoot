@@ -136,22 +136,22 @@ public:
             case States::TransmissionOngoing:
             {
                 auto& msg = message_buffer_.front();
-                transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
-                transmitter_(msg.message_type);
-                transmitter_(msg.transaction_id);
-                transmitter_((msg.message_id >> 8) & 0xff);
-                transmitter_(msg.message_id & 0xff);
+                send_byte(ControlByte::StartFrame);
+                send_byte(msg.message_type);
+                send_byte(msg.transaction_id);
+                send_byte((msg.message_id >> 8) & 0xff);
+                send_byte(msg.message_id & 0xff);
                 for (auto byte : msg.payload)
                 {
-                    transmitter_(byte);
+                    send_byte(byte);
                 }
 
-                transmitter_((msg.crc >> 24) & 0xff);
-                transmitter_((msg.crc >> 16) & 0xff);
-                transmitter_((msg.crc >> 8) & 0xff);
-                transmitter_(msg.crc & 0xff);
+                send_byte((msg.crc >> 24) & 0xff);
+                send_byte((msg.crc >> 16) & 0xff);
+                send_byte((msg.crc >> 8) & 0xff);
+                send_byte(msg.crc & 0xff);
 
-                transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
+                send_byte(ControlByte::StartFrame);
 
                 state_ = States::WaitingForAck;
                 timer_.start([this]() {
@@ -169,17 +169,36 @@ public:
 
     void sendControl(const StreamType& payload)
     {
-        transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
-        transmitter_(static_cast<uint8_t>(MessageType::Control));
+        send_byte(ControlByte::StartFrame);
+        send_byte(MessageType::Control);
         for (auto byte : payload)
         {
-            transmitter_(byte);
+            send_byte(byte);
         }
-        transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
+        send_byte(ControlByte::StartFrame);
     }
 
 
 protected:
+    void send_byte(const uint8_t byte) const
+    {
+        if (is_control_byte(byte))
+        {
+            transmitter_(static_cast<uint8_t>(ControlByte::EscapeCode));
+        }
+        transmitter_(byte);
+    }
+
+    void send_byte(const ControlByte byte) const
+    {
+        transmitter_(static_cast<uint8_t>(byte));
+    }
+
+    void send_byte(const MessageType byte) const
+    {
+        send_byte(static_cast<uint8_t>(byte));
+    }
+
     using MessageBuffer = eul::container::ring_buffer<Message, NumberOfFrames>;
 
     enum class States : uint8_t

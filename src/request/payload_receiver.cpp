@@ -61,11 +61,6 @@ PayloadReceiver::ProcessingState PayloadReceiver::receiveControl(const ControlBy
         receiving_special_character_ = true;
         return ProcessingState::Completed;
     }
-    else if (byte == ControlByte::EndFrame)
-    {
-        state_ = States::TransmissionEnd;
-        return ProcessingState::NotCompleted;
-    }
     return ProcessingState::NotCompleted;
 }
 

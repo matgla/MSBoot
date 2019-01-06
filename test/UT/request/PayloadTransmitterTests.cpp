@@ -269,4 +269,48 @@ TEST_F(PayloadTransmitterShould, TransmitControlMessage)
                                      }));
 }
 
+TEST_F(PayloadTransmitterShould, StuffSpecialBytes)
+{
+    using PayloadTransmitter = PayloadTransmitter<2>;
+    PayloadTransmitter sut(transmitter_callback_, timer_manager_, time_);
+
+    constexpr uint8_t data[] = {
+        static_cast<uint8_t>(ControlByte::StartFrame),
+        static_cast<uint8_t>(ControlByte::StartFrame),
+        0x7,
+        static_cast<uint8_t>(ControlByte::EscapeCode),
+        static_cast<uint8_t>(ControlByte::EscapeCode)};
+    constexpr uint16_t message_id = static_cast<uint16_t>(ControlByte::StartFrame);
+
+    auto status = sut.send(message_id, data);
+    EXPECT_EQ(status, PayloadTransmitter::TransmissionStatus::Accepted);
+    sut.run();
+
+    constexpr int transaction_id = 1;
+
+    auto crc = serialize(CRC::Calculate(data, sizeof(data), CRC::CRC_32()));
+
+    EXPECT_THAT(transmitter_buffer_, ::testing::ElementsAreArray(
+                                         {static_cast<int>(ControlByte::StartFrame),
+                                          static_cast<int>(MessageType::Data),
+                                          transaction_id,
+                                          static_cast<int>((message_id >> 8) & 0xff),
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          static_cast<int>(message_id & 0xff),
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          static_cast<int>((ControlByte::StartFrame)),
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          static_cast<int>((ControlByte::StartFrame)),
+                                          0x7,
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          static_cast<int>((ControlByte::EscapeCode)),
+                                          crc[0],
+                                          crc[1],
+                                          crc[2],
+                                          crc[3],
+                                          static_cast<int>(ControlByte::StartFrame)}));
+}
+
 } // namespace request
