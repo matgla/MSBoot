@@ -24,14 +24,16 @@ struct Nack
 
     constexpr Nack static deserialize(const gsl::span<uint8_t>& payload)
     {
+        // clang-format off
         return Nack{
             .transaction_id = payload[0],
             .reason         = static_cast<Reason>(payload[1])};
+        // clang-format on
     }
 
-    std::array<uint8_t, 2> serialize() const
+    std::array<uint8_t, 3> serialize() const
     {
-        return {transaction_id, static_cast<uint8_t>(reason)};
+        return {id, transaction_id, static_cast<uint8_t>(reason)};
     }
 
     uint8_t transaction_id;

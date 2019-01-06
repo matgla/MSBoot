@@ -43,8 +43,12 @@ public:
     using StreamType       = gsl::span<const uint8_t>;
     using TransmitCallback = eul::function<void(const uint8_t), sizeof(void*)>;
 
-    PayloadTransmitter(const TransmitCallback& transmitter, hal::common::timer::TimerManager& timer_manager, hal::time::Time& time)
-        : transaction_id_counter_(0), transmitter_(transmitter), state_(States::Idle), timer_(time)
+    PayloadTransmitter(const TransmitCallback& transmitter, hal::common::timer::TimerManager& timer_manager,
+                       hal::time::Time& time)
+        : transaction_id_counter_(0)
+        , transmitter_(transmitter)
+        , state_(States::Idle)
+        , timer_(time)
     {
         timer_manager.register_timer(timer_);
     }
@@ -57,7 +61,8 @@ public:
     };
 
     template <typename CallbackType>
-    TransmissionStatus send(const uint16_t message_id, const StreamType& payload, const CallbackType& callback)
+    TransmissionStatus send(const uint16_t message_id, const StreamType& payload,
+                            const CallbackType& callback)
     {
         if (payload.size() >= 255)
         {
@@ -69,12 +74,11 @@ public:
             return TransmissionStatus::BufferFull;
         }
 
-        Message msg{
-            .transaction_id   = ++transaction_id_counter_,
-            .message_type     = static_cast<uint8_t>(MessageType::Data),
-            .message_id       = message_id,
-            .failure_callback = callback,
-            .crc              = CRC::Calculate(payload.data(), payload.size(), CRC::CRC_32())};
+        Message msg{.transaction_id   = ++transaction_id_counter_,
+                    .message_type     = static_cast<uint8_t>(MessageType::Data),
+                    .message_id       = message_id,
+                    .failure_callback = callback,
+                    .crc              = CRC::Calculate(payload.data(), payload.size(), CRC::CRC_32())};
 
         std::copy(std::begin(payload), std::end(payload), std::back_inserter(msg.payload));
 
@@ -154,9 +158,12 @@ public:
                 send_byte(ControlByte::StartFrame);
 
                 state_ = States::WaitingForAck;
-                timer_.start([this]() {
-                    state_ = States::TransmissionOngoing;
-                    run(); }, std::chrono::seconds(2));
+                timer_.start(
+                    [this]() {
+                        state_ = States::TransmissionOngoing;
+                        run();
+                    },
+                    std::chrono::seconds(2));
             }
             break;
             case States::WaitingForAck:
@@ -167,7 +174,7 @@ public:
         }
     }
 
-    void sendControl(const StreamType& payload)
+    void send_control(const StreamType& payload)
     {
         send_byte(ControlByte::StartFrame);
         send_byte(MessageType::Control);
