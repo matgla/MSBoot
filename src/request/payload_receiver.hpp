@@ -58,21 +58,21 @@ public:
 
     void receive(const uint8_t byte)
     {
-        if (byte == static_cast<uint8_t>(ControlByte::EscapeCode))
+        if (receiving_special_character_ != true)
         {
-            if (receiving_special_character_ == false)
+            if (byte == static_cast<uint8_t>(ControlByte::EscapeCode))
             {
                 receiving_special_character_ = true;
                 return;
             }
-
-            receiving_special_character_ = false;
         }
 
         if (byte == static_cast<uint8_t>(ControlByte::StartFrame) && receiving_special_character_ == false)
         {
             state_ = States::StartTransmission;
         }
+
+        receiving_special_character_ = false;
 
         process_state(byte);
     }

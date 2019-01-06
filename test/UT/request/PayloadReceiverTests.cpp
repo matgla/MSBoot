@@ -106,6 +106,61 @@ TEST_F(PayloadReceiverShould, ReceiveMessage)
                                      }));
 }
 
+TEST_F(PayloadReceiverShould, ReceiveMessageWithStuffedBytes)
+{
+    PayloadReceiver sut(receiver_callback_, transmitter_);
+
+    EXPECT_THAT(transmitter_buffer_, ::testing::IsEmpty());
+
+    constexpr uint8_t transaction_id = static_cast<uint8_t>(ControlByte::EscapeCode);
+    constexpr uint8_t payload[]      = {
+        static_cast<uint8_t>(ControlByte::StartFrame), static_cast<uint8_t>(ControlByte::StartFrame),
+        static_cast<uint8_t>(ControlByte::EscapeCode), static_cast<uint8_t>(ControlByte::EscapeCode),
+        static_cast<uint8_t>(ControlByte::StartFrame),
+
+    };
+    constexpr uint8_t message_id_higher = static_cast<uint8_t>(ControlByte::EscapeCode);
+    constexpr uint8_t message_id_lower  = static_cast<uint8_t>(ControlByte::StartFrame);
+    sut.receive(static_cast<uint8_t>(ControlByte::StartFrame));
+    sut.receive(static_cast<uint8_t>(MessageType::Data));
+
+    sut.receive(static_cast<uint8_t>(ControlByte::EscapeCode));
+    sut.receive(transaction_id);
+    sut.receive(static_cast<uint8_t>(ControlByte::EscapeCode));
+    sut.receive(message_id_higher);
+    sut.receive(static_cast<uint8_t>(ControlByte::EscapeCode));
+    sut.receive(message_id_lower);
+
+    for (auto byte : payload)
+    {
+        sut.receive(static_cast<uint8_t>(ControlByte::EscapeCode));
+        sut.receive(byte);
+    }
+
+    const uint32_t crc = CRC::Calculate(payload, sizeof(payload), CRC::CRC_32());
+    const uint8_t crc0 = (crc & 0xFF000000) >> 24;
+    const uint8_t crc1 = (crc & 0x00FF0000) >> 16;
+    const uint8_t crc2 = (crc & 0x0000FF00) >> 8;
+    const uint8_t crc3 = crc & 0x000000FF;
+
+    sut.receive(crc0);
+    sut.receive(crc1);
+    sut.receive(crc2);
+    sut.receive(crc3);
+    sut.receive(static_cast<uint8_t>(ControlByte::StartFrame));
+
+    EXPECT_THAT(receiver_buffer_, ::testing::ElementsAreArray(payload));
+
+    EXPECT_THAT(transmitter_buffer_, ::testing::ElementsAreArray({
+                                         static_cast<uint8_t>(ControlByte::StartFrame),
+                                         static_cast<uint8_t>(MessageType::Control),
+                                         static_cast<uint8_t>(messages::control::Ack::id),
+                                         static_cast<uint8_t>(ControlByte::EscapeCode),
+                                         transaction_id,
+                                         static_cast<uint8_t>(ControlByte::StartFrame),
+                                     }));
+}
+
 TEST_F(PayloadReceiverShould, ReceiveMessageAfterAbort)
 {
     PayloadReceiver sut(receiver_callback_, transmitter_);
