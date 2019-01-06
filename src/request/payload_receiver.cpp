@@ -85,7 +85,7 @@ void PayloadReceiver::processPayload()
     }
     else
     {
-        respondNack(NackReason::CrcMismatch);
+        respondNack(messages::control::Nack::Reason::CrcMismatch);
     }
 }
 
@@ -101,11 +101,11 @@ bool PayloadReceiver::verifyPayload()
     return payload_crc == received_crc;
 }
 
-void PayloadReceiver::respondNack(const NackReason reason) const
+void PayloadReceiver::respondNack(const messages::control::Nack::Reason reason) const
 {
     const uint8_t nack[] = {
         static_cast<const uint8_t>(ControlByte::StartFrame),
-        static_cast<const uint8_t>(ControlMessage::Nack),
+        // static_cast<const uint8_t>(ControlMessage::Nack),
         static_cast<const uint8_t>(reason),
         transaction_id_};
     transmitter_(nack);
@@ -113,8 +113,9 @@ void PayloadReceiver::respondNack(const NackReason reason) const
 
 void PayloadReceiver::respondAck() const
 {
-    const uint8_t ack[2] = {
-        static_cast<const uint8_t>(ControlByte::Ack),
+    const uint8_t ack[] = {
+        static_cast<const uint8_t>(ControlByte::StartFrame),
+        // static_cast<const uint8_t>(ControlMessage::Ack),
         transaction_id_};
     transmitter_(ack);
 }
@@ -152,7 +153,7 @@ void PayloadReceiver::processState(const uint8_t byte)
             }
             else
             {
-                respondNack(NackReason::WrongMessageType);
+                respondNack(messages::control::Nack::Reason::WrongMessageType);
                 state_ = States::Idle;
             }
         }

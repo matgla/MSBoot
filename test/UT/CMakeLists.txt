@@ -7,9 +7,10 @@ add_executable(${binary_name})
 
 target_sources(${binary_name}
     PRIVATE
+        ${ut_source}/main.cpp
         ${ut_source}/request/messages/HandshakeTests.cpp
         ${ut_source}/request/PayloadReceiverTests.cpp
-        ${ut_source}/main.cpp
+        ${ut_source}/request/PayloadTransmitterTests.cpp
 )
 
 target_include_directories(${binary_name} PRIVATE ${PROJECT_SOURCE_DIR}/src)

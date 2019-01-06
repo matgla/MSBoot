@@ -1,11 +1,24 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
 
 #include <gsl/span>
 
-#include <eul/container/static_vector.hpp>
+#include <CRC.h>
+
+#include <eul/container/ring_buffer.hpp>
 #include <eul/function.hpp>
+
+#include <hal/common/timer/timeout_timer.hpp>
+#include <hal/common/timer/timer_manager.hpp>
+#include <hal/time/time.hpp>
+
+#include "request/control_byte.hpp"
+#include "request/message_type.hpp"
+#include "request/messages/control/ack.hpp"
+#include "request/messages/control/nack.hpp"
 
 namespace request
 {
@@ -15,9 +28,11 @@ constexpr std::size_t max_payload_size = 255;
 struct Message
 {
     uint8_t transaction_id;
-    uint8_t data_type;
-    uint8_t length;
-    uint8_t payload[max_payload_size];
+    uint8_t message_type;
+    uint16_t message_id;
+    eul::container::static_vector<uint8_t, max_payload_size> payload;
+    eul::function<void(const messages::control::Nack& nack), sizeof(std::size_t)> failure_callback;
+    uint32_t crc;
 };
 
 
@@ -26,85 +41,161 @@ class PayloadTransmitter
 {
 public:
     using StreamType       = gsl::span<const uint8_t>;
-    using TransmitCallback = eul::function<void(const StreamType&), sizeof(void*)>;
+    using TransmitCallback = eul::function<void(const uint8_t), sizeof(void*)>;
 
-    PayloadTransmitter(const TransmitCallback& transmitter)
-        : transaction_id_counter_(0), transmitter_(transmitter), state_(States::Idle)
+    PayloadTransmitter(const TransmitCallback& transmitter, hal::common::timer::TimerManager& timer_manager, hal::time::Time& time)
+        : transaction_id_counter_(0), transmitter_(transmitter), state_(States::Idle), timer_(time)
     {
+        timer_manager.register_timer(timer_);
     }
 
     enum class TransmissionStatus : uint8_t
     {
         Accepted,
         TooBigPayload,
-        BufferFull,
-        DataBufferFull
+        BufferFull
     };
 
-    TransmissionStatus send(const StreamType& payload)
+    template <typename CallbackType>
+    TransmissionStatus send(const uint16_t message_id, const StreamType& payload, const CallbackType& callback)
     {
         if (payload.size() >= 255)
         {
             return TransmissionStatus::TooBigPayload;
         }
 
-        if (message_buffer_.size() == message_buffer_.max_size())
+        if (message_buffer_.full())
         {
             return TransmissionStatus::BufferFull;
         }
 
         Message msg{
-            .transaction_id = ++transaction_id_counter_,
-            .data_type      = 0x02,
-            .length         = payload.size()};
+            .transaction_id   = ++transaction_id_counter_,
+            .message_type     = static_cast<uint8_t>(MessageType::Data),
+            .message_id       = message_id,
+            .failure_callback = callback,
+            .crc              = CRC::Calculate(payload.data(), payload.size(), CRC::CRC_32())};
 
-        std::copy(msg.payload, payload);
+        std::copy(std::begin(payload), std::end(payload), std::back_inserter(msg.payload));
 
-        message_buffer_.push_back(msg);
+        message_buffer_.push(msg);
 
         return TransmissionStatus::Accepted;
+    }
+
+    TransmissionStatus send(const uint16_t message_id, const StreamType& payload)
+    {
+        return send(message_id, payload, [](const messages::control::Nack& nack) {});
+    }
+
+    void process_response(const messages::control::Ack& ack)
+    {
+        if (state_ == States::WaitingForAck)
+        {
+            if (ack.transaction_id != message_buffer_.front().transaction_id)
+            {
+                return;
+            }
+            timer_.stop();
+            message_buffer_.pop();
+            state_ = States::Idle;
+            run();
+        }
+    }
+
+    void process_response(const messages::control::Nack& nack)
+    {
+        if (state_ == States::WaitingForAck)
+        {
+            if (nack.transaction_id != message_buffer_.front().transaction_id)
+            {
+                return;
+            }
+
+            timer_.stop();
+            message_buffer_.front().failure_callback(nack);
+            message_buffer_.pop();
+            state_ = States::Idle;
+            run();
+        }
     }
 
     void run()
     {
         switch (state_)
         {
+            case States::Idle:
+            {
+                if (message_buffer_.size())
+                {
+                    state_ = States::TransmissionOngoing;
+                    run();
+                }
+            }
+            break;
             case States::TransmissionOngoing:
             {
+                auto& msg = message_buffer_.front();
+                transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
+                transmitter_(msg.message_type);
+                transmitter_(msg.transaction_id);
+                transmitter_((msg.message_id >> 8) & 0xff);
+                transmitter_(msg.message_id & 0xff);
+                for (auto byte : msg.payload)
+                {
+                    transmitter_(byte);
+                }
+
+                transmitter_((msg.crc >> 24) & 0xff);
+                transmitter_((msg.crc >> 16) & 0xff);
+                transmitter_((msg.crc >> 8) & 0xff);
+                transmitter_(msg.crc & 0xff);
+
+                transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
+
+                state_ = States::WaitingForAck;
+                timer_.start([this]() {
+                    state_ = States::TransmissionOngoing;
+                    run(); }, std::chrono::seconds(2));
             }
             break;
-            case States::Transmitted:
+            case States::WaitingForAck:
             {
+                return;
             }
             break;
-        }
-        while (message_buffer_.size())
-        {
-            transmitter_(message_buffer_.pop_back());
         }
     }
 
     void sendControl(const StreamType& payload)
     {
+        transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
+        transmitter_(static_cast<uint8_t>(MessageType::Control));
+        for (auto byte : payload)
+        {
+            transmitter_(byte);
+        }
+        transmitter_(static_cast<uint8_t>(ControlByte::StartFrame));
     }
 
 
 protected:
-    using MessageBuffer = eul::container::static_vector<Message, NumberOfFrames>;
+    using MessageBuffer = eul::container::ring_buffer<Message, NumberOfFrames>;
 
     enum class States : uint8_t
     {
         TransmissionOngoing,
-        Transmitted,
+        WaitingForAck,
         Idle
-    }
+    };
 
     uint8_t transaction_id_counter_;
 
     TransmitCallback transmitter_;
-    States state_;
     MessageBuffer message_buffer_;
-    DataBuffer data_buffer_;
+
+    States state_;
+    hal::common::timer::TimeoutTimer<hal::time::Time> timer_;
 };
 
 } // namespace request

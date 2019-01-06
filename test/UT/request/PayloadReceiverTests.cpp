@@ -1,223 +1,223 @@
-#include <chrono>
-#include <vector>
+// #include <chrono>
+// #include <vector>
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+// #include <gmock/gmock.h>
+// #include <gtest/gtest.h>
 
-#include <gsl/span>
+// #include <gsl/span>
 
-#include <hal/common/timer/timer_manager.hpp>
-#include <hal/time/time.hpp>
+// #include <hal/common/timer/timer_manager.hpp>
+// #include <hal/time/time.hpp>
 
-#include <CRC.h>
+// #include <CRC.h>
 
-#include "request/payload_receiver.hpp"
+// #include "request/payload_receiver.hpp"
 
-namespace request
-{
+// namespace request
+// {
 
-using namespace std::chrono_literals;
+// using namespace std::chrono_literals;
 
-constexpr auto transmission_timeout = 2s;
+// constexpr auto transmission_timeout = 2s;
 
-constexpr uint8_t start_frame             = 0x7e;
-constexpr uint8_t nack                    = 0xff;
-constexpr uint8_t nack_wrong_message_type = 0x01;
-constexpr uint8_t nack_crc_mismatch       = 0x02;
-constexpr uint8_t ack                     = 0x77;
+// constexpr uint8_t start_frame             = 0x7e;
+// constexpr uint8_t nack                    = 0xff;
+// constexpr uint8_t nack_wrong_message_type = 0x01;
+// constexpr uint8_t nack_crc_mismatch       = 0x02;
+// constexpr uint8_t ack                     = 0x77;
 
-class PayloadReceiverShould : public ::testing::Test
-{
-};
+// class PayloadReceiverShould : public ::testing::Test
+// {
+// };
 
-TEST_F(PayloadReceiverShould, NackWhenWrongMessageTypeReceived)
-{
-    hal::time::Time time;
-    hal::common::timer::TimerManager timer_manager;
+// TEST_F(PayloadReceiverShould, NackWhenWrongMessageTypeReceived)
+// {
+//     hal::time::Time time;
+//     hal::common::timer::TimerManager timer_manager;
 
-    std::vector<uint8_t> transmitterBuffer;
-    const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
-        transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
-    };
+//     std::vector<uint8_t> transmitterBuffer;
+//     const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
+//         transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
+//     };
 
-    const auto writerCallback = [](const gsl::span<const uint8_t>&) {};
+//     const auto writerCallback = [](const gsl::span<const uint8_t>&) {};
 
-    PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
+//     PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
 
-    EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
-    sut.receive(start_frame);
-    time += 1500ms;
-    timer_manager.run();
-    const uint8_t transaction_id = 1;
-    sut.receive(transaction_id);
-    constexpr uint8_t wrong_message_type = 0x99;
-    sut.receive(wrong_message_type);
-    ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(3));
-    EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({nack, nack_wrong_message_type, transaction_id}));
-}
+//     EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
+//     sut.receive(start_frame);
+//     time += 1500ms;
+//     timer_manager.run();
+//     const uint8_t transaction_id = 1;
+//     sut.receive(transaction_id);
+//     constexpr uint8_t wrong_message_type = 0x99;
+//     sut.receive(wrong_message_type);
+//     ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(3));
+//     EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({nack, nack_wrong_message_type, transaction_id}));
+// }
 
-TEST_F(PayloadReceiverShould, ReceiveMessage)
-{
-    hal::time::Time time;
-    hal::common::timer::TimerManager timer_manager;
+// TEST_F(PayloadReceiverShould, ReceiveMessage)
+// {
+//     hal::time::Time time;
+//     hal::common::timer::TimerManager timer_manager;
 
-    std::vector<uint8_t> transmitterBuffer;
-    std::vector<uint8_t> messageBuffer;
-    const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
-        transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
-    };
+//     std::vector<uint8_t> transmitterBuffer;
+//     std::vector<uint8_t> messageBuffer;
+//     const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
+//         transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
+//     };
 
-    const auto writerCallback = [&messageBuffer](const gsl::span<const uint8_t>& data) {
-        messageBuffer.clear();
-        messageBuffer.insert(messageBuffer.begin(), data.begin(), data.end());
-    };
+//     const auto writerCallback = [&messageBuffer](const gsl::span<const uint8_t>& data) {
+//         messageBuffer.clear();
+//         messageBuffer.insert(messageBuffer.begin(), data.begin(), data.end());
+//     };
 
-    PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
+//     PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
 
-    EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
+//     EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
 
-    constexpr uint8_t transaction_id    = 1;
-    constexpr uint8_t data_message_type = 2;
-    constexpr uint8_t payload[]         = {'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e'};
-    constexpr uint8_t payload_size      = sizeof(payload);
+//     constexpr uint8_t transaction_id    = 1;
+//     constexpr uint8_t data_message_type = 2;
+//     constexpr uint8_t payload[]         = {'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e'};
+//     constexpr uint8_t payload_size      = sizeof(payload);
 
-    sut.receive(start_frame);
-    sut.receive(transaction_id);
-    sut.receive(data_message_type);
-    sut.receive(payload_size);
+//     sut.receive(start_frame);
+//     sut.receive(transaction_id);
+//     sut.receive(data_message_type);
+//     sut.receive(payload_size);
 
-    for (auto byte : payload)
-    {
-        sut.receive(byte);
-    }
+//     for (auto byte : payload)
+//     {
+//         sut.receive(byte);
+//     }
 
-    const uint32_t crc = CRC::Calculate(payload, sizeof(payload), CRC::CRC_32());
-    const uint8_t crc0 = (crc & 0xFF000000) >> 24;
-    const uint8_t crc1 = (crc & 0x00FF0000) >> 16;
-    const uint8_t crc2 = (crc & 0x0000FF00) >> 8;
-    const uint8_t crc3 = crc & 0x000000FF;
+//     const uint32_t crc = CRC::Calculate(payload, sizeof(payload), CRC::CRC_32());
+//     const uint8_t crc0 = (crc & 0xFF000000) >> 24;
+//     const uint8_t crc1 = (crc & 0x00FF0000) >> 16;
+//     const uint8_t crc2 = (crc & 0x0000FF00) >> 8;
+//     const uint8_t crc3 = crc & 0x000000FF;
 
-    sut.receive(crc0);
-    sut.receive(crc1);
-    sut.receive(crc2);
-    sut.receive(crc3);
-    ASSERT_THAT(messageBuffer, ::testing::SizeIs(payload_size));
-    EXPECT_THAT(messageBuffer, ::testing::ElementsAreArray(payload));
+//     sut.receive(crc0);
+//     sut.receive(crc1);
+//     sut.receive(crc2);
+//     sut.receive(crc3);
+//     ASSERT_THAT(messageBuffer, ::testing::SizeIs(payload_size));
+//     EXPECT_THAT(messageBuffer, ::testing::ElementsAreArray(payload));
 
-    ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(2));
-    EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({ack, transaction_id}));
-}
+//     ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(2));
+//     EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({ack, transaction_id}));
+// }
 
-TEST_F(PayloadReceiverShould, ReceiveMessageAfterAbort)
-{
-    hal::time::Time time;
-    hal::common::timer::TimerManager timer_manager;
+// TEST_F(PayloadReceiverShould, ReceiveMessageAfterAbort)
+// {
+//     hal::time::Time time;
+//     hal::common::timer::TimerManager timer_manager;
 
-    std::vector<uint8_t> transmitterBuffer;
-    std::vector<uint8_t> messageBuffer;
-    const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
-        transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
-    };
+//     std::vector<uint8_t> transmitterBuffer;
+//     std::vector<uint8_t> messageBuffer;
+//     const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
+//         transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
+//     };
 
-    const auto writerCallback = [&messageBuffer](const gsl::span<const uint8_t>& data) {
-        messageBuffer.clear();
-        messageBuffer.insert(messageBuffer.begin(), data.begin(), data.end());
-    };
+//     const auto writerCallback = [&messageBuffer](const gsl::span<const uint8_t>& data) {
+//         messageBuffer.clear();
+//         messageBuffer.insert(messageBuffer.begin(), data.begin(), data.end());
+//     };
 
-    PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
+//     PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
 
-    EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
+//     EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
 
-    constexpr uint8_t transaction_id    = 1;
-    constexpr uint8_t data_message_type = 2;
-    constexpr uint8_t payload[]         = {'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e'};
-    constexpr uint8_t payload_size      = sizeof(payload);
+//     constexpr uint8_t transaction_id    = 1;
+//     constexpr uint8_t data_message_type = 2;
+//     constexpr uint8_t payload[]         = {'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e'};
+//     constexpr uint8_t payload_size      = sizeof(payload);
 
-    sut.receive(start_frame);
-    sut.receive(transaction_id);
-    sut.receive(data_message_type);
-    sut.receive(payload_size);
+//     sut.receive(start_frame);
+//     sut.receive(transaction_id);
+//     sut.receive(data_message_type);
+//     sut.receive(payload_size);
 
-    for (int i = 0; i < payload_size / 2; ++i)
-    {
-        sut.receive(payload[i]);
-    }
+//     for (int i = 0; i < payload_size / 2; ++i)
+//     {
+//         sut.receive(payload[i]);
+//     }
 
-    sut.receive(start_frame);
-    sut.receive(transaction_id);
-    sut.receive(data_message_type);
-    sut.receive(payload_size);
+//     sut.receive(start_frame);
+//     sut.receive(transaction_id);
+//     sut.receive(data_message_type);
+//     sut.receive(payload_size);
 
-    for (auto byte : payload)
-    {
-        sut.receive(byte);
-    }
+//     for (auto byte : payload)
+//     {
+//         sut.receive(byte);
+//     }
 
-    const uint32_t crc = CRC::Calculate(payload, sizeof(payload), CRC::CRC_32());
-    const uint8_t crc0 = (crc & 0xFF000000) >> 24;
-    const uint8_t crc1 = (crc & 0x00FF0000) >> 16;
-    const uint8_t crc2 = (crc & 0x0000FF00) >> 8;
-    const uint8_t crc3 = crc & 0x000000FF;
+//     const uint32_t crc = CRC::Calculate(payload, sizeof(payload), CRC::CRC_32());
+//     const uint8_t crc0 = (crc & 0xFF000000) >> 24;
+//     const uint8_t crc1 = (crc & 0x00FF0000) >> 16;
+//     const uint8_t crc2 = (crc & 0x0000FF00) >> 8;
+//     const uint8_t crc3 = crc & 0x000000FF;
 
-    sut.receive(crc0);
-    sut.receive(crc1);
-    sut.receive(crc2);
-    sut.receive(crc3);
-    ASSERT_THAT(messageBuffer, ::testing::SizeIs(payload_size));
-    EXPECT_THAT(messageBuffer, ::testing::ElementsAreArray(payload));
+//     sut.receive(crc0);
+//     sut.receive(crc1);
+//     sut.receive(crc2);
+//     sut.receive(crc3);
+//     ASSERT_THAT(messageBuffer, ::testing::SizeIs(payload_size));
+//     EXPECT_THAT(messageBuffer, ::testing::ElementsAreArray(payload));
 
-    ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(2));
-    EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({ack, transaction_id}));
-}
+//     ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(2));
+//     EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({ack, transaction_id}));
+// }
 
-TEST_F(PayloadReceiverShould, RespondNackWithCrcMismatch)
-{
-    hal::time::Time time;
-    hal::common::timer::TimerManager timer_manager;
+// TEST_F(PayloadReceiverShould, RespondNackWithCrcMismatch)
+// {
+//     hal::time::Time time;
+//     hal::common::timer::TimerManager timer_manager;
 
-    std::vector<uint8_t> transmitterBuffer;
-    std::vector<uint8_t> messageBuffer;
-    const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
-        transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
-    };
+//     std::vector<uint8_t> transmitterBuffer;
+//     std::vector<uint8_t> messageBuffer;
+//     const auto transmitterCallback = [&transmitterBuffer](const gsl::span<const uint8_t>& data) {
+//         transmitterBuffer.insert(transmitterBuffer.end(), data.begin(), data.end());
+//     };
 
-    const auto writerCallback = [&messageBuffer](const gsl::span<const uint8_t>& data) {
-        messageBuffer.clear();
-        messageBuffer.insert(messageBuffer.begin(), data.begin(), data.end());
-    };
+//     const auto writerCallback = [&messageBuffer](const gsl::span<const uint8_t>& data) {
+//         messageBuffer.clear();
+//         messageBuffer.insert(messageBuffer.begin(), data.begin(), data.end());
+//     };
 
-    PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
+//     PayloadReceiver sut(writerCallback, transmitterCallback, time, timer_manager);
 
-    EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
+//     EXPECT_THAT(transmitterBuffer, ::testing::SizeIs(0));
 
-    constexpr uint8_t transaction_id    = 1;
-    constexpr uint8_t data_message_type = 2;
-    constexpr uint8_t payload[]         = {'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e'};
-    constexpr uint8_t payload_size      = sizeof(payload);
+//     constexpr uint8_t transaction_id    = 1;
+//     constexpr uint8_t data_message_type = 2;
+//     constexpr uint8_t payload[]         = {'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e'};
+//     constexpr uint8_t payload_size      = sizeof(payload);
 
-    sut.receive(start_frame);
-    sut.receive(transaction_id);
-    sut.receive(data_message_type);
-    sut.receive(payload_size);
+//     sut.receive(start_frame);
+//     sut.receive(transaction_id);
+//     sut.receive(data_message_type);
+//     sut.receive(payload_size);
 
-    for (auto byte : payload)
-    {
-        sut.receive(byte);
-    }
+//     for (auto byte : payload)
+//     {
+//         sut.receive(byte);
+//     }
 
-    const uint8_t crc0 = 0xba;
-    const uint8_t crc1 = 0xd0;
-    const uint8_t crc2 = 0xcc;
-    const uint8_t crc3 = 0;
+//     const uint8_t crc0 = 0xba;
+//     const uint8_t crc1 = 0xd0;
+//     const uint8_t crc2 = 0xcc;
+//     const uint8_t crc3 = 0;
 
-    sut.receive(crc0);
-    sut.receive(crc1);
-    sut.receive(crc2);
-    sut.receive(crc3);
-    ASSERT_THAT(messageBuffer, ::testing::SizeIs(0));
+//     sut.receive(crc0);
+//     sut.receive(crc1);
+//     sut.receive(crc2);
+//     sut.receive(crc3);
+//     ASSERT_THAT(messageBuffer, ::testing::SizeIs(0));
 
-    ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(3));
-    EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({nack, nack_crc_mismatch, transaction_id}));
-}
+//     ASSERT_THAT(transmitterBuffer, ::testing::SizeIs(3));
+//     EXPECT_THAT(transmitterBuffer, ::testing::ElementsAreArray({nack, nack_crc_mismatch, transaction_id}));
+// }
 
-} // namespace request
+// } // namespace request

@@ -12,6 +12,10 @@
 #include <hal/common/timer/timer_manager.hpp>
 #include <hal/time/time.hpp>
 
+#include "request/control_byte.hpp"
+#include "request/message_type.hpp"
+#include "request/messages/control/nack.hpp"
+
 namespace request
 {
 
@@ -34,25 +38,6 @@ private:
         NotCompleted
     };
 
-    enum class ControlByte : uint8_t
-    {
-        StartFrame = 0x7e,
-        EndFrame   = 0x55,
-        EscapeCode = 0x7c
-    };
-
-    enum class ControlMessage : uint8_t
-    {
-        Ack  = 0x01,
-        Nack = 0x02
-    };
-
-    enum class NackReason : uint8_t
-    {
-        WrongMessageType = 0x01,
-        CrcMismatch      = 0x02
-    };
-
     enum class States : uint8_t
     {
         Idle,
@@ -67,12 +52,6 @@ private:
         TransmissionEnd
     };
 
-    enum class MessageType : uint8_t
-    {
-        Control = 1,
-        Data    = 2
-    };
-
     ProcessingState receiveControl(const ControlByte byte);
 
     void receiveLength(const uint8_t byte);
@@ -84,7 +63,7 @@ private:
     void processState(const uint8_t byte);
 
     void processPayload();
-    void respondNack(const NackReason reason) const;
+    void respondNack(const messages::control::Nack::Reason reason) const;
     void respondAck() const;
 
     WriterCallback writer_;
