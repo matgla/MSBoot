@@ -9,3 +9,6 @@
 [submodule "lib/crcpp/crcpp"]
 	path = lib/crcpp/crcpp
 	url = https://github.com/d-bahr/CRCpp
+[submodule "lib/msmp/msmp"]
+	path = lib/msmp/msmp
+	url = https://github.com/matgla/MSMP.git

@@ -1,15 +1,43 @@
-#include "app/app.hpp"
+#include "core/kernel.hpp"
 
-#include <hal/common/timer/timeout_timer.hpp>
-#include <hal/common/timer/timer_manager.hpp>
-#include <hal/time/time.hpp>
+#include <iostream>
+
+class PrintingModule : public msboot::core::ModuleBase
+{
+public:
+    PrintingModule() : ModuleBase("PrintingModule")
+    {
+
+    }
+
+    ~PrintingModule()
+    {
+        on_stop();
+    }
+
+    void on_load() override
+    {
+        std::cerr << "on loaded" << std::endl;
+    }
+
+    void on_start() override
+    {
+        std::cerr << "starting" << std::endl;
+    }
+
+    void on_stop() override
+    {
+        std::cerr << "stopping" << std::endl;
+    }
+};
 
 int main()
 {
-    hal::common::timer::TimerManager timer_manager;
-    hal::time::Time time_provider;
-    hal::common::timer::TimeoutTimer timeout_timer(time_provider);
-    timer_manager.register_timer(timeout_timer);
-    app::App app;
-    return app.run();
+    msboot::core::Kernel kernel;
+    {
+        PrintingModule printer;
+        kernel.register_module(printer);
+        kernel.start();
+    }
+
 }

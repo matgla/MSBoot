@@ -13,7 +13,7 @@ target_sources(${target_name} PRIVATE
 )
 
 add_subdirectory(app)
-add_subdirectory(request)
+# add_subdirectory(request)
 
 target_link_libraries(${target_name}
     PRIVATE
