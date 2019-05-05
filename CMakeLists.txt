@@ -5,12 +5,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(unknown "Unknown" CACHE STRING "Unknown Tag" FORCE)
 set(BUILD_UT ${unknown} CACHE STRING "build UT's")
 
-if (NOT ${BUILD_UT})
+if (NOT ${BUILD_TESTS})
     message (STATUS "Build: target")
 
     set(linker_scripts_directory "${CMAKE_CURRENT_SOURCE_DIR}/linker_scripts" CACHE STRING "Path to linker scripts")
     message (STATUS "Linker script directory: ${linker_scripts_directory}")
 
+    unset(BUILD_TESTS CACHE)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/hal")
 
     project(MsBoot CXX C ASM)
@@ -18,7 +19,7 @@ if (NOT ${BUILD_UT})
     add_subdirectory(lib)
     add_subdirectory(src)
 
-elseif (${BUILD_UT})
+elseif (${BUILD_TESTS})
     set(BUILD_UT OFF)
 
     message(STATUS "Build: UT")
