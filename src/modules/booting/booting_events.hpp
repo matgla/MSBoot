@@ -15,6 +15,14 @@ class ClientConnected
 
 };
 
+class BootPrimary
+{};
+
+class BootSecondary
+{
+
+};
+
 struct FlashFirmware
 {
     uint32_t size;

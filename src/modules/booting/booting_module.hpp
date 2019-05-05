@@ -5,6 +5,8 @@
 #include <eul/kernel/event_listener.hpp>
 #include <eul/kernel/module.hpp>
 
+#include <eul/logger/logger.hpp>
+
 #include "modules/booting/booting_events.hpp"
 
 namespace msboot
@@ -19,8 +21,8 @@ class BootingModule
     : public eul::kernel::Module
     , public eul::kernel::EventListener<ClientConnected>
     , public eul::kernel::EventListener<FlashFirmware>
-    , public eul::kernel::EventListener<ReceiveFirmwarePart>
-    , public eul::kernel::EventListener<FinishFirmwareFlashing>
+    , public eul::kernel::EventListener<BootPrimary>
+    , public eul::kernel::EventListener<BootSecondary>
 {
 public:
     void start();
@@ -44,6 +46,9 @@ private:
     void boot_primary();
     void boot_secondary();
 
+    static auto& create_logger();
+
+    eul::logger::logger& logger_;
 };
 
 } // namespace booting

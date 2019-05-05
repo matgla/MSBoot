@@ -13,11 +13,13 @@ target_sources(${target_name} PRIVATE
 )
 
 add_subdirectory(app)
-# add_subdirectory(request)
+add_subdirectory(modules)
 
 target_link_libraries(${target_name}
     PRIVATE
-        msboot_app)
+        msboot_app
+        msboot_modules
+)
 
 if (${arch} STREQUAL "ARM")
     message (STATUS "Configure specific ARM properties:")
