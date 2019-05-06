@@ -4,7 +4,7 @@
 
 [submodule "lib/hal"]
 	path = lib/hal
-	url = git@github.com:matgla/EmbeddedHAL.git
+	url = https://github.com/matgla/EmbeddedHAL.git
 
 [submodule "lib/crcpp/crcpp"]
 	path = lib/crcpp/crcpp
