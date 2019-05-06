@@ -15,3 +15,8 @@ target_link_libraries(${library_name}
     PRIVATE
         eul
 )
+
+target_include_directories(${library_name}
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/src
+)

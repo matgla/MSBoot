@@ -39,7 +39,7 @@ private:
 
     uint32_t get_booting_flags() const;
 
-    eul::logger::Logger
+    eul::logger::logger logger_;
     hal::memory::Eeprom eeprom_;
 };
 

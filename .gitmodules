@@ -1,0 +1,12 @@
+[submodule "lib/msmp"]
+	path = lib/msmp
+	url = https://github.com/matgla/MSMP
+	branch = master
+[submodule "lib/hal"]
+	path = lib/hal
+	url = https://github.com/matgla/EmbeddedHAL
+	branch = master
+[submodule "lib/eul"]
+	path = lib/eul
+	url = https://github.com/matgla/EmbeddedUtilityLibraries
+	branch = master

@@ -7,6 +7,7 @@
 
 #include <eul/logger/logger.hpp>
 
+#include "context/fwd.hpp"
 #include "modules/booting/booting_events.hpp"
 
 namespace msboot
@@ -25,8 +26,13 @@ class BootingModule
     , public eul::kernel::EventListener<BootSecondary>
 {
 public:
+    BootingModule(const context::Context& context);
     void start();
 
+    void handle_event(const ClientConnected& event) override;
+    void handle_event(const FlashFirmware& event) override;
+    void handle_event(const BootPrimary& event) override;
+    void handle_event(const BootSecondary& event) override;
 private:
     enum class State : uint8_t
     {
@@ -46,9 +52,7 @@ private:
     void boot_primary();
     void boot_secondary();
 
-    static auto& create_logger();
-
-    eul::logger::logger& logger_;
+    eul::logger::logger logger_;
 };
 
 } // namespace booting

@@ -7,4 +7,5 @@ add_subdirectory(booting)
 target_link_libraries(${library_name}
     INTERFACE
         msboot_modules_booting
+        msboot_context
 )

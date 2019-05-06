@@ -1,15 +1,14 @@
-set(sources_dir "${PROJECT_SOURCE_DIR}/src/app")
-set(library_name "msboot_app")
+set(library_name "msboot_context")
 
 add_library(${library_name})
 
 target_sources(${library_name}
     PUBLIC
         # HPP
-        ${sources_dir}/app.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/context.hpp
     PRIVATE
         # CPP
-        ${sources_dir}/app.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/context.cpp
 )
 
 target_include_directories(${library_name} PUBLIC "${PROJECT_SOURCE_DIR}/src")
@@ -17,9 +16,7 @@ target_include_directories(${library_name} PUBLIC "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(${library_name}
     PUBLIC
         hal
-        crcpp
 
     PRIVATE
         msboot_core
-        msboot_context
 )

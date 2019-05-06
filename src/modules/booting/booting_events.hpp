@@ -39,7 +39,7 @@ struct ReceiveFirmwarePart
 struct FinishFirmwareFlashing
 {
     uint32_t firmware_crc;
-}
+};
 
 } // namespace booting
 } // namespace modules

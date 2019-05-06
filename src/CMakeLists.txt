@@ -12,6 +12,8 @@ target_sources(${target_name} PRIVATE
     ${sources_path}/main.cpp
 )
 
+add_subdirectory(core)
+add_subdirectory(context)
 add_subdirectory(app)
 add_subdirectory(modules)
 
