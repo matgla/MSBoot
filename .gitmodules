@@ -1,14 +1,19 @@
 [submodule "test/lib/googletest"]
 	path = test/lib/googletest
 	url = https://github.com/google/googletest.git
+	branch = master
 
 [submodule "lib/hal"]
 	path = lib/hal
 	url = https://github.com/matgla/EmbeddedHAL.git
+	branch = master
 
 [submodule "lib/crcpp/crcpp"]
 	path = lib/crcpp/crcpp
 	url = https://github.com/d-bahr/CRCpp
-[submodule "lib/msmp/msmp"]
-	path = lib/msmp/msmp
+	branch = master
+	
+[submodule "lib/msmp"]
+	path = lib/msmp
 	url = https://github.com/matgla/MSMP.git
+	branch = master
