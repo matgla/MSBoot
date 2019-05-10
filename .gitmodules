@@ -6,7 +6,3 @@
 	path = lib/hal
 	url = https://github.com/matgla/EmbeddedHAL
 	branch = master
-[submodule "lib/eul"]
-	path = lib/eul
-	url = https://github.com/matgla/EmbeddedUtilityLibraries
-	branch = master

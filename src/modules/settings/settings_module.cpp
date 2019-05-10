@@ -29,7 +29,6 @@ constexpr std::size_t get_flag_value(const std::size_t flags, const std::size_t 
 SettingsModule::SettingsModule()
     : Module(this)
 {
-
 }
 
 uint32_t SettingsModule::get_settings_crc() const

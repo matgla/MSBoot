@@ -11,4 +11,5 @@ target_sources(${library_name}
 target_link_libraries(${library_name}
     PRIVATE
         hal_memory
+        gsl
 )

@@ -6,6 +6,6 @@ if (NOT TARGET msmp)
     add_subdirectory(msmp)
 endif ()
 
-if (NOT TARGET eul)
+if (NOT TARGET embedded_utility_libraries)
     add_subdirectory(eul)
 endif ()

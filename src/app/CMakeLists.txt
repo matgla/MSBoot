@@ -18,8 +18,10 @@ target_link_libraries(${library_name}
     PUBLIC
         hal
         crcpp
+        eul
 
     PRIVATE
         msboot_core
         msboot_context
+
 )
