@@ -38,6 +38,8 @@ function (fetch_module_with_path module_name module_path)
                 ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
-        add_subdirectory(${module_path})
+        if (NOT ${module_path} STREQUAL "")
+            add_subdirectory(${module_path})
+        endif ()
     endif ()
 endfunction()
