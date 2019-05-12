@@ -13,9 +13,6 @@ endif ()
 include(cmake/GitModules.cmake)
 fetch_module_with_path(lib/hal "" ${CMAKE_CURRENT_SOURCE_DIR})
 
-execute_command("git submodule foreach git checkout master" ${CMAKE_CURRENT_SOURCE_DIR})
-execute_command("git submodule foreach git pull" ${CMAKE_CURRENT_SOURCE_DIR})
-
 if (NOT ${MSBOOT_BUILD_TESTS})
     message (STATUS "Build: target")
 
