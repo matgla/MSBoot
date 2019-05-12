@@ -7,7 +7,6 @@ function (execute_command command_to_execute)
 
     string(REPLACE " " ";" command_to_execute "${command_to_execute}")
 
-    set (command_ git submodule foreach git checkout master)
     execute_process(
         COMMAND
             ${command_to_execute}
@@ -24,7 +23,7 @@ function (execute_command command_to_execute)
     endif ()
 endfunction()
 
-function (fetch_module module_name module_path)
+function (fetch_module_with_path module_name module_path)
     message (STATUS "Update module: ${module_name}")
     find_package(Git QUIET)
     if (NOT GIT_FOUND)
@@ -39,10 +38,10 @@ function (fetch_module module_name module_path)
                 ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
-        if (module_path)
-            add_subdirectory(${module_path})
-        else ()
-            add_subdirectory(${module_name})
-        endif ()
+        add_subdirectory(${module_path})
     endif ()
 endfunction()
+
+function (fetch_module module_name)
+    fetch_module_with_path(${module_name} ${module_name})
+endfunction ()
