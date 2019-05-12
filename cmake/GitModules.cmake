@@ -11,7 +11,7 @@ function (execute_command command_to_execute)
         COMMAND
             ${command_to_execute}
         WORKING_DIRECTORY
-            ${PROJECT_SOURCE_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT_VARIABLE output
         ERROR_VARIABLE error
         RESULT_VARIABLE result
@@ -30,19 +30,14 @@ function (fetch_module_with_path module_name module_path)
         message (FATAL_ERROR "Can't find git")
     endif ()
 
-    message ("SOURCE: ${CMAKE_CURRENT_SOURCE_DIR}")
     if (NOT TARGET ${module_name})
         execute_process(
             COMMAND
                 git submodule update --init -- ${module_name}
             WORKING_DIRECTORY
-                ${PROJECT_SOURCE_DIR}
+                ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
         add_subdirectory(${module_path})
     endif ()
 endfunction()
-
-function (fetch_module module_name)
-    fetch_module_with_path(${module_name} ${CMAKE_CURRENT_SOURCE_DIR}/${module_name})
-endfunction ()
