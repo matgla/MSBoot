@@ -10,6 +10,12 @@ if (BUILD_TESTS)
     unset (BUILD_TESTS CACHE)
 endif ()
 
+include(cmake/GitModules.cmake)
+fetch_module(hal)
+
+execute_command("git submodule foreach git checkout master")
+execute_command("git submodule foreach git pull")
+
 if (NOT ${MSBOOT_BUILD_TESTS})
     message (STATUS "Build: target")
 
