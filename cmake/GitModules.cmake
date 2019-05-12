@@ -39,7 +39,6 @@ function (fetch_module_with_path module_name module_path working_directory)
         )
 
         if (NOT ${module_path} STREQUAL "")
-            message ("Adding!!!!!!!!!!!!!!!!!!!!!!!!")
             add_subdirectory(${module_path})
         endif ()
     endif ()
