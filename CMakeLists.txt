@@ -11,7 +11,7 @@ if (BUILD_TESTS)
 endif ()
 
 include(cmake/GitModules.cmake)
-fetch_module(hal)
+fetch_module(hal lib/hal)
 
 execute_command("git submodule foreach git checkout master")
 execute_command("git submodule foreach git pull")

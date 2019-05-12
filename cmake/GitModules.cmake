@@ -24,7 +24,7 @@ function (execute_command command_to_execute)
     endif ()
 endfunction()
 
-function (fetch_module module_name)
+function (fetch_module module_name module_path)
     message (STATUS "Update module: ${module_name}")
     find_package(Git QUIET)
     if (NOT GIT_FOUND)
@@ -38,6 +38,11 @@ function (fetch_module module_name)
             WORKING_DIRECTORY
                 ${CMAKE_CURRENT_SOURCE_DIR}
         )
-        add_subdirectory(${module_name})
+
+        if (module_path)
+            add_subdirectory(${module_path})
+        else ()
+            add_subdirectory(${module_name})
+        endif ()
     endif ()
 endfunction()
