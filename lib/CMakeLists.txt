@@ -2,10 +2,10 @@ message(STATUS "Adding libraries")
 
 unset(BUILD_TESTS CACHE)
 
-if (NOT TARGET msmp)
-    add_subdirectory(msmp)
-endif ()
+include (../cmake/GitModules.cmake)
 
-if (NOT TARGET embedded_utility_libraries)
-    add_subdirectory(eul)
-endif ()
+fetch_module(hal)
+fetch_module(msmp)
+
+execute_command("git submodule foreach git checkout master")
+execute_command("git submodule foreach git pull")
