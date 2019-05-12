@@ -11,10 +11,10 @@ if (BUILD_TESTS)
 endif ()
 
 include(cmake/GitModules.cmake)
-fetch_module(lib/hal)
+fetch_module_with_path(lib/hal ${CMAKE_CURRENT_SOURCE_DIR}/lib/hal)
 
-execute_command("git submodule foreach git checkout master")
-execute_command("git submodule foreach git pull")
+# execute_command("git submodule foreach git checkout master")
+# execute_command("git submodule foreach git pull")
 
 if (NOT ${MSBOOT_BUILD_TESTS})
     message (STATUS "Build: target")
@@ -25,7 +25,7 @@ if (NOT ${MSBOOT_BUILD_TESTS})
     set(linker_scripts_directory "${CMAKE_CURRENT_SOURCE_DIR}/linker_scripts" CACHE STRING "Path to linker scripts")
     message (STATUS "Linker script directory: ${linker_scripts_directory}")
 
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/hal)
+    # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/hal)
 
     project(MsBoot CXX C ASM)
 
@@ -38,7 +38,7 @@ elseif (${MSBOOT_BUILD_TESTS})
     set(BOARD "x86_mock")
     set(CMAKE_CXX_STANDARD 17)
 
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/hal)
+    # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/hal)
 
     project(MsBoot_UTs CXX C ASM)
 
