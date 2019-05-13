@@ -9,7 +9,13 @@ target_sources(${library_name}
 )
 
 target_link_libraries(${library_name}
-    PRIVATE
-        hal_memory
+    PUBLIC
+        eul
+        hal
         gsl
+)
+
+target_include_directories(${library_name}
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/src
 )

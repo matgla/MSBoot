@@ -1,6 +1,7 @@
 #include "app/app.hpp"
 
 #include "modules/booting/booting_module.hpp"
+#include "modules/settings/settings_module.hpp"
 
 namespace msboot
 {
@@ -14,17 +15,12 @@ App::App()
 
 int App::run()
 {
+    modules::settings::SettingsModule settings_module(context_);
+    kernel_.register_module(settings_module);
+
     modules::booting::BootingModule booting_module(context_);
     kernel_.register_module(booting_module);
 
-    kernel_.post_event(modules::booting::ClientConnected{});
-    kernel_.post_event(modules::booting::BootPrimary{});
-    kernel_.post_event(modules::booting::BootSecondary{});
-    kernel_.post_event(modules::booting::FlashFirmware{});
-
-    auto logger = context_.logger_factory().create("App");
-    logger.info() << 1234 << ", " << 0x1234 << eul::logger::bin << ", 0x" << 0xabcd << ", 0x" << 0x00110100;
-    logger.info() << eul::logger::boolalpha << "1: " << 1 << ", 2: " << 0 << ", 3: " << true << ", 4: " << false << ", 5: " << 2 << ", 6: " << eul::logger::hex << uint32_t(-1);
     return 0;
 }
 

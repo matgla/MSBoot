@@ -7,6 +7,8 @@
 
 #include <hal/memory/eeprom.hpp>
 
+#include "context/fwd.hpp"
+
 namespace msboot
 {
 namespace modules
@@ -16,14 +18,29 @@ namespace settings
 
 struct Settings
 {
+    Settings()
+        : is_booting_primary(0)
+        , is_booting_secondary(0)
+        , is_flashing(1)
+        , primary_firmware_address(0)
+        , primary_firmware_size(0)
+        , primary_firmware_crc(0)
+        , secondary_firmware_address(0)
+        , secondary_firmware_size(0)
+        , secondary_firmware_crc(0)
+    {
+    };
+
     bool is_booting_primary : 1;
     bool is_booting_secondary : 1;
     bool is_flashing : 1, :7;
 
     uint32_t primary_firmware_address;
     uint32_t primary_firmware_size;
+    uint32_t primary_firmware_crc;
     uint32_t secondary_firmware_address;
     uint32_t secondary_firmware_size;
+    uint32_t secondary_firmware_crc;
     uint32_t crc;
 };
 
@@ -31,27 +48,15 @@ class SettingsModule
     : public eul::kernel::Module
 {
 public:
-    SettingsModule();
-
-    std::size_t get_settings_size() const;
-    uint32_t get_settings_crc() const;
-    uint32_t set_settings_crc(uint32_t crc);
-
-    bool is_booting_primary_firmware() const;
-    bool is_booting_secondary_firmware() const;
-    bool is_flashing_flag_set() const;
-    void set_booting_flag();
-
-    uint32_t get_primary_firmware_address() const;
-    uint32_t get_primary_firmware_size() const;
-    uint32_t get_secondary_firmware_address() const;
-    uint32_t get_secondary_firmware_size() const;
-
+    SettingsModule(context::Context& context);
 
 private:
     void read_settings_from_eeprom();
     uint32_t get_booting_flags() const;
     void print_settings() const;
+    uint32_t calculate_crc() const;
+    void save_settings();
+    uint32_t serialize_booting_flags() const;
 
     Settings settings_;
     eul::logger::logger logger_;

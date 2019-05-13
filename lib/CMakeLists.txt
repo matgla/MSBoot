@@ -5,3 +5,4 @@ unset(BUILD_TESTS CACHE)
 include (../cmake/GitModules.cmake)
 
 fetch_module_with_path(lib/msmp ${CMAKE_CURRENT_SOURCE_DIR}/msmp ${PROJECT_SOURCE_DIR})
+fetch_module_with_path(lib/crcpp/crcpp ${PROJECT_SOURCE_DIR}/lib/crcpp ${PROJECT_SOURCE_DIR})

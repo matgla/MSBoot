@@ -6,3 +6,6 @@
 	path = lib/hal
 	url = https://github.com/matgla/EmbeddedHAL
 	branch = master
+[submodule "lib/crcpp/crcpp"]
+	path = lib/crcpp/crcpp
+	url = https://github.com/d-bahr/CRCpp

@@ -1,5 +1,0 @@
-o Channels
-o Settings
-  - Set time
-  - Set sunrise
-  - Set sunset
