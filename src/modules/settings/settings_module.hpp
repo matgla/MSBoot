@@ -50,6 +50,8 @@ class SettingsModule
 public:
     SettingsModule(context::Context& context);
 
+    const Settings& get_settings() const;
+    Settings& get_settings();
 private:
     void read_settings_from_eeprom();
     uint32_t get_booting_flags() const;

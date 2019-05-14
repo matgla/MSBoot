@@ -149,6 +149,16 @@ void SettingsModule::save_settings()
     eeprom_.write_u32(settings_crc_address, settings_.crc);
 }
 
+const Settings& SettingsModule::get_settings() const
+{
+    return settings_;
+}
+
+Settings& SettingsModule::get_settings()
+{
+    return settings_;
+}
+
 } // namespace settings
 } // namespace modules
 } // namespace msboot
