@@ -16,14 +16,14 @@ namespace modules
 {
 namespace booting
 {
-/* Module flashes secondary partition if mcu has enough space for two partitions */
 
+/* module flashes secondary partition if mcu has enough space for two partitions */
 class BootingModule
-    : public eul::kernel::Module
-    , public eul::kernel::EventListener<ClientConnected>
-    , public eul::kernel::EventListener<FlashFirmware>
-    , public eul::kernel::EventListener<BootPrimary>
-    , public eul::kernel::EventListener<BootSecondary>
+    : public eul::kernel::module
+    , public eul::kernel::event_listener<ClientConnected>
+    , public eul::kernel::event_listener<FlashFirmware>
+    , public eul::kernel::event_listener<BootPrimary>
+    , public eul::kernel::event_listener<BootSecondary>
 {
 public:
     BootingModule(const context::Context& context);

@@ -31,7 +31,7 @@ constexpr std::size_t get_flag_value(const std::size_t flags, const std::size_t 
 }
 
 SettingsModule::SettingsModule(context::Context& context)
-    : Module(this)
+    : module(this)
     , logger_(context.logger_factory().create("SettingsModule"))
 {
     read_settings_from_eeprom();
@@ -75,13 +75,13 @@ void SettingsModule::print_settings() const
         << "  is_booting_primary         : " << eul::logger::boolalpha << settings_.is_booting_primary << ",\n"
         << "  is_booting_secondary       : " << settings_.is_booting_secondary << ",\n"
         << "  is_flashing                : " << settings_.is_flashing << ",\n"
-        << "  primary_firmware_address   : " << eul::logger::hex << settings_.primary_firmware_address << ",\n"
-        << "  primary_firmware_size      : " << settings_.primary_firmware_size << ",\n"
-        << "  primary_firmware_crc       : " << settings_.primary_firmware_crc << ",\n"
-        << "  secondary_firmware_address : " << settings_.secondary_firmware_address << ",\n"
-        << "  secondary_firmware_size    : " << settings_.secondary_firmware_size << ",\n"
-        << "  secondary_firmware_crc     : " << settings_.secondary_firmware_crc << ",\n"
-        << "  crc                        : " << settings_.crc << "\n"
+        << "  primary_firmware_address   : 0x" << eul::logger::hex << settings_.primary_firmware_address << ",\n"
+        << "  primary_firmware_size      : 0x" << settings_.primary_firmware_size << ",\n"
+        << "  primary_firmware_crc       : 0x" << settings_.primary_firmware_crc << ",\n"
+        << "  secondary_firmware_address : 0x" << settings_.secondary_firmware_address << ",\n"
+        << "  secondary_firmware_size    : 0x" << settings_.secondary_firmware_size << ",\n"
+        << "  secondary_firmware_crc     : 0x" << settings_.secondary_firmware_crc << ",\n"
+        << "  crc                        : 0x" << settings_.crc << "\n"
         << "}";
 
 }

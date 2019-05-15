@@ -14,6 +14,7 @@ target_link_libraries(${library_name}
     PRIVATE
         eul
         gsl
+        hal
 )
 
 target_include_directories(${library_name}

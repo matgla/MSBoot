@@ -16,7 +16,7 @@ public:
     int run();
 
 private:
-    eul::kernel::Kernel kernel_;
+    eul::kernel::kernel kernel_;
     context::Context context_;
 };
 

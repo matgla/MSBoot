@@ -1,8 +1,12 @@
-#pragma once
-
 #include <cstdint>
 
+#include <eul/kernel/kernel.hpp>
+
+#include <CRC.h>
+
 #include "modules/bootloader/bootloader_module.hpp"
+#include "modules/settings/settings_module.hpp"
+#include "context/context.hpp"
 
 namespace msboot
 {
@@ -11,22 +15,51 @@ namespace modules
 namespace bootloader
 {
 
-class BootloaderModule
+BootloaderModule::BootloaderModule(context::Context& context)
+    : module(this)
+    , state_(States::Initializing)
+    , kernel_(context.kernel())
+    , logger_(context.logger_factory().create("BootloaderModule"))
+    , client_connected_(false)
 {
-public:
-    BootloaderModule(context::Context& context);
 
-private:
-    enum class States : uint8_t
+}
+
+void BootloaderModule::start()
+{
+    if (state_ == States::Initializing)
     {
-        Initializing,
-        WaitingForClient,
-        Flashing,
-        Boot
-    };
+        logger_.info() << "Initializing bootloader";
 
-    States state_;
-};
+        auto& settings = kernel_.get_module<settings::SettingsModule>()->get_settings();
+
+        if (settings.is_flashing)
+        {
+            logger_.info() << "Bootloader mode: flashing";
+
+            if (!client_connected_)
+            {
+                logger_.info() << "Waiting for connection to firmware provider";
+            }
+
+            state_ = States::Flashing;
+            return;
+        }
+
+        if (settings.is_booting_primary)
+        {
+            logger_.info() << "Bootloader mode: booting primary partition";
+
+
+        }
+    }
+}
+
+void BootloaderModule::handle_event(const ClientConnected& client)
+{
+    logger_.info() << "Client connected";
+    client_connected_ = true;
+}
 
 } // namespace bootloader
 } // namespace modules

@@ -1,17 +1,10 @@
 #pragma once
 
 #include <eul/logger/logger_factory.hpp>
+#include <eul/kernel/fwd.hpp>
 
 #include "core/time_provider.hpp"
 #include "core/stdout_stream.hpp"
-
-namespace eul
-{
-namespace kernel
-{
-class Kernel;
-} // namespace kernel
-} // namespace eul
 
 namespace msboot
 {
@@ -21,14 +14,16 @@ namespace context
 class Context
 {
 public:
-    Context(eul::kernel::Kernel& kernel);
+    Context(eul::kernel::kernel& kernel);
 
     const eul::logger::logger_factory& logger_factory() const;
+    eul::kernel::kernel& kernel();
+
 private:
     core::StdoutStream stdout_stream_;
     core::TimeProvider time_;
     eul::logger::logger_factory logger_factory_;
-    eul::kernel::Kernel& kernel_;
+    eul::kernel::kernel& kernel_;
 };
 
 } // namespace context

@@ -8,7 +8,7 @@ namespace msboot
 namespace context
 {
 
-Context::Context(eul::kernel::Kernel& kernel)
+Context::Context(eul::kernel::kernel& kernel)
     : logger_factory_(time_)
     , kernel_(kernel)
 {
@@ -18,6 +18,11 @@ Context::Context(eul::kernel::Kernel& kernel)
 const eul::logger::logger_factory& Context::logger_factory() const
 {
     return logger_factory_;
+}
+
+eul::kernel::kernel& Context::kernel()
+{
+    return kernel_;
 }
 
 

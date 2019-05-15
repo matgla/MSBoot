@@ -45,7 +45,7 @@ struct Settings
 };
 
 class SettingsModule
-    : public eul::kernel::Module
+    : public eul::kernel::module
 {
 public:
     SettingsModule(context::Context& context);

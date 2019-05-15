@@ -1,6 +1,7 @@
 #include "app/app.hpp"
 
 #include "modules/booting/booting_module.hpp"
+#include "modules/bootloader/bootloader_module.hpp"
 #include "modules/settings/settings_module.hpp"
 
 namespace msboot
@@ -20,6 +21,11 @@ int App::run()
 
     modules::booting::BootingModule booting_module(context_);
     kernel_.register_module(booting_module);
+
+    modules::bootloader::BootloaderModule bootloader_module(context_);
+    kernel_.register_module(bootloader_module);
+
+    bootloader_module.start();
 
     return 0;
 }

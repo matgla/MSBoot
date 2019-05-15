@@ -10,7 +10,7 @@ namespace booting
 {
 
 BootingModule::BootingModule(const context::Context& context)
-    : Module(this)
+    : module(this)
     , logger_(context.logger_factory().create("BootingModule"))
 {
     logger_.info() << "Created";
