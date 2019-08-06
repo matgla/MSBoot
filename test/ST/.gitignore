@@ -1,0 +1,14 @@
+.dub
+docs.json
+__dummy.html
+docs/
+msboot_system_tests.so
+msboot_system_tests.dylib
+msboot_system_tests.dll
+msboot_system_tests.a
+msboot_system_tests.lib
+msboot_system_tests-test-*
+*.exe
+*.o
+*.obj
+*.lst

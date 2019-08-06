@@ -1,0 +1,9 @@
+{
+    "name": "msboot_system_tests",
+    "authors": [
+        "stadnik"
+    ],
+    "description": "System tests for MSBoot application",
+    "copyright": "Copyright @ 2019 Mateusz Stadnik",
+    "license": "GPLv3"
+}

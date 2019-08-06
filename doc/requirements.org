@@ -1,0 +1,14 @@
+* Requirements
+** Functional
+    Bootloader should allow to flash firmware via USART
+    Bootloader should allow to boot primary firmware
+    Bootloader should allow to boot secondary firmware
+    Bootloader should take recovery when primary firmware is failing many times in short period
+    Bootloader should validate flashed firmware
+    Bootloader should prepare hardware for execution of firmware in clean environment
+    Bootloader should wait short time for flasher connection
+    Bootloader should be configurable via some memory
+
+** Performance
+    Bootloader must fit in 10KB or less of flash
+    Bootloader can't use dynamic memory

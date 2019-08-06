@@ -1,0 +1,5 @@
+* Organize specification
+** TODO Prepare requirements
+** TODO Prepare acceptance criteria
+** TODO Draw architecture design
+** TODO Plan of detailed design
