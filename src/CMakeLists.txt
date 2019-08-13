@@ -17,10 +17,6 @@ add_subdirectory(context)
 add_subdirectory(app)
 add_subdirectory(modules)
 
-if (NOT TARGET eul)
-    message(FATAL_ERROR "Now rez")
-endif ()
-
 target_link_libraries(${target_name}
     PRIVATE
         msboot_app

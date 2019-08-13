@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
+project(MsBoot CXX C ASM)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 set(unknown "Unknown" CACHE STRING "Unknown Tag" FORCE)
@@ -11,7 +13,7 @@ if (BUILD_TESTS)
 endif ()
 
 include(cmake/GitModules.cmake)
-fetch_module_with_path(lib/hal "" ${CMAKE_CURRENT_SOURCE_DIR})
+fetch_module_via_branch(lib/hal ${PROJECT_SOURCE_DIR}/lib/hal ${CMAKE_CURRENT_SOURCE_DIR} "master")
 
 if (NOT ${MSBOOT_BUILD_TESTS})
     message (STATUS "Build: target")
@@ -22,10 +24,6 @@ if (NOT ${MSBOOT_BUILD_TESTS})
     set(linker_scripts_directory "${CMAKE_CURRENT_SOURCE_DIR}/linker_scripts" CACHE STRING "Path to linker scripts")
     message (STATUS "Linker script directory: ${linker_scripts_directory}")
 
-    add_subdirectory(lib/hal)
-
-    project(MsBoot CXX C ASM)
-
     add_subdirectory(lib)
     add_subdirectory(src)
 
@@ -34,8 +32,6 @@ elseif (${MSBOOT_BUILD_TESTS})
 
     set(BOARD "x86_mock")
     set(CMAKE_CXX_STANDARD 17)
-
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/hal)
 
     project(MsBoot_UTs CXX C ASM)
 
