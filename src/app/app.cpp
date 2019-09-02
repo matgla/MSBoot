@@ -92,6 +92,7 @@ int App::run()
     host.start();
     while (true)
     {
+        sleep(1);
     }
     return 0;
 }
